@@ -1,0 +1,27 @@
+syntax = "proto3";
+package search;
+
+option java_package = "com.tiny.search";
+
+///////////////////////
+//proto for doc sync
+///////////////////////
+
+//message for doc sync request
+message DocSyncReq {
+    string tag = 1;//index tag
+    string docId = 2;//doc id
+    bytes json = 3;//doc json byte
+}
+
+//message for doc sync response
+message DocSyncResp {
+  bool success = 1;
+}
+
+//define service
+service SearchService {
+    //send doc sync
+    rpc DocSync(DocSyncReq) returns (DocSyncResp);
+}
+

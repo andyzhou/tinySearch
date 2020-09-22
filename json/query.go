@@ -1,0 +1,64 @@
+package json
+
+/*
+ * query opt json
+ */
+
+//range value
+type RangeVal struct {
+	From float64 `json:"from"`
+	To float64 `json:"to"`
+}
+
+//filter field
+type FilterField struct {
+	Kind int `json:"kind"`
+	Field string `json:"field"`
+	Val interface{} `json:"val"`
+}
+
+//sort field
+type SortField struct {
+	Field string `json:"field"`
+	Ascending bool `json:"ascending"` //true:asc false:dsc
+}
+
+//json info
+type QueryOptJson struct {
+	Tag string `json:"tag"`
+	Key string `json:"key"`
+	Fields []string `json:"fields"`
+	Filters []*FilterField `json:"filters"`
+	AggField *AggField `json:"aggField"` //only for agg
+	Sort *SortField `json:"sort"`
+	HighLight bool `json:"highLight"`
+	Page int `json:"page"`
+	PageSize int `json:"pageSize"`
+	AggSize int `json:"aggSize"`
+	BaseJson
+}
+
+///////////////////////////
+//construct for QueryOptJson
+//////////////////////////
+
+func NewQueryOptJson() *QueryOptJson {
+	this := &QueryOptJson{
+		Fields: make([]string, 0),
+		Filters: make([]*FilterField, 0),
+		AggField: &AggField{
+			NumericRanges: make([]*RangeVal, 0),
+		},
+	}
+	return this
+}
+
+//encode json data
+func (j *QueryOptJson) Encode() []byte {
+	return j.BaseJson.Encode(j)
+}
+
+//decode json data
+func (j *QueryOptJson) Decode(data []byte) bool {
+	return j.BaseJson.Decode(data, j)
+}
