@@ -17,6 +17,7 @@ type IService interface {
 	GetIndex(tag string) IIndex
 	AddIndex(dir, tag string) bool
 	AddNode(addr string) bool
+	GetManager() IManager
 }
 
 

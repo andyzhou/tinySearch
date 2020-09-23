@@ -80,7 +80,9 @@ func main() {
 }
 
 //doc testing
-func docTesting(service iface.IService)  {
+func docTesting(
+		service iface.IService,
+	)  {
 	var (
 		bRet bool
 	)
@@ -116,7 +118,6 @@ func docTesting(service iface.IService)  {
 	//add doc into batch nodes
 	//bRet = service.DocSync(IndexTag, docId, testDocJson.Encode())
 	//fmt.Println("sync doc result:", bRet)
-	//return
 
 	//remove doc from local
 	//bRet = doc.RemoveDoc(index, docId)

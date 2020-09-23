@@ -96,3 +96,8 @@ func (f *Service) AddNode(
 				) bool {
 	return f.manager.AddNode(addr)
 }
+
+//get manager face
+func (f *Service) GetManager() iface.IManager {
+	return f.manager
+}
