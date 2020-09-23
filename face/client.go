@@ -161,7 +161,9 @@ func (f *Client) runMainProcess() {
 }
 
 //doc sync into rpc server
-func (f *Client) docSyncProcess(req *DocSyncReq) bool {
+func (f *Client) docSyncProcess(
+					req *DocSyncReq,
+				) bool {
 	var (
 		resp *search.DocSyncResp
 		err error
