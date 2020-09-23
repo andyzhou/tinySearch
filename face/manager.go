@@ -43,6 +43,34 @@ func (f *Manager) Quit() {
 	f.clients.Range(sf)
 }
 
+//doc remove from all clients
+func (f *Manager) DocRemove(
+					tag string,
+					docId string,
+				) bool {
+	//basic check
+	if tag == "" || docId == "" {
+		return false
+	}
+
+	if f.clients == nil {
+		return false
+	}
+
+	//do doc sync on all clients
+	sf := func(k, v interface{}) bool {
+		client, ok := v.(*Client)
+		if !ok {
+			return false
+		}
+		client.DocRemove(tag, docId)
+		return true
+	}
+	f.clients.Range(sf)
+
+	return true
+}
+
 //doc sync to all clients
 func (f *Manager) DocSync(
 					tag string,

@@ -21,6 +21,7 @@ type DocSyncReq struct {
 	Tag string
 	DocId string
 	JsonByte []byte
+	IsRemove bool
 }
 
 //face info
@@ -57,6 +58,38 @@ func (f *Client) Quit() {
 }
 
 //call api
+func (f *Client) DocRemove(
+					tag string,
+					docId string,
+				) (bRet bool) {
+	//basic check
+	if tag == "" || docId == "" || f.client == nil {
+		bRet = false
+		return
+	}
+
+	//try catch panic
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("Client::DocRemove panic, err:", err)
+			bRet = false
+			return
+		}
+	}()
+
+	//init request
+	req := DocSyncReq{
+		Tag:tag,
+		DocId:docId,
+		IsRemove:true,
+	}
+
+	//send to chan
+	f.docSyncChan <- req
+	bRet = true
+	return
+}
+
 func (f *Client) DocSync(
 					tag string,
 					docId string,
@@ -129,22 +162,42 @@ func (f *Client) runMainProcess() {
 
 //doc sync into rpc server
 func (f *Client) docSyncProcess(req *DocSyncReq) bool {
+	var (
+		resp *search.DocSyncResp
+		err error
+	)
+
 	if req == nil {
 		return false
 	}
 
-	//init request
-	realReq := &search.DocSyncReq{
-		Tag:req.Tag,
-		DocId:req.DocId,
-		Json:req.JsonByte,
+	if req.IsRemove {
+		//remove doc
+		realReq := &search.DocRemoveReq{
+			Tag:req.Tag,
+			DocId:req.DocId,
+		}
+		//call doc remove api
+		resp, err = (*f.client).DocRemove(
+			context.Background(),
+			realReq,
+		)
+	}else{
+		//add doc
+		//init request
+		realReq := &search.DocSyncReq{
+			Tag:req.Tag,
+			DocId:req.DocId,
+			Json:req.JsonByte,
+		}
+
+		//call doc sync api
+		resp, err = (*f.client).DocSync(
+			context.Background(),
+			realReq,
+		)
 	}
 
-	//call doc sync api
-	resp, err := (*f.client).DocSync(
-		context.Background(),
-		realReq,
-	)
 	if err != nil {
 		log.Println("Client::docSyncProcess failed, err:", err.Error())
 		return false

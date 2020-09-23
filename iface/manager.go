@@ -8,6 +8,9 @@ package iface
 
 type IManager interface {
 	Quit()
+
+	//for doc sync and remove
+	DocRemove(tag, docId string) bool
 	DocSync(tag, docId string, jsonByte []byte) bool
 
 	//for rpc node

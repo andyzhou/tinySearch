@@ -14,6 +14,12 @@ message DocSyncReq {
     bytes json = 3;//doc json byte
 }
 
+//message for doc remove request
+message DocRemoveReq {
+    string tag = 1;//index tag
+    string docId = 2;//doc id
+}
+
 //message for doc sync response
 message DocSyncResp {
   bool success = 1;
@@ -21,7 +27,10 @@ message DocSyncResp {
 
 //define service
 service SearchService {
-    //send doc sync
+    //doc remove
+    rpc DocRemove(DocRemoveReq) returns (DocSyncResp);
+
+    //doc sync
     rpc DocSync(DocSyncReq) returns (DocSyncResp);
 }
 

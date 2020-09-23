@@ -8,6 +8,7 @@ package iface
 
 type IClient interface {
 	Quit()
+	DocRemove(tag, docId string) bool
 	DocSync(tag, docId string, jsonByte []byte) bool
 }
 

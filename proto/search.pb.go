@@ -80,6 +80,54 @@ func (m *DocSyncReq) GetJson() []byte {
 	return nil
 }
 
+//message for doc remove request
+type DocRemoveReq struct {
+	Tag                  string   `protobuf:"bytes,1,opt,name=tag,proto3" json:"tag,omitempty"`
+	DocId                string   `protobuf:"bytes,2,opt,name=docId,proto3" json:"docId,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DocRemoveReq) Reset()         { *m = DocRemoveReq{} }
+func (m *DocRemoveReq) String() string { return proto.CompactTextString(m) }
+func (*DocRemoveReq) ProtoMessage()    {}
+func (*DocRemoveReq) Descriptor() ([]byte, []int) {
+	return fileDescriptor_453745cff914010e, []int{1}
+}
+
+func (m *DocRemoveReq) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DocRemoveReq.Unmarshal(m, b)
+}
+func (m *DocRemoveReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DocRemoveReq.Marshal(b, m, deterministic)
+}
+func (m *DocRemoveReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DocRemoveReq.Merge(m, src)
+}
+func (m *DocRemoveReq) XXX_Size() int {
+	return xxx_messageInfo_DocRemoveReq.Size(m)
+}
+func (m *DocRemoveReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_DocRemoveReq.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DocRemoveReq proto.InternalMessageInfo
+
+func (m *DocRemoveReq) GetTag() string {
+	if m != nil {
+		return m.Tag
+	}
+	return ""
+}
+
+func (m *DocRemoveReq) GetDocId() string {
+	if m != nil {
+		return m.DocId
+	}
+	return ""
+}
+
 //message for doc sync response
 type DocSyncResp struct {
 	Success              bool     `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
@@ -92,7 +140,7 @@ func (m *DocSyncResp) Reset()         { *m = DocSyncResp{} }
 func (m *DocSyncResp) String() string { return proto.CompactTextString(m) }
 func (*DocSyncResp) ProtoMessage()    {}
 func (*DocSyncResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_453745cff914010e, []int{1}
+	return fileDescriptor_453745cff914010e, []int{2}
 }
 
 func (m *DocSyncResp) XXX_Unmarshal(b []byte) error {
@@ -122,25 +170,27 @@ func (m *DocSyncResp) GetSuccess() bool {
 
 func init() {
 	proto.RegisterType((*DocSyncReq)(nil), "search.DocSyncReq")
+	proto.RegisterType((*DocRemoveReq)(nil), "search.DocRemoveReq")
 	proto.RegisterType((*DocSyncResp)(nil), "search.DocSyncResp")
 }
 
 func init() { proto.RegisterFile("search.proto", fileDescriptor_453745cff914010e) }
 
 var fileDescriptor_453745cff914010e = []byte{
-	// 181 bytes of a gzipped FileDescriptorProto
+	// 208 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x29, 0x4e, 0x4d, 0x2c,
 	0x4a, 0xce, 0xd0, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x83, 0xf0, 0x94, 0x3c, 0xb8, 0xb8,
 	0x5c, 0xf2, 0x93, 0x83, 0x2b, 0xf3, 0x92, 0x83, 0x52, 0x0b, 0x85, 0x04, 0xb8, 0x98, 0x4b, 0x12,
 	0xd3, 0x25, 0x18, 0x15, 0x18, 0x35, 0x38, 0x83, 0x40, 0x4c, 0x21, 0x11, 0x2e, 0xd6, 0x94, 0xfc,
 	0x64, 0xcf, 0x14, 0x09, 0x26, 0xb0, 0x18, 0x84, 0x23, 0x24, 0xc4, 0xc5, 0x92, 0x55, 0x9c, 0x9f,
-	0x27, 0xc1, 0xac, 0xc0, 0xa8, 0xc1, 0x13, 0x04, 0x66, 0x2b, 0xa9, 0x73, 0x71, 0xc3, 0x4d, 0x2a,
-	0x2e, 0x10, 0x92, 0xe0, 0x62, 0x2f, 0x2e, 0x4d, 0x4e, 0x4e, 0x2d, 0x2e, 0x06, 0x1b, 0xc7, 0x11,
-	0x04, 0xe3, 0x1a, 0x39, 0x73, 0xf1, 0x06, 0x83, 0x2d, 0x0f, 0x4e, 0x2d, 0x2a, 0xcb, 0x4c, 0x4e,
-	0x15, 0x32, 0xe2, 0x62, 0x87, 0xea, 0x14, 0x12, 0xd2, 0x83, 0xba, 0x12, 0xe1, 0x28, 0x29, 0x61,
-	0x0c, 0xb1, 0xe2, 0x02, 0x27, 0x41, 0x2e, 0xfe, 0xe4, 0xfc, 0x5c, 0xbd, 0x92, 0xcc, 0xbc, 0x4a,
-	0xa8, 0x74, 0x12, 0x1b, 0xd8, 0x67, 0xc6, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0x96, 0x3f, 0x27,
-	0xdc, 0xe9, 0x00, 0x00, 0x00,
+	0x27, 0xc1, 0xac, 0xc0, 0xa8, 0xc1, 0x13, 0x04, 0x66, 0x2b, 0x99, 0x71, 0xf1, 0xb8, 0xe4, 0x27,
+	0x07, 0xa5, 0xe6, 0xe6, 0x97, 0xa5, 0x92, 0x60, 0x96, 0x92, 0x3a, 0x17, 0x37, 0xdc, 0x05, 0xc5,
+	0x05, 0x42, 0x12, 0x5c, 0xec, 0xc5, 0xa5, 0xc9, 0xc9, 0xa9, 0xc5, 0xc5, 0x60, 0xad, 0x1c, 0x41,
+	0x30, 0xae, 0x51, 0x35, 0x17, 0x6f, 0x30, 0xd8, 0xd1, 0xc1, 0xa9, 0x45, 0x65, 0x99, 0xc9, 0xa9,
+	0x42, 0x66, 0x5c, 0x9c, 0x70, 0x1b, 0x85, 0x44, 0xf4, 0xa0, 0xfe, 0x43, 0x76, 0x84, 0x94, 0x30,
+	0x92, 0x28, 0xdc, 0x0a, 0x23, 0x2e, 0x76, 0x28, 0x57, 0x48, 0x08, 0x43, 0x1e, 0xbb, 0x1e, 0x27,
+	0x41, 0x2e, 0xfe, 0xe4, 0xfc, 0x5c, 0xbd, 0x92, 0xcc, 0xbc, 0x4a, 0xa8, 0x74, 0x12, 0x1b, 0x38,
+	0x24, 0x8d, 0x01, 0x01, 0x00, 0x00, 0xff, 0xff, 0x43, 0xd6, 0xde, 0x8d, 0x59, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -155,7 +205,9 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type SearchServiceClient interface {
-	//send doc sync
+	//doc remove
+	DocRemove(ctx context.Context, in *DocRemoveReq, opts ...grpc.CallOption) (*DocSyncResp, error)
+	//doc sync
 	DocSync(ctx context.Context, in *DocSyncReq, opts ...grpc.CallOption) (*DocSyncResp, error)
 }
 
@@ -165,6 +217,15 @@ type searchServiceClient struct {
 
 func NewSearchServiceClient(cc *grpc.ClientConn) SearchServiceClient {
 	return &searchServiceClient{cc}
+}
+
+func (c *searchServiceClient) DocRemove(ctx context.Context, in *DocRemoveReq, opts ...grpc.CallOption) (*DocSyncResp, error) {
+	out := new(DocSyncResp)
+	err := c.cc.Invoke(ctx, "/search.SearchService/DocRemove", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *searchServiceClient) DocSync(ctx context.Context, in *DocSyncReq, opts ...grpc.CallOption) (*DocSyncResp, error) {
@@ -178,7 +239,9 @@ func (c *searchServiceClient) DocSync(ctx context.Context, in *DocSyncReq, opts 
 
 // SearchServiceServer is the server API for SearchService service.
 type SearchServiceServer interface {
-	//send doc sync
+	//doc remove
+	DocRemove(context.Context, *DocRemoveReq) (*DocSyncResp, error)
+	//doc sync
 	DocSync(context.Context, *DocSyncReq) (*DocSyncResp, error)
 }
 
@@ -186,12 +249,33 @@ type SearchServiceServer interface {
 type UnimplementedSearchServiceServer struct {
 }
 
+func (*UnimplementedSearchServiceServer) DocRemove(ctx context.Context, req *DocRemoveReq) (*DocSyncResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DocRemove not implemented")
+}
 func (*UnimplementedSearchServiceServer) DocSync(ctx context.Context, req *DocSyncReq) (*DocSyncResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DocSync not implemented")
 }
 
 func RegisterSearchServiceServer(s *grpc.Server, srv SearchServiceServer) {
 	s.RegisterService(&_SearchService_serviceDesc, srv)
+}
+
+func _SearchService_DocRemove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DocRemoveReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SearchServiceServer).DocRemove(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/search.SearchService/DocRemove",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SearchServiceServer).DocRemove(ctx, req.(*DocRemoveReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _SearchService_DocSync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -216,6 +300,10 @@ var _SearchService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "search.SearchService",
 	HandlerType: (*SearchServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "DocRemove",
+			Handler:    _SearchService_DocRemove_Handler,
+		},
 		{
 			MethodName: "DocSync",
 			Handler:    _SearchService_DocSync_Handler,

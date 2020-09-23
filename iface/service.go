@@ -8,6 +8,7 @@ package iface
 
 type IService interface {
 	Quit()
+	DocRemove(tag, docId string) bool
 	DocSync(tag, docId string, jsonByte []byte) bool
 	GetSuggest() ISuggest
 	GetAgg() IAgg

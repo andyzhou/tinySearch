@@ -81,8 +81,15 @@ func main() {
 
 //doc testing
 func docTesting(service iface.IService)  {
+	var (
+		bRet bool
+	)
+
+	//get relate face
 	index := service.GetIndex(IndexTag)
 	doc := service.GetDoc()
+	query := service.GetQuery()
+	agg := service.GetAgg()
 	if index == nil || doc == nil {
 		return
 	}
@@ -102,11 +109,50 @@ func docTesting(service iface.IService)  {
 	docJson.Id = docId
 	docJson.JsonObj = testDocJson
 
-	//just add into local
-	bRet := doc.AddDoc(index, docJson)
-	fmt.Println("add doc result:", bRet)
+	//add doc into local
+	//bRet = doc.AddDoc(index, docJson)
+	//fmt.Println("add doc result:", bRet)
 
-	//add into batch nodes
-	bRet = service.DocSync(IndexTag, docId, testDocJson.Encode())
-	fmt.Println("sync doc result:", bRet)
+	//add doc into batch nodes
+	//bRet = service.DocSync(IndexTag, docId, testDocJson.Encode())
+	//fmt.Println("sync doc result:", bRet)
+	//return
+
+	//remove doc from local
+	//bRet = doc.RemoveDoc(index, docId)
+	//fmt.Println("remove doc result:", bRet)
+
+	//remove doc from batch nodes
+	//bRet = service.DocRemove(IndexTag, docId)
+	//fmt.Println("remove doc result:", bRet)
+	//return
+
+	//query opt
+	queryOptJson := json.NewQueryOptJson()
+	queryOptJson.Tag = IndexTag
+	queryOptJson.Key = "test"
+
+	//query batch doc
+	result := query.Query(index, queryOptJson)
+	fmt.Println("result:", result)
+	if result != nil {
+		for _, hitObj := range result.Records {
+			testJson := json.NewTestDocJson()
+			jsonStr := string(hitObj.OrgJson)
+			bRet = testJson.Decode(hitObj.OrgJson)
+			if !bRet {
+				continue
+			}
+			fmt.Println("jsonStr:", jsonStr)
+			fmt.Println("testJson:", testJson)
+		}
+	}
+
+	//agg doc
+	queryOptJson.AggField = &json.AggField{
+		Field:"cat",
+		Size:10,
+	}
+	aggResult := agg.GetAggList(index, queryOptJson)
+	fmt.Println("aggResult:", aggResult)
 }

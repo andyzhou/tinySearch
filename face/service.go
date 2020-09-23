@@ -39,6 +39,14 @@ func (f *Service) Quit() {
 	f.rpc.Stop()
 }
 
+//doc remove from batch node
+func (f *Service) DocRemove(
+					tag string,
+					docId string,
+				) bool {
+	return f.manager.DocRemove(tag, docId)
+}
+
 //doc sync into batch node
 func (f *Service) DocSync(
 					tag string,
