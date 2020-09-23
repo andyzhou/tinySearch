@@ -19,6 +19,7 @@ import (
 //doc sync request
 type DocSyncReq struct {
 	Tag string
+	DocId string
 	JsonByte []byte
 }
 
@@ -58,6 +59,7 @@ func (f *Client) Quit() {
 //call api
 func (f *Client) DocSync(
 					tag string,
+					docId string,
 					jsonByte []byte,
 				) (bRet bool) {
 	//basic check
@@ -78,6 +80,7 @@ func (f *Client) DocSync(
 	//init request
 	req := DocSyncReq{
 		Tag:tag,
+		DocId:docId,
 		JsonByte:jsonByte,
 	}
 
@@ -133,6 +136,7 @@ func (f *Client) docSyncProcess(req *DocSyncReq) bool {
 	//init request
 	realReq := &search.DocSyncReq{
 		Tag:req.Tag,
+		DocId:req.DocId,
 		Json:req.JsonByte,
 	}
 

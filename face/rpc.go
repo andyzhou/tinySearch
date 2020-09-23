@@ -38,17 +38,6 @@ func NewRpc(
 	return this
 }
 
-//start service
-func (f *Rpc) Start() {
-	//basic check
-	if f.listener == nil || f.service == nil {
-		return
-	}
-
-	//service rpc
-	go f.beginService()
-}
-
 //stop service
 func (f *Rpc) Stop() {
 	if f.service != nil {
@@ -62,6 +51,17 @@ func (f *Rpc) Stop() {
 /////////////////
 //private func
 /////////////////
+
+//start service
+func (f *Rpc) start() {
+	//basic check
+	if f.listener == nil || f.service == nil {
+		return
+	}
+
+	//service rpc
+	go f.beginService()
+}
 
 //begin rpc service
 func (f *Rpc) beginService() {
@@ -95,5 +95,8 @@ func (f *Rpc) createService() {
 			NewIRpcCB(f.manager),
 		)
 	f.listener = &listen
+
+	//start service
+	f.start()
 }
 

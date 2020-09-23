@@ -3,11 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/andyzhou/tinySearch/face"
+	"github.com/andyzhou/tinySearch/iface"
+	"github.com/andyzhou/tinySearch/json"
 	"log"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 )
 
 /*
@@ -20,6 +23,7 @@ const (
 	RpcHost = "127.0.0.1"
 	RpcPort = 6060
 	IndexPath = "/data/test"
+	IndexTag = "test"
 )
 
 func main() {
@@ -61,12 +65,48 @@ func main() {
 	service.AddNode(rpcAddr)
 
 	//add index
-	service.AddIndex(IndexPath, "test")
+	service.AddIndex(IndexPath, IndexTag)
 
 	//start wait group
 	wg.Add(1)
 	fmt.Println("start example...")
 
+	//testing
+	go docTesting(service)
+
 	wg.Wait()
+	service.Quit()
 	fmt.Println("stop example...")
+}
+
+//doc testing
+func docTesting(service iface.IService)  {
+	index := service.GetIndex(IndexTag)
+	doc := service.GetDoc()
+	if index == nil || doc == nil {
+		return
+	}
+
+	//init test doc json
+	docId := "1"
+	testDocJson := json.NewTestDocJson()
+	testDocJson.Id = docId
+	testDocJson.Title = "test"
+	testDocJson.Cat = "car"
+	testDocJson.Price = 10.1
+	testDocJson.Introduce = "this is test"
+	testDocJson.CreateAt = time.Now().Unix()
+
+	//add doc
+	docJson := json.NewDocJson()
+	docJson.Id = docId
+	docJson.JsonObj = testDocJson
+
+	//just add into local
+	bRet := doc.AddDoc(index, docJson)
+	fmt.Println("add doc result:", bRet)
+
+	//add into batch nodes
+	bRet = service.DocSync(IndexTag, docId, testDocJson.Encode())
+	fmt.Println("sync doc result:", bRet)
 }

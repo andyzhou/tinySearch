@@ -8,7 +8,7 @@ package iface
 
 type IManager interface {
 	Quit()
-	DocSync(tag string, jsonByte []byte) bool
+	DocSync(tag, docId string, jsonByte []byte) bool
 
 	//for rpc node
 	RemoveNode(addr string) bool

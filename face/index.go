@@ -1,6 +1,7 @@
 package face
 
 import (
+	"fmt"
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/mapping"
 	"log"
@@ -65,12 +66,15 @@ func (f *Index) CreateIndex() bool {
 	//init index mapping
 	indexMapping := mapping.NewIndexMapping()
 
+	//format sub dir path
+	subDir := fmt.Sprintf("%s/%s", f.indexDir, f.tag)
+
 	//init search index
-	index, err := bleve.New(f.indexDir, indexMapping)
+	index, err := bleve.New(subDir, indexMapping)
 	if err != nil {
 		//index had exists, open it.
 		if err == bleve.ErrorIndexPathExists {
-			index, err = bleve.Open(f.indexDir)
+			index, err = bleve.Open(subDir)
 		}
 		if err != nil {
 			log.Println("Index::CreateIndex failed, err:", err.Error())

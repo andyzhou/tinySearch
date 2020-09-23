@@ -46,10 +46,11 @@ func (f *Manager) Quit() {
 //doc sync to all clients
 func (f *Manager) DocSync(
 					tag string,
+					docId string,
 					jsonByte []byte,
 				) bool {
 	//basic check
-	if tag == "" || jsonByte == nil {
+	if tag == "" || docId == "" || jsonByte == nil {
 		return false
 	}
 
@@ -63,7 +64,7 @@ func (f *Manager) DocSync(
 		if !ok {
 			return false
 		}
-		client.DocSync(tag, jsonByte)
+		client.DocSync(tag, docId, jsonByte)
 		return true
 	}
 	f.clients.Range(sf)
@@ -169,6 +170,9 @@ func (f *Manager) AddIndex(
 
 	//init new index
 	index := NewIndex(dir, tag)
+
+	//create index
+	index.CreateIndex()
 
 	//sync into map
 	f.indexes.Store(tag, index)

@@ -8,6 +8,7 @@ package iface
 
 type IService interface {
 	Quit()
+	DocSync(tag, docId string, jsonByte []byte) bool
 	GetSuggest() ISuggest
 	GetAgg() IAgg
 	GetQuery() IQuery

@@ -7,6 +7,5 @@ package iface
  */
 
 type IRpc interface {
-	Start()
 	Stop()
 }

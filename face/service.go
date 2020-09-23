@@ -39,6 +39,15 @@ func (f *Service) Quit() {
 	f.rpc.Stop()
 }
 
+//doc sync into batch node
+func (f *Service) DocSync(
+					tag string,
+					docId string,
+					jsonByte []byte,
+				) bool {
+	return f.manager.DocSync(tag, docId, jsonByte)
+}
+
 //get suggest face
 func (f *Service) GetSuggest() iface.ISuggest {
 	return f.suggest
