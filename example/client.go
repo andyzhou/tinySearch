@@ -58,7 +58,7 @@ func main() {
 	}(&wg)
 
 	//init service
-	service := face.NewService(RpcPort)
+	service := face.NewSearch(RpcPort)
 
 	//add node
 	rpcAddr := fmt.Sprintf("%s:%d", RpcHost, RpcPort)
@@ -81,7 +81,7 @@ func main() {
 
 //doc testing
 func docTesting(
-		service iface.IService,
+		service iface.ISearch,
 	)  {
 	var (
 		bRet bool

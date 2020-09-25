@@ -1,12 +1,12 @@
 package iface
 
 /*
- * interface for service, main entry
+ * interface for search service, main entry
  * @author <AndyZhou>
  * @mail <diudiu8848@163.com>
  */
 
-type IService interface {
+type ISearch interface {
 	Quit()
 	DocRemove(tag, docId string) bool
 	DocSync(tag, docId string, jsonByte []byte) bool

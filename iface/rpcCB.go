@@ -12,6 +12,11 @@ import (
  */
 
 type IRpcCB interface {
+	DocRemove(
+		ctx context.Context,
+		in *search.DocRemoveReq,
+	) (*search.DocSyncResp, error)
+
 	DocSync(
 		ctx context.Context,
 		in *search.DocSyncReq,

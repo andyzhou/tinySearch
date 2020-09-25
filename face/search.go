@@ -10,7 +10,7 @@ import "github.com/andyzhou/tinySearch/iface"
  */
 
 //face info
-type Service struct {
+type Search struct {
 	suggest iface.ISuggest
 	agg iface.IAgg
 	query iface.IQuery
@@ -20,9 +20,9 @@ type Service struct {
 }
 
 //construct
-func NewService(port int) *Service {
+func NewSearch(port int) *Search {
 	//self init
-	this := &Service{
+	this := &Search{
 		manager:NewManager(),
 		doc:NewDoc(),
 		query:NewQuery(),
@@ -35,12 +35,12 @@ func NewService(port int) *Service {
 }
 
 //quit
-func (f *Service) Quit() {
+func (f *Search) Quit() {
 	f.rpc.Stop()
 }
 
 //doc remove from batch node
-func (f *Service) DocRemove(
+func (f *Search) DocRemove(
 					tag string,
 					docId string,
 				) bool {
@@ -48,7 +48,7 @@ func (f *Service) DocRemove(
 }
 
 //doc sync into batch node
-func (f *Service) DocSync(
+func (f *Search) DocSync(
 					tag string,
 					docId string,
 					jsonByte []byte,
@@ -57,47 +57,47 @@ func (f *Service) DocSync(
 }
 
 //get suggest face
-func (f *Service) GetSuggest() iface.ISuggest {
+func (f *Search) GetSuggest() iface.ISuggest {
 	return f.suggest
 }
 
 //get agg face
-func (f *Service) GetAgg() iface.IAgg {
+func (f *Search) GetAgg() iface.IAgg {
 	return f.agg
 }
 
 //get query face
-func (f *Service) GetQuery() iface.IQuery {
+func (f *Search) GetQuery() iface.IQuery {
 	return f.query
 }
 
 //get doc face
-func (f *Service) GetDoc() iface.IDoc {
+func (f *Search) GetDoc() iface.IDoc {
 	return f.doc
 }
 
 //get index face
-func (f *Service) GetIndex(
+func (f *Search) GetIndex(
 					tag string,
 				) iface.IIndex {
 	return f.manager.GetIndex(tag)
 }
 
 //add index
-func (f *Service) AddIndex(
+func (f *Search) AddIndex(
 					dir, tag string,
 				) bool {
 	return f.manager.AddIndex(dir, tag)
 }
 
 //add rpc node
-func (f *Service) AddNode(
+func (f *Search) AddNode(
 					addr string,
 				) bool {
 	return f.manager.AddNode(addr)
 }
 
 //get manager face
-func (f *Service) GetManager() iface.IManager {
+func (f *Search) GetManager() iface.IManager {
 	return f.manager
 }
