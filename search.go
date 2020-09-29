@@ -1,6 +1,9 @@
-package face
+package tinySearch
 
-import "github.com/andyzhou/tinySearch/iface"
+import (
+	"github.com/andyzhou/tinySearch/face"
+	"github.com/andyzhou/tinySearch/iface"
+)
 
 /*
  * face for service
@@ -23,14 +26,14 @@ type Search struct {
 func NewSearch(port int) *Search {
 	//self init
 	this := &Search{
-		manager:NewManager(),
-		doc:NewDoc(),
-		query:NewQuery(),
-		agg:NewAgg(),
-		suggest:NewSuggest(),
+		manager: face.NewManager(),
+		doc:     face.NewDoc(),
+		query:   face.NewQuery(),
+		agg:     face.NewAgg(),
+		suggest: face.NewSuggest(),
 	}
 	//init rpc
-	this.rpc = NewRpc(port, this.manager)
+	this.rpc = face.NewRpc(port, this.manager)
 	return this
 }
 

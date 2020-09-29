@@ -4,9 +4,9 @@ This is a local search lib, base on beleve.
 - include doc add, search, agg, suggest
 - search in local, sync doc for multi node
 
-# Example
+# How to use?
 
-Please see the **example** sub dir.
+Please see client.go in the **example** sub dir.
 
 # proto generate
 protoc --go_out=plugins=grpc:. *.proto

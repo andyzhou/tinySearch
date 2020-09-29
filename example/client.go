@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/andyzhou/tinySearch/face"
+	"github.com/andyzhou/tinySearch"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
 	"log"
@@ -58,7 +58,7 @@ func main() {
 	}(&wg)
 
 	//init service
-	service := face.NewSearch(RpcPort)
+	service := tinySearch.NewSearch(RpcPort)
 
 	//add node
 	rpcAddr := fmt.Sprintf("%s:%d", RpcHost, RpcPort)
