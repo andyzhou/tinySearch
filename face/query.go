@@ -76,9 +76,37 @@ func (f *Query) Query(
 
 		//add filter field and value
 		for _, filter := range opt.Filters {
-			tempStr = fmt.Sprintf("%v", filter.Val)
-			pq := bleve.NewPhraseQuery([]string{tempStr}, filter.Field)
-			boolQuery.AddMust(pq)
+			//do sub query by kind
+			switch filter.Kind {
+			case define.FilterKindMatch:
+				{
+					//match by condition
+					tempStr = fmt.Sprintf("%v", filter.Val)
+					pg := bleve.NewTermQuery(tempStr)
+					pg.SetField(filter.Field)
+					boolQuery.AddMust(pg)
+				}
+			case define.FilterKindQuery:
+				{
+					//sub phrase query
+					tempStr = fmt.Sprintf("%v", filter.Val)
+					pq := bleve.NewPhraseQuery([]string{tempStr}, filter.Field)
+					boolQuery.AddMust(pq)
+				}
+			case define.FilterKindNumericRange:
+				{
+					//min <= val < max
+					pg := bleve.NewNumericRangeQuery(&filter.MinVal, &filter.MaxVal)
+					pg.SetField(filter.Field)
+					boolQuery.AddMust(pg)
+				}
+			case define.FilterKindDateRange:
+				{
+					pg := bleve.NewDateRangeQuery(filter.StartTime, filter.EndTime)
+					pg.SetField(filter.Field)
+					boolQuery.AddMust(pg)
+				}
+			}
 		}
 
 		//add should query

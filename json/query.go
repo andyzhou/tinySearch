@@ -1,5 +1,7 @@
 package json
 
+import "time"
+
 /*
  * query opt json
  */
@@ -15,6 +17,10 @@ type FilterField struct {
 	Kind int `json:"kind"`
 	Field string `json:"field"`
 	Val interface{} `json:"val"`
+	MinVal float64 `json:"minVal"` //for numeric range
+	MaxVal float64 `json:"maxVal"` //for numeric range
+	StartTime time.Time `json:"startTime"` //for date range
+	EndTime time.Time `json:"endTime"` //for date range
 }
 
 //sort field
