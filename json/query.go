@@ -59,6 +59,24 @@ func NewQueryOptJson() *QueryOptJson {
 	return this
 }
 
+//add field
+func (j *QueryOptJson) AddField(field ... string) bool {
+	if field == nil {
+		return false
+	}
+	j.Fields = append(j.Fields, field...)
+	return true
+}
+
+//add filter
+func (j *QueryOptJson) AddFilter(obj ... *FilterField) bool {
+	if obj == nil {
+		return false
+	}
+	j.Filters = append(j.Filters, obj...)
+	return true
+}
+
 //encode json data
 func (j *QueryOptJson) Encode() []byte {
 	return j.BaseJson.Encode(j)
