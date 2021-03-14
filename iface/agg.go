@@ -9,5 +9,5 @@ import "github.com/andyzhou/tinySearch/json"
  */
 
 type IAgg interface {
-	GetAggList(index IIndex, opt *json.QueryOptJson) *json.AggregatesJson
+	GetAggList(index IIndex, opt *json.QueryOptJson) (*json.AggregatesJson, error)
 }

@@ -11,5 +11,5 @@ import "github.com/blevesearch/bleve"
 type IIndex interface {
 	RemoveIndex() bool
 	GetIndex() *bleve.Index
-	CreateIndex() bool
+	CreateIndex() error
 }

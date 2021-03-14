@@ -1,6 +1,7 @@
 package face
 
 import (
+	"errors"
 	"fmt"
 	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/iface"
@@ -32,7 +33,7 @@ func NewAgg() *Agg {
 func (f *Agg) GetAggList(
 				index iface.IIndex,
 				opt *json.QueryOptJson,
-			) *json.AggregatesJson {
+			) (*json.AggregatesJson, error) {
 	var (
 		searchRequest *bleve.SearchRequest
 		docQuery *query.MatchQuery
@@ -40,17 +41,17 @@ func (f *Agg) GetAggList(
 
 	//basic check
 	if index == nil || opt == nil {
-		return nil
+		return nil, errors.New("invalid parameter")
 	}
 
 	if opt.Key == "" || opt.AggField == nil {
-		return nil
+		return nil, errors.New("invalid parameter")
 	}
 
 	//get index
 	indexer := index.GetIndex()
 	if indexer == nil {
-		return nil
+		return nil, errors.New("can't get indexer")
 	}
 
 	//init query
@@ -82,13 +83,13 @@ func (f *Agg) GetAggList(
 	searchResult, err := (*indexer).Search(searchRequest)
 	if err != nil {
 		log.Println("Agg::GetAggList failed, err:", err.Error())
-		return nil
+		return nil, err
 	}
 
 	//format facet result
 	facetResult, ok := searchResult.Facets[facetName]
 	if !ok || facetResult == nil {
-		return nil
+		return nil, nil
 	}
 
 	//init final result
@@ -120,5 +121,5 @@ func (f *Agg) GetAggList(
 		}
 	}
 
-	return result
+	return result, nil
 }

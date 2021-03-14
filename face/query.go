@@ -2,6 +2,7 @@ package face
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/iface"
@@ -36,7 +37,7 @@ func NewQuery() *Query {
 func (f *Query) Query(
 					index iface.IIndex,
 					opt *json.QueryOptJson,
-				) *json.SearchResultJson {
+				) (*json.SearchResultJson, error) {
 	var (
 		tempStr string
 		docQuery *query.MatchQuery
@@ -45,13 +46,13 @@ func (f *Query) Query(
 
 	//basic check
 	if index == nil || opt == nil {
-		return nil
+		return nil, errors.New("invalid parameter")
 	}
 
 	//get indexer
 	indexer := index.GetIndex()
 	if indexer == nil {
-		return nil
+		return nil, errors.New("can't get indexer")
 	}
 
 	//init query
@@ -142,15 +143,12 @@ func (f *Query) Query(
 	searchResult, err := (*indexer).Search(searchRequest)
 	if err != nil {
 		log.Println("Query::Query failed, err:", err.Error())
-		return nil
+		return nil, err
 	}
 
 	//check result
-	if searchResult.Total <= 0 {
-		return nil
-	}
-	if searchResult.Hits == nil || searchResult.Hits.Len() <= 0 {
-		return nil
+	if searchResult.Total <= 0 || searchResult.Hits == nil || searchResult.Hits.Len() <= 0 {
+		return nil, nil
 	}
 
 	//init result
@@ -160,7 +158,7 @@ func (f *Query) Query(
 	//format records
 	result.Records = f.formatResult(indexer, &searchResult.Hits)
 
-	return result
+	return result, nil
 }
 
 ///////////////

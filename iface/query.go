@@ -9,5 +9,5 @@ import "github.com/andyzhou/tinySearch/json"
  */
 
 type IQuery interface {
-	Query(index IIndex, json *json.QueryOptJson) *json.SearchResultJson
+	Query(index IIndex, json *json.QueryOptJson) (*json.SearchResultJson, error)
 }

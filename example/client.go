@@ -134,7 +134,7 @@ func docTesting(
 	queryOptJson.Key = "test"
 
 	//query batch doc
-	result := query.Query(index, queryOptJson)
+	result, _ := query.Query(index, queryOptJson)
 	fmt.Println("result:", result)
 	if result != nil {
 		for _, hitObj := range result.Records {
@@ -154,6 +154,6 @@ func docTesting(
 		Field:"cat",
 		Size:10,
 	}
-	aggResult := agg.GetAggList(index, queryOptJson)
+	aggResult, _ := agg.GetAggList(index, queryOptJson)
 	fmt.Println("aggResult:", aggResult)
 }

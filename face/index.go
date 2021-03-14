@@ -1,6 +1,7 @@
 package face
 
 import (
+	"errors"
 	"fmt"
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/mapping"
@@ -57,10 +58,10 @@ func (f *Index) GetIndex() *bleve.Index {
 }
 
 //create index
-func (f *Index) CreateIndex() bool {
+func (f *Index) CreateIndex() error {
 	//basic check
 	if f.tag == "" || f.indexer != nil {
-		return false
+		return errors.New("invalid parameter")
 	}
 
 	//init index mapping
@@ -78,7 +79,7 @@ func (f *Index) CreateIndex() bool {
 		}
 		if err != nil {
 			log.Println("Index::CreateIndex failed, err:", err.Error())
-			return false
+			return err
 		}
 	}
 
@@ -87,5 +88,5 @@ func (f *Index) CreateIndex() bool {
 	defer f.Unlock()
 	f.indexer = &index
 
-	return true
+	return nil
 }

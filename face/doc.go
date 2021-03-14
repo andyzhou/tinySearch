@@ -1,6 +1,7 @@
 package face
 
 import (
+	"errors"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
 	"log"
@@ -27,78 +28,78 @@ func NewDoc() *Doc {
 //get doc count
 func (f *Doc) GetCount(
 				index iface.IIndex,
-			) int64 {
+			) (int64, error) {
 	var (
 		count int64
 	)
 
 	//basic check
 	if index == nil {
-		return count
+		return count, errors.New("invalid parameter")
 	}
 
 	//get indexer
 	indexer := index.GetIndex()
 	if indexer == nil {
-		return count
+		return count, errors.New("cant' get index")
 	}
 
 	//get doc count
 	v, err := (*indexer).DocCount()
 	if err != nil {
 		log.Println("Doc::GetCount failed, err:", err.Error())
-		return count
+		return count, err
 	}
-	return int64(v)
+	return int64(v), nil
 }
 
 //remove doc
 func (f *Doc) RemoveDoc(
 				index iface.IIndex,
 				docId string,
-			) bool {
+			) error {
 	//basic check
 	if index == nil || docId == "" {
-		return false
+		return errors.New("invalid parameter")
 	}
 
 	//get indexer
 	indexer := index.GetIndex()
 	if indexer == nil {
-		return false
+		return errors.New("cant' get index")
 	}
 
 	//remove doc
 	err := (*indexer).Delete(docId)
 	if err != nil {
 		log.Println("Doc::RemoveDoc failed, err:", err.Error())
-		return false
+		return err
 	}
-	return true
+	return nil
 }
 
 //add new doc
 func (f *Doc) AddDoc(
 				index iface.IIndex,
 				obj *json.DocJson,
-			) bool {
+			) error {
 	//basic check
 	if index == nil || obj == nil {
-		return false
+		return errors.New("invalid parameter")
 	}
 
 	//get indexer
 	indexer := index.GetIndex()
 	if indexer == nil {
-		return false
+		return errors.New("cant' get index")
 	}
 
 	//add or update doc
 	err := (*indexer).Index(obj.Id, obj.JsonObj)
 	if err != nil {
 		log.Println("Doc::AddDoc failed, err:", err.Error())
-		return false
+		return err
 	}
 
-	return true
+	return nil
 }
