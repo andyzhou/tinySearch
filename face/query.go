@@ -147,7 +147,7 @@ func (f *Query) Query(
 	}
 
 	//check result
-	if searchResult.Total <= 0 || searchResult.Hits == nil || searchResult.Hits.Len() <= 0 {
+	if searchResult.Total <= 0 {
 		return nil, nil
 	}
 

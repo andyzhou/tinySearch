@@ -10,6 +10,7 @@ import "github.com/andyzhou/tinySearch/json"
 
 type IDoc interface {
 	GetCount(index IIndex) (int64, error)
+	RemoveDocs(index IIndex, docIds []string) error
 	RemoveDoc(index IIndex, docId string) error
 	AddDoc(index IIndex, obj *json.DocJson) error
 }
