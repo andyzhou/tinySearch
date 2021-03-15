@@ -17,6 +17,9 @@ protoc --go_out=plugins=grpc:. *.proto
 ./configure;make;make install
 
 go get github.com/golang/protobuf/protoc-gen-go 
+
 cd github.com/golang/protobuf/protoc-gen-go 
+
 go build 
+
 go install or `cp -f protoc-gen-go /usr/local/go/bin`

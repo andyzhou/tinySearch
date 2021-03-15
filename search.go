@@ -50,6 +50,9 @@ func (f *Search) DocRemove(
 	return f.manager.DocRemove(tag, docId)
 }
 
+//batch doc remove
+
+
 //doc sync into batch node
 func (f *Search) DocSync(
 					tag string,

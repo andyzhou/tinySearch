@@ -10,6 +10,7 @@ type IManager interface {
 	Quit()
 
 	//for doc sync and remove
+	DocsRemove(tag string, docIds []string) bool
 	DocRemove(tag, docId string) bool
 	DocSync(tag, docId string, jsonByte []byte) bool
 
