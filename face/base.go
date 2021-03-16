@@ -1,6 +1,9 @@
 package face
 
-import "github.com/blevesearch/bleve/document"
+import (
+	"github.com/blevesearch/bleve/document"
+	"github.com/blevesearch/bleve_index_api"
+)
 
 /*
  * face for base
@@ -14,7 +17,7 @@ type Base struct {
 
 //format one doc
 func (f *Base) FormatDoc(
-				doc *document.Document,
+				doc index.Document,
 			) map[string]interface{} {
 	var (
 		fieldName string
@@ -29,7 +32,7 @@ func (f *Base) FormatDoc(
 	genMap := make(map[string]interface{})
 
 	//analyze fields
-	for _, field := range doc.Fields {
+	doc.VisitFields(func(field index.Field) {
 		fieldName = field.Name()
 		switch field.(type) {
 		case *document.TextField:
@@ -79,6 +82,6 @@ func (f *Base) FormatDoc(
 				}
 			}
 		}
-	}
+	})
 	return genMap
 }

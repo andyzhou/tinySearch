@@ -62,10 +62,11 @@ func (f *Manager) DocsRemove(
 		if !ok {
 			return false
 		}
-		client.d(tag, docId)
+		client.DocRemove(tag, docIds)
 		return true
 	}
 	f.clients.Range(sf)
+	return true
 }
 
 //doc remove from all clients
@@ -88,7 +89,7 @@ func (f *Manager) DocRemove(
 		if !ok {
 			return false
 		}
-		client.DocRemove(tag, docId)
+		client.DocRemove(tag, []string{docId})
 		return true
 	}
 	f.clients.Range(sf)
