@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+
+	//"fmt"
 	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
@@ -55,18 +57,16 @@ func (f *Query) Query(
 		return nil, errors.New("can't get indexer")
 	}
 
-	//init query
+	//init doc query
 	if opt.Key != "" {
 		docQuery = bleve.NewMatchQuery(opt.Key)
-	}else{
-		docQuery = bleve.NewMatchQuery("")
-	}
 
-	//set query fields
-	if opt.Fields != nil && len(opt.Fields) > 0 {
-		for _, field := range opt.Fields {
-			//set query field
-			docQuery.SetField(field)
+		//set query fields
+		if opt.Fields != nil && len(opt.Fields) > 0 {
+			for _, field := range opt.Fields {
+				//set query field
+				docQuery.SetField(field)
+			}
 		}
 	}
 
@@ -110,14 +110,21 @@ func (f *Query) Query(
 			}
 		}
 
-		//add should query
-		boolQuery.AddMust(docQuery)
+		//add must doc query
+		if docQuery != nil {
+			boolQuery.AddMust(docQuery)
+		}
 
 		//init multi condition search request
 		searchRequest = bleve.NewSearchRequest(boolQuery)
 	}else{
 		//general search request
-		searchRequest = bleve.NewSearchRequest(docQuery)
+		if docQuery != nil {
+			searchRequest = bleve.NewSearchRequest(docQuery)
+		}else{
+			allQuery := bleve.NewMatchAllQuery()
+			searchRequest = bleve.NewSearchRequest(allQuery)
+		}
 	}
 
 	//set high light

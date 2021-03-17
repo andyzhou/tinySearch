@@ -3,7 +3,7 @@ package define
 const (
 	RecPerPage = 10
 	ClientCheckTicker = 10
-	ReqChanSize = 128
+	ReqChanSize = 1024
 )
 
 //filter kind

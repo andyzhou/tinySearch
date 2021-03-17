@@ -61,15 +61,16 @@ func main() {
 	service := tinySearch.NewSearch(RpcPort)
 
 	//add node
-	rpcAddr := fmt.Sprintf("%s:%d", RpcHost, RpcPort)
+	rpcAddr := fmt.Sprintf(":%d", RpcPort)
 	service.AddNode(rpcAddr)
 
 	//add index
 	service.AddIndex(IndexPath, IndexTag)
 
 	//start wait group
-	wg.Add(1)
 	fmt.Println("start example...")
+
+	wg.Add(1)
 
 	//testing
 	go docTesting(service)
@@ -103,6 +104,7 @@ func docTesting(
 	testDocJson.Title = "test"
 	testDocJson.Cat = "car"
 	testDocJson.Price = 10.1
+	testDocJson.Num = 20
 	testDocJson.Introduce = "this is test"
 	testDocJson.CreateAt = time.Now().Unix()
 
@@ -111,9 +113,14 @@ func docTesting(
 	docJson.Id = docId
 	docJson.JsonObj = testDocJson
 
+	//sync doc
+	//bRet = service.DocSync(IndexTag, docId, docJson.Encode())
+	//bRet = service.DocSync(IndexTag, docId, docJson.Encode())
+	//fmt.Println("doc sync ret:", bRet)
+
 	//add doc into local
-	//bRet = doc.AddDoc(index, docJson)
-	//fmt.Println("add doc result:", bRet)
+	//err := doc.AddDoc(index, docJson)
+	//fmt.Println("add doc result:", err)
 
 	//add doc into batch nodes
 	//bRet = service.DocSync(IndexTag, docId, testDocJson.Encode())
@@ -130,8 +137,8 @@ func docTesting(
 
 	//query opt
 	queryOptJson := json.NewQueryOptJson()
-	queryOptJson.Tag = IndexTag
-	queryOptJson.Key = "test"
+	//queryOptJson.Tag = IndexTag
+	//queryOptJson.Key = "test"
 
 	//query batch doc
 	result, _ := query.Query(index, queryOptJson)

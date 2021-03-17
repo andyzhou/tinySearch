@@ -25,6 +25,7 @@ type TestDocJson struct {
 	Title string `json:"title"`
 	Cat string `json:"cat"`
 	Price float64 `json:"price"`
+	Num int64 `json:"num"`
 	Introduce string `json:"introduce"`
 	CreateAt int64 `json:"createAt"`
 	BaseJson
