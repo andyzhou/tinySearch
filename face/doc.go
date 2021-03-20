@@ -15,6 +15,7 @@ import (
 
 //face info
 type Doc struct {
+	Base
 }
 
 //construct
@@ -77,6 +78,33 @@ func (f *Doc) RemoveDoc(
 	}
 	return nil
 }
+
+//get one doc by id
+func (f *Doc) GetDoc(
+				index iface.IIndex,
+				docId string,
+			) (*json.HitDocJson, error) {
+	//basic check
+	if index == nil || docId == "" {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//get indexer
+	indexer := index.GetIndex()
+	if indexer == nil {
+		return nil, errors.New("cant' get index")
+	}
+
+	//get doc
+	doc, err := (*indexer).Document(docId)
+	if err != nil {
+		return nil, err
+	}
+
+	//analyze doc
+	return f.AnalyzeDoc(doc, nil)
+}
+
 
 //add new doc
 func (f *Doc) AddDoc(

@@ -1,6 +1,13 @@
 package face
 
-import "github.com/blevesearch/bleve/document"
+import (
+	"bytes"
+	"errors"
+	"github.com/andyzhou/tinySearch/json"
+	"github.com/andyzhou/tinycells/tc"
+	"github.com/blevesearch/bleve/document"
+	"github.com/blevesearch/bleve/search"
+)
 
 /*
  * face for base
@@ -10,6 +17,47 @@ import "github.com/blevesearch/bleve/document"
 
 //face info
 type Base struct {
+}
+
+//analyze doc with hit
+func (f *Base) AnalyzeDoc(
+				doc *document.Document,
+				hit *search.DocumentMatch,
+			) (*json.HitDocJson, error) {
+	//basic check
+	if doc == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//init one doc object
+	jsonObj := tc.NewBaseJson()
+	genMap := f.FormatDoc(doc)
+	if genMap == nil {
+		return nil, nil
+	}
+
+	//get json byte
+	jsonByte := jsonObj.EncodeSimple(genMap)
+
+	//init hit doc json
+	hitDocJson := json.NewHitDocJson()
+
+	//set doc json fields
+	hitDocJson.Id = doc.ID
+	hitDocJson.OrgJson = jsonByte
+
+	//check high light
+	if hit != nil && hit.Fragments != nil {
+		buffer := bytes.NewBuffer(nil)
+		for k, v := range hit.Fragments {
+			buffer.Reset()
+			for _, v1 := range v {
+				buffer.WriteString(v1)
+			}
+			hitDocJson.AddHighLight(k, buffer.String())
+		}
+	}
+	return hitDocJson, nil
 }
 
 //format one doc

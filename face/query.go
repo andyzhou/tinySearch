@@ -1,13 +1,11 @@
 package face
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
-	"github.com/andyzhou/tinycells/tc"
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/search"
 	"github.com/blevesearch/bleve/search/query"
@@ -58,15 +56,12 @@ func (f *Query) Query(
 	//init query
 	if opt.Key != "" {
 		docQuery = bleve.NewMatchQuery(opt.Key)
-	}else{
-		docQuery = bleve.NewMatchQuery("")
-	}
-
-	//set query fields
-	if opt.Fields != nil && len(opt.Fields) > 0 {
-		for _, field := range opt.Fields {
-			//set query field
-			docQuery.SetField(field)
+		//set query fields
+		if opt.Fields != nil && len(opt.Fields) > 0 {
+			for _, field := range opt.Fields {
+				//set query field
+				docQuery.SetField(field)
+			}
 		}
 	}
 
@@ -110,14 +105,21 @@ func (f *Query) Query(
 			}
 		}
 
-		//add should query
-		boolQuery.AddMust(docQuery)
+		if docQuery != nil {
+			//add should query
+			boolQuery.AddMust(docQuery)
+		}
 
 		//init multi condition search request
 		searchRequest = bleve.NewSearchRequest(boolQuery)
 	}else{
 		//general search request
-		searchRequest = bleve.NewSearchRequest(docQuery)
+		if docQuery != nil {
+			searchRequest = bleve.NewSearchRequest(docQuery)
+		}else{
+			docAllQuery := bleve.NewMatchAllQuery()
+			searchRequest = bleve.NewSearchRequest(docAllQuery)
+		}
 	}
 
 	//set high light
@@ -170,10 +172,6 @@ func (f *Query) formatResult(
 					index *bleve.Index,
 					hits *search.DocumentMatchCollection,
 				) []*json.HitDocJson {
-	var (
-		buffer *bytes.Buffer
-	)
-
 	//basic check
 	if index == nil || hits == nil {
 		return nil
@@ -190,33 +188,10 @@ func (f *Query) formatResult(
 			continue
 		}
 
-		//init one doc object
-		jsonObj := tc.NewBaseJson()
-		genMap := f.FormatDoc(doc)
-		if genMap == nil {
+		//analyze doc
+		hitDocJson, err := f.AnalyzeDoc(doc, hit)
+		if err != nil || hitDocJson == nil {
 			continue
-		}
-
-		//get json byte
-		jsonByte := jsonObj.EncodeSimple(genMap)
-
-		//init hit doc json
-		hitDocJson := json.NewHitDocJson()
-
-		//set doc json fields
-		hitDocJson.Id = hit.ID
-		hitDocJson.OrgJson = jsonByte
-
-		//check high light
-		if hit.Fragments != nil {
-			buffer = bytes.NewBuffer(nil)
-			for k, v := range hit.Fragments {
-				buffer.Reset()
-				for _, v1 := range v {
-					buffer.WriteString(v1)
-				}
-				hitDocJson.AddHighLight(k, buffer.String())
-			}
 		}
 
 		//add into slice
