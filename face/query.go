@@ -82,6 +82,13 @@ func (f *Query) Query(
 					pg.SetField(filter.Field)
 					boolQuery.AddMust(pg)
 				}
+			case define.FilterKindMatchRange:
+				{
+					//match by range
+					pg := bleve.NewTermRangeQuery(filter.MinVal, filter.MinVal)
+					pg.SetField(filter.Field)
+					boolQuery.AddMust(pg)
+				}
 			case define.FilterKindQuery:
 				{
 					//sub phrase query
@@ -92,7 +99,7 @@ func (f *Query) Query(
 			case define.FilterKindNumericRange:
 				{
 					//min <= val < max
-					pg := bleve.NewNumericRangeQuery(&filter.MinVal, &filter.MaxVal)
+					pg := bleve.NewNumericRangeQuery(&filter.MinFloatVal, &filter.MaxFloatVal)
 					pg.SetField(filter.Field)
 					boolQuery.AddMust(pg)
 				}
@@ -100,6 +107,11 @@ func (f *Query) Query(
 				{
 					pg := bleve.NewDateRangeQuery(filter.StartTime, filter.EndTime)
 					pg.SetField(filter.Field)
+					boolQuery.AddMust(pg)
+				}
+			case define.FilterKindSubDocIds:
+				{
+					pg := bleve.NewDocIDQuery(filter.DocIds)
 					boolQuery.AddMust(pg)
 				}
 			}

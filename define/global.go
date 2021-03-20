@@ -9,7 +9,9 @@ const (
 //filter kind
 const (
 	FilterKindMatch = iota + 1
+	FilterKindMatchRange
 	FilterKindQuery
 	FilterKindNumericRange
 	FilterKindDateRange
+	FilterKindSubDocIds
 )

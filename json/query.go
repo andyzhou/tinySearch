@@ -17,8 +17,11 @@ type FilterField struct {
 	Kind int `json:"kind"`
 	Field string `json:"field"`
 	Val interface{} `json:"val"`
-	MinVal float64 `json:"minVal"` //for numeric range
-	MaxVal float64 `json:"maxVal"` //for numeric range
+	DocIds []string `json:"docIds"` //used for batch doc ids match
+	MinVal string `json:"minVal"` //for term range
+	MaxVal string `json:"maxVal"` //for term range
+	MinFloatVal float64 `json:"minFloatVal"` //for numeric range
+	MaxFloatVal float64 `json:"maxFloatVal"` //for numeric range
 	StartTime time.Time `json:"startTime"` //for date range
 	EndTime time.Time `json:"endTime"` //for date range
 }
@@ -42,6 +45,18 @@ type QueryOptJson struct {
 	PageSize int `json:"pageSize"`
 	AggSize int `json:"aggSize"`
 	BaseJson
+}
+
+
+///////////////////////////
+//construct for FilterField
+//////////////////////////
+
+func NewFilterField() *FilterField {
+	this := &FilterField{
+		DocIds:make([]string, 0),
+	}
+	return this
 }
 
 ///////////////////////////
