@@ -198,7 +198,7 @@ func (f *Manager) GetIndex(
 	if !ok {
 		return nil
 	}
-	index, ok := v.(*Index)
+	index, ok := v.(iface.IIndex)
 	if !ok {
 		return nil
 	}
