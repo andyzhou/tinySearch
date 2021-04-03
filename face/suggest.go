@@ -81,7 +81,7 @@ func (f *Suggest) GetSuggest(
 	searchRequest.Explain = true
 
 	//begin search
-	searchResult, err := (*indexer).Search(searchRequest)
+	searchResult, err := indexer.Search(searchRequest)
 	if err != nil {
 		log.Println("Suggest::GetSuggest failed, err:", err.Error())
 		return nil
@@ -99,7 +99,7 @@ func (f *Suggest) GetSuggest(
 	//format records
 	for _, hit := range searchResult.Hits {
 		//get original doc by id
-		doc, err := (*indexer).Document(hit.ID)
+		doc, err := indexer.Document(hit.ID)
 		if err != nil {
 			continue
 		}
@@ -160,7 +160,7 @@ func (f *Suggest) AddSuggest(
 
 	//add or update doc
 	keyMd5 := f.genMd5(doc.Key)
-	err := (*indexer).Index(keyMd5, doc)
+	err := indexer.Index(keyMd5, doc)
 	if err != nil {
 		log.Println("Suggest::AddSuggest failed, err:", err.Error())
 		return false

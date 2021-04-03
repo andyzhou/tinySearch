@@ -59,7 +59,7 @@ func (f *IRpcCB) DocRemove(
 
 	//remove from local index
 	indexer := index.GetIndex()
-	err := (*indexer).Delete(in.DocId)
+	err := indexer.Delete(in.DocId)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -101,7 +101,7 @@ func (f *IRpcCB) DocSync(
 
 	//add into local index
 	indexer := index.GetIndex()
-	err := (*indexer).Index(in.DocId, kvMap)
+	err := indexer.Index(in.DocId, kvMap)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}

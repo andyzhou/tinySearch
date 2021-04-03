@@ -155,7 +155,7 @@ func (f *Query) Query(
 	searchRequest.Explain = true
 
 	//begin search
-	searchResult, err := (*indexer).Search(searchRequest)
+	searchResult, err := indexer.Search(searchRequest)
 	if err != nil {
 		log.Println("Query::Query failed, err:", err.Error())
 		return nil, err
@@ -182,7 +182,7 @@ func (f *Query) Query(
 
 //format result
 func (f *Query) formatResult(
-					index *bleve.Index,
+					index bleve.Index,
 					hits *search.DocumentMatchCollection,
 				) []*json.HitDocJson {
 	//basic check
@@ -196,7 +196,7 @@ func (f *Query) formatResult(
 	//format records
 	for _, hit := range *hits {
 		//get original doc
-		doc, err := (*index).Document(hit.ID)
+		doc, err := index.Document(hit.ID)
 		if err != nil {
 			continue
 		}

@@ -80,7 +80,7 @@ func (f *Agg) GetAggList(
 	searchRequest.AddFacet(facetName, facet)
 
 	//begin search
-	searchResult, err := (*indexer).Search(searchRequest)
+	searchResult, err := indexer.Search(searchRequest)
 	if err != nil {
 		log.Println("Agg::GetAggList failed, err:", err.Error())
 		return nil, err

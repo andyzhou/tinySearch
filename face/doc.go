@@ -46,7 +46,7 @@ func (f *Doc) GetCount(
 	}
 
 	//get doc count
-	v, err := (*indexer).DocCount()
+	v, err := indexer.DocCount()
 	if err != nil {
 		log.Println("Doc::GetCount failed, err:", err.Error())
 		return count, err
@@ -76,7 +76,7 @@ func (f *Doc) RemoveDocs(
 
 	//remove one by one
 	for _, docId := range docIds {
-		err = (*indexer).Delete(docId)
+		err = indexer.Delete(docId)
 	}
 	return err
 }
@@ -98,7 +98,7 @@ func (f *Doc) RemoveDoc(
 	}
 
 	//remove doc
-	err := (*indexer).Delete(docId)
+	err := indexer.Delete(docId)
 	if err != nil {
 		log.Println("Doc::RemoveDoc failed, err:", err.Error())
 		return err
@@ -123,7 +123,7 @@ func (f *Doc) GetDoc(
 	}
 
 	//get doc
-	doc, err := (*indexer).Document(docId)
+	doc, err := indexer.Document(docId)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func (f *Doc) AddDoc(
 	}
 
 	//add or update doc
-	err := (*indexer).Index(obj.Id, obj.JsonObj)
+	err := indexer.Index(obj.Id, obj.JsonObj)
 	if err != nil {
 		log.Println("Doc::AddDoc failed, err:", err.Error())
 		return err
