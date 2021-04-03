@@ -20,7 +20,7 @@ import (
 type Index struct {
 	indexDir string
 	tag string
-	indexer *bleve.Index
+	indexer bleve.Index
 	sync.RWMutex
 }
 
@@ -49,7 +49,7 @@ func (f *Index) RemoveIndex() bool {
 }
 
 //get index
-func (f *Index) GetIndex() *bleve.Index {
+func (f *Index) GetIndex() bleve.Index {
 	//basic check
 	if f.tag == "" || f.indexer == nil {
 		return nil
@@ -86,7 +86,7 @@ func (f *Index) CreateIndex() error {
 	//sync indexer
 	f.Lock()
 	defer f.Unlock()
-	f.indexer = &index
+	f.indexer = index
 
 	return nil
 }
