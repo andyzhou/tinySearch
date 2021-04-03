@@ -10,6 +10,6 @@ import "github.com/blevesearch/bleve/v2"
 
 type IIndex interface {
 	RemoveIndex() bool
-	GetIndex() *bleve.Index
+	GetIndex() bleve.Index
 	CreateIndex() error
 }
