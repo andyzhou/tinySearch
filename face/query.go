@@ -3,12 +3,14 @@ package face
 import (
 	"errors"
 	"fmt"
+
+	//"fmt"
 	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
-	"github.com/blevesearch/bleve"
-	"github.com/blevesearch/bleve/search"
-	"github.com/blevesearch/bleve/search/query"
+	"github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/search"
+	"github.com/blevesearch/bleve/v2/search/query"
 	"log"
 )
 
@@ -53,7 +55,7 @@ func (f *Query) Query(
 		return nil, errors.New("can't get indexer")
 	}
 
-	//init query
+	//init doc query
 	if opt.Key != "" {
 		docQuery = bleve.NewMatchQuery(opt.Key)
 		//set query fields
@@ -116,9 +118,8 @@ func (f *Query) Query(
 				}
 			}
 		}
-
+		//add must doc query
 		if docQuery != nil {
-			//add should query
 			boolQuery.AddMust(docQuery)
 		}
 
@@ -161,7 +162,7 @@ func (f *Query) Query(
 	}
 
 	//check result
-	if searchResult.Total <= 0 || searchResult.Hits == nil || searchResult.Hits.Len() <= 0 {
+	if searchResult.Total <= 0 {
 		return nil, nil
 	}
 

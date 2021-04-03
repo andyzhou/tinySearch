@@ -3,8 +3,8 @@ package face
 import (
 	"errors"
 	"fmt"
-	"github.com/blevesearch/bleve"
-	"github.com/blevesearch/bleve/mapping"
+	"github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/mapping"
 	"log"
 	"os"
 	"sync"

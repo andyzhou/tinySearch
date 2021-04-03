@@ -1,7 +1,7 @@
 syntax = "proto3";
 package search;
 
-option java_package = "com.tiny.search";
+option java_package = "com.tiny.tinySearch";
 
 ///////////////////////
 //proto for doc sync
@@ -17,7 +17,7 @@ message DocSyncReq {
 //message for doc remove request
 message DocRemoveReq {
     string tag = 1;//index tag
-    string docId = 2;//doc id
+    repeated string docId = 2;//doc ids
 }
 
 //message for doc sync response

@@ -5,8 +5,9 @@ import (
 	"errors"
 	"github.com/andyzhou/tinySearch/json"
 	"github.com/andyzhou/tinycells/tc"
-	"github.com/blevesearch/bleve/document"
-	"github.com/blevesearch/bleve/search"
+	"github.com/blevesearch/bleve/v2/document"
+	"github.com/blevesearch/bleve/v2/search"
+	index "github.com/blevesearch/bleve_index_api"
 )
 
 /*
@@ -21,7 +22,7 @@ type Base struct {
 
 //analyze doc with hit
 func (f *Base) AnalyzeDoc(
-				doc *document.Document,
+				doc index.Document,
 				hit *search.DocumentMatch,
 			) (*json.HitDocJson, error) {
 	//basic check
@@ -43,7 +44,7 @@ func (f *Base) AnalyzeDoc(
 	hitDocJson := json.NewHitDocJson()
 
 	//set doc json fields
-	hitDocJson.Id = doc.ID
+	hitDocJson.Id = doc.ID()
 	hitDocJson.OrgJson = jsonByte
 
 	//check high light
@@ -62,7 +63,7 @@ func (f *Base) AnalyzeDoc(
 
 //format one doc
 func (f *Base) FormatDoc(
-				doc *document.Document,
+				doc index.Document,
 			) map[string]interface{} {
 	var (
 		fieldName string
@@ -77,7 +78,7 @@ func (f *Base) FormatDoc(
 	genMap := make(map[string]interface{})
 
 	//analyze fields
-	for _, field := range doc.Fields {
+	doc.VisitFields(func(field index.Field) {
 		fieldName = field.Name()
 		switch field.(type) {
 		case *document.TextField:
@@ -127,6 +128,6 @@ func (f *Base) FormatDoc(
 				}
 			}
 		}
-	}
+	})
 	return genMap
 }

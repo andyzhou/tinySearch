@@ -1,6 +1,6 @@
 package iface
 
-import "github.com/blevesearch/bleve"
+import "github.com/blevesearch/bleve/v2"
 
 /*
  * interface for index

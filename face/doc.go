@@ -54,6 +54,33 @@ func (f *Doc) GetCount(
 	return int64(v), nil
 }
 
+//remove batch docs
+func (f *Doc) RemoveDocs(
+				index iface.IIndex,
+				docIds []string,
+			) error {
+	var (
+		err error
+	)
+
+	//basic check
+	if index == nil || docIds == nil {
+		return errors.New("invalid parameter")
+	}
+
+	//get indexer
+	indexer := index.GetIndex()
+	if indexer == nil {
+		return errors.New("cant' get index")
+	}
+
+	//remove one by one
+	for _, docId := range docIds {
+		err = (*indexer).Delete(docId)
+	}
+	return err
+}
+
 //remove doc
 func (f *Doc) RemoveDoc(
 				index iface.IIndex,

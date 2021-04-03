@@ -20,6 +20,7 @@ import (
 type DocSyncReq struct {
 	Tag string
 	DocId string
+	DocIds []string
 	JsonByte []byte
 	IsRemove bool
 }
@@ -60,10 +61,10 @@ func (f *Client) Quit() {
 //call api
 func (f *Client) DocRemove(
 					tag string,
-					docId string,
+					docIds []string,
 				) (bRet bool) {
 	//basic check
-	if tag == "" || docId == "" || f.client == nil {
+	if tag == "" || docIds == nil || f.client == nil {
 		bRet = false
 		return
 	}
@@ -80,7 +81,7 @@ func (f *Client) DocRemove(
 	//init request
 	req := DocSyncReq{
 		Tag:tag,
-		DocId:docId,
+		DocIds:docIds,
 		IsRemove:true,
 	}
 

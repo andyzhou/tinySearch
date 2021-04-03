@@ -6,7 +6,7 @@ import (
 	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
-	"github.com/blevesearch/bleve"
+	"github.com/blevesearch/bleve/v2"
 	"log"
 )
 
