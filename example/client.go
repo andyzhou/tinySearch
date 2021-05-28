@@ -110,8 +110,8 @@ func docTesting(
 
 
 	//sync doc
-	//bRet = service.DocSync(IndexTag, docId, testDocJson.Encode())
-	//fmt.Println("doc sync ret:", bRet)
+	bRet = service.DocSync(IndexTag, docId, testDocJson.Encode())
+	fmt.Println("doc sync ret:", bRet)
 
 	//add doc into local
 	//err := doc.AddDoc(index, docId, testDocJson)
