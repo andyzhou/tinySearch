@@ -100,7 +100,7 @@ func (f *Search) AddIndex(
 func (f *Search) AddNode(
 					addr ...string,
 				) bool {
-	return f.manager.AddNode(addr)
+	return f.manager.AddNode(addr...)
 }
 
 //get manager face
