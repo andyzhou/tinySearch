@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"github.com/andyzhou/tinySearch/json"
-	"github.com/andyzhou/tinycells/tc"
 	"github.com/blevesearch/bleve/v2/document"
 	"github.com/blevesearch/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
@@ -31,7 +30,7 @@ func (f *Base) AnalyzeDoc(
 	}
 
 	//init one doc object
-	jsonObj := tc.NewBaseJson()
+	jsonObj := json.NewBaseJson()
 	genMap := f.FormatDoc(doc)
 	if genMap == nil {
 		return nil, nil

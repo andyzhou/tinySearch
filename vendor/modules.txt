@@ -1,9 +1,5 @@
 # github.com/RoaringBitmap/roaring v0.4.23
 github.com/RoaringBitmap/roaring
-# github.com/aaparella/carve v0.0.0-20170326000725-5e7ef0c30a14
-github.com/aaparella/carve
-# github.com/andyzhou/tinycells v1.1.3
-github.com/andyzhou/tinycells/tc
 # github.com/blevesearch/bleve/v2 v2.0.3
 github.com/blevesearch/bleve/v2
 github.com/blevesearch/bleve/v2/analysis
@@ -67,27 +63,8 @@ github.com/blevesearch/zapx/v13
 github.com/blevesearch/zapx/v14
 # github.com/blevesearch/zapx/v15 v15.2.0
 github.com/blevesearch/zapx/v15
-# github.com/dgrijalva/jwt-go v3.2.0+incompatible
-github.com/dgrijalva/jwt-go
-# github.com/disintegration/gift v1.2.1
-github.com/disintegration/gift
-# github.com/disintegration/imaging v1.6.2
-github.com/disintegration/imaging
-# github.com/garyburd/redigo v1.6.2
-github.com/garyburd/redigo/internal
-github.com/garyburd/redigo/redis
 # github.com/glycerine/go-unsnap-stream v0.0.0-20181221182339-f9677308dec2
 github.com/glycerine/go-unsnap-stream
-# github.com/go-redis/redis v6.15.9+incompatible
-github.com/go-redis/redis
-github.com/go-redis/redis/internal
-github.com/go-redis/redis/internal/consistenthash
-github.com/go-redis/redis/internal/hashtag
-github.com/go-redis/redis/internal/pool
-github.com/go-redis/redis/internal/proto
-github.com/go-redis/redis/internal/util
-# github.com/go-sql-driver/mysql v1.5.0
-github.com/go-sql-driver/mysql
 # github.com/golang/protobuf v1.5.2
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes
@@ -108,23 +85,6 @@ github.com/tinylib/msgp/msgp
 github.com/willf/bitset
 # go.etcd.io/bbolt v1.3.5
 go.etcd.io/bbolt
-# golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
-golang.org/x/crypto/blowfish
-golang.org/x/crypto/chacha20
-golang.org/x/crypto/curve25519
-golang.org/x/crypto/ed25519
-golang.org/x/crypto/ed25519/internal/edwards25519
-golang.org/x/crypto/internal/subtle
-golang.org/x/crypto/poly1305
-golang.org/x/crypto/ssh
-golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
-# golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
-golang.org/x/image/bmp
-golang.org/x/image/ccitt
-golang.org/x/image/draw
-golang.org/x/image/math/f64
-golang.org/x/image/tiff
-golang.org/x/image/tiff/lzw
 # golang.org/x/net v0.0.0-20210326220855-61e056675ecf
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
@@ -133,7 +93,6 @@ golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
 golang.org/x/net/trace
 # golang.org/x/sys v0.0.0-20210324051608-47abb6519492
-golang.org/x/sys/cpu
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 golang.org/x/sys/windows
