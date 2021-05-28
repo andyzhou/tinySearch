@@ -16,7 +16,7 @@ type IManager interface {
 
 	//for rpc node
 	RemoveNode(addr string) bool
-	AddNode(addr string) bool
+	AddNode(addr ...string) bool
 
 	//for index
 	RemoveIndex(tag string) bool

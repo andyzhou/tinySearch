@@ -143,24 +143,26 @@ func (f *Manager) RemoveNode(
 
 //add client node
 func (f *Manager) AddNode(
-					addr string,
+					addrArr ...string,
 				) bool {
 	//basic check
-	if addr == "" || f.clients == nil {
+	if addrArr == nil || len(addrArr) <= 0 || f.clients == nil {
 		return false
 	}
 
-	//check record
-	_, ok := f.clients.Load(addr)
-	if ok {
-		return false
+	for _, addr := range addrArr {
+		//check record
+		_, ok := f.clients.Load(addr)
+		if ok {
+			continue
+		}
+
+		//init new client
+		client := NewClient(addr)
+
+		//sync into map
+		f.clients.Store(addr, client)
 	}
-
-	//init new client
-	client := NewClient(addr)
-
-	//sync into map
-	f.clients.Store(addr, client)
 
 	return true
 }

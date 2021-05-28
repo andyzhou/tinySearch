@@ -98,7 +98,7 @@ func (f *Search) AddIndex(
 
 //add rpc node
 func (f *Search) AddNode(
-					addr string,
+					addr ...string,
 				) bool {
 	return f.manager.AddNode(addr)
 }

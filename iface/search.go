@@ -16,7 +16,7 @@ type ISearch interface {
 	GetDoc() IDoc
 	GetIndex(tag string) IIndex
 	AddIndex(dir, tag string) bool
-	AddNode(addr string) bool
+	AddNode(addr ...string) bool
 	GetManager() IManager
 }
 
