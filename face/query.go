@@ -40,7 +40,7 @@ func (f *Query) Query(
 				) (*json.SearchResultJson, error) {
 	var (
 		tempStr string
-		docQuery *query.MatchQuery
+		docQuery query.Query
 		searchRequest *bleve.SearchRequest
 	)
 
@@ -55,15 +55,20 @@ func (f *Query) Query(
 		return nil, errors.New("can't get indexer")
 	}
 
-	//init doc query
-	if opt.Key != "" {
-		docQuery = bleve.NewMatchQuery(opt.Key)
-		//set query fields
-		if opt.Fields != nil && len(opt.Fields) > 0 {
-			for _, field := range opt.Fields {
-				//set query field
-				docQuery.SetField(field)
-			}
+	//setup search kind
+	switch opt.QueryKind {
+	case define.QueryKindOfTerm:
+		docQuery = f.createTermQuery(opt)
+	case define.QueryKindOfPrefix:
+		docQuery = f.createPrefixQuery(opt)
+	case define.QueryKindOfMatchQuery:
+		docQuery = f.createMatchQuery(opt)
+	default:
+		if opt.Key != "" {
+			docQuery = f.createMatchQuery(opt)
+		}else{
+			//match all
+			docQuery = bleve.NewMatchAllQuery()
 		}
 	}
 
@@ -119,20 +124,13 @@ func (f *Query) Query(
 			}
 		}
 		//add must doc query
-		if docQuery != nil {
-			boolQuery.AddMust(docQuery)
-		}
+		boolQuery.AddMust(docQuery)
 
 		//init multi condition search request
 		searchRequest = bleve.NewSearchRequest(boolQuery)
 	}else{
 		//general search request
-		if docQuery != nil {
-			searchRequest = bleve.NewSearchRequest(docQuery)
-		}else{
-			docAllQuery := bleve.NewMatchAllQuery()
-			searchRequest = bleve.NewSearchRequest(docAllQuery)
-		}
+		searchRequest = bleve.NewSearchRequest(docQuery)
 	}
 
 	//set high light
@@ -175,6 +173,33 @@ func (f *Query) Query(
 
 	return result, nil
 }
+
+//////////////////////
+//create relate query
+//////////////////////
+
+func (f *Query) createMatchQuery(opt *json.QueryOptJson) query.Query {
+	subQuery := bleve.NewMatchQuery(opt.Key)
+	if opt.Fields != nil {
+		for _, field := range opt.Fields {
+			//set query field
+			subQuery.SetField(field)
+		}
+	}
+	return subQuery
+}
+
+func (f *Query) createPrefixQuery(opt *json.QueryOptJson) query.Query {
+	subQuery := bleve.NewPrefixQuery(opt.Key)
+	return subQuery
+}
+
+func (f *Query) createTermQuery(opt *json.QueryOptJson) query.Query {
+	subQuery := bleve.NewTermQuery(opt.TermPara.Val)
+	subQuery.SetField(opt.TermPara.Field)
+	return subQuery
+}
+
 
 ///////////////
 //private func

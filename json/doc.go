@@ -5,11 +5,11 @@ package json
  */
 
 //doc json
-type DocJson struct {
-	Id string `json:"id"`
-	JsonObj interface{} `json:"jsonObj"` //original json object
-	BaseJson
-}
+//type DocJson struct {
+//	Id string `json:"id"`
+//	JsonObj interface{} `json:"jsonObj"` //original json object
+//	BaseJson
+//}
 
 //hit doc json
 type HitDocJson struct {
@@ -86,19 +86,19 @@ func (j *HitDocJson) Decode(data []byte) bool {
 //construct for DocJson
 //////////////////////////
 
-func NewDocJson() *DocJson {
-	this := &DocJson{
-	}
-	return this
-}
-
-//encode json data
-func (j *DocJson) Encode() []byte {
-	return j.BaseJson.Encode(j)
-}
-
-//decode json data
-func (j *DocJson) Decode(data []byte) bool {
-	return j.BaseJson.Decode(data, j)
-}
+//func NewDocJson() *DocJson {
+//	this := &DocJson{
+//	}
+//	return this
+//}
+//
+////encode json data
+//func (j *DocJson) Encode() []byte {
+//	return j.BaseJson.Encode(j)
+//}
+//
+////decode json data
+//func (j *DocJson) Decode(data []byte) bool {
+//	return j.BaseJson.Decode(data, j)
+//}
 

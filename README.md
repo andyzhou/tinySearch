@@ -9,11 +9,13 @@ This is a local search lib, base on beleve.
 Please see client.go in the **example** sub dir.
 
 # proto generate
+
 protoc --go_out=plugins=grpc:. *.proto
 
 # Install proto3
-===
- https://github.com/google/protobuf/releases 
+
+ visit https://github.com/google/protobuf/releases 
+ 
 ./configure;make;make install
 
 go get github.com/golang/protobuf/protoc-gen-go 

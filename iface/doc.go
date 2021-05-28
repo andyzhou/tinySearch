@@ -13,5 +13,5 @@ type IDoc interface {
 	RemoveDocs(index IIndex, docIds []string) error
 	RemoveDoc(index IIndex, docId string) error
 	GetDoc(index IIndex, docId string) (*json.HitDocJson, error)
-	AddDoc(index IIndex, obj *json.DocJson) error
+	AddDoc(index IIndex, docId string, jsonObj interface{}) error
 }

@@ -32,8 +32,16 @@ type SortField struct {
 	Ascending bool `json:"ascending"` //true:asc false:dsc
 }
 
+//term query para
+type TermQueryPara struct {
+	Field string `json:"field"`
+	Val string `json:"val"`
+}
+
 //json info
 type QueryOptJson struct {
+	QueryKind int `json:"queryKind"`
+	TermPara TermQueryPara `json:"termPara"`
 	Tag string `json:"tag"`
 	Key string `json:"key"`
 	Fields []string `json:"fields"`

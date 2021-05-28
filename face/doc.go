@@ -136,10 +136,11 @@ func (f *Doc) GetDoc(
 //add new doc
 func (f *Doc) AddDoc(
 				index iface.IIndex,
-				obj *json.DocJson,
+				docId string,
+				jsonObj interface{},
 			) error {
 	//basic check
-	if index == nil || obj == nil {
+	if index == nil || docId == "" || jsonObj == nil {
 		return errors.New("invalid parameter")
 	}
 
@@ -150,7 +151,7 @@ func (f *Doc) AddDoc(
 	}
 
 	//add or update doc
-	err := indexer.Index(obj.Id, obj.JsonObj)
+	err := indexer.Index(docId, jsonObj)
 	if err != nil {
 		log.Println("Doc::AddDoc failed, err:", err.Error())
 		return err

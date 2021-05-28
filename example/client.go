@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/andyzhou/tinySearch"
+	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
 	"log"
@@ -20,7 +21,6 @@ import (
  */
 
 const (
-	RpcHost = "127.0.0.1"
 	RpcPort = 6060
 	IndexPath = "/data/test"
 	IndexTag = "test"
@@ -98,33 +98,24 @@ func docTesting(
 	}
 
 	//init test doc json
-	docId := "1"
+	docId := "2"
 	testDocJson := json.NewTestDocJson()
 	testDocJson.Id = docId
-	testDocJson.Title = "test"
+	testDocJson.Title = "test-1"
 	testDocJson.Cat = "car"
 	testDocJson.Price = 10.1
 	testDocJson.Num = 20
-	testDocJson.Introduce = "this is test"
+	testDocJson.Introduce = "this is test-1"
 	testDocJson.CreateAt = time.Now().Unix()
 
-	//add doc
-	docJson := json.NewDocJson()
-	docJson.Id = docId
-	docJson.JsonObj = testDocJson
 
 	//sync doc
-	//bRet = service.DocSync(IndexTag, docId, docJson.Encode())
-	//bRet = service.DocSync(IndexTag, docId, docJson.Encode())
+	//bRet = service.DocSync(IndexTag, docId, testDocJson.Encode())
 	//fmt.Println("doc sync ret:", bRet)
 
 	//add doc into local
-	//err := doc.AddDoc(index, docJson)
+	//err := doc.AddDoc(index, docId, testDocJson)
 	//fmt.Println("add doc result:", err)
-
-	//add doc into batch nodes
-	//bRet = service.DocSync(IndexTag, docId, testDocJson.Encode())
-	//fmt.Println("sync doc result:", bRet)
 
 	//remove doc from local
 	//bRet = doc.RemoveDoc(index, docId)
@@ -133,12 +124,30 @@ func docTesting(
 	//remove doc from batch nodes
 	//bRet = service.DocRemove(IndexTag, docId)
 	//fmt.Println("remove doc result:", bRet)
-	//return
 
 	//query opt
 	queryOptJson := json.NewQueryOptJson()
-	//queryOptJson.Tag = IndexTag
-	//queryOptJson.Key = "test"
+
+	//term query
+	//queryOptJson.QueryKind = define.QueryKindOfTerm
+	//queryOptJson.TermPara = json.TermQueryPara{
+	//	Field:"cat",
+	//	Val:"car",
+	//}
+
+	//key query
+	queryOptJson.Key = "car"
+	//queryOptJson.Fields = []string{
+	//	"cat",
+	//}
+
+	//setup filter
+	filterOne := &json.FilterField{
+		Kind:define.FilterKindMatch,
+		Field:"cat",
+		Val:"car",
+	}
+	queryOptJson.AddFilter(filterOne)
 
 	//query batch doc
 	result, _ := query.Query(index, queryOptJson)
