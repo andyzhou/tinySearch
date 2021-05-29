@@ -136,7 +136,7 @@ func docTesting(
 	//}
 
 	//key query
-	queryOptJson.Key = "car"
+	//queryOptJson.Key = "car"
 	//queryOptJson.Fields = []string{
 	//	"cat",
 	//}
@@ -147,7 +147,13 @@ func docTesting(
 		Field:"cat",
 		Val:"car",
 	}
-	queryOptJson.AddFilter(filterOne)
+
+	filterTwo := &json.FilterField{
+		Kind:define.FilterKindMatch,
+		Field:"title",
+		Val:"test1",
+	}
+	queryOptJson.AddFilter(filterOne, filterTwo)
 
 	//query batch doc
 	result, _ := query.Query(index, queryOptJson)
@@ -161,7 +167,7 @@ func docTesting(
 				continue
 			}
 			fmt.Println("jsonStr:", jsonStr)
-			fmt.Println("testJson:", testJson)
+			//fmt.Println("testJson:", testJson)
 		}
 	}
 

@@ -66,9 +66,6 @@ func (f *Query) Query(
 	default:
 		if opt.Key != "" {
 			docQuery = f.createMatchQuery(opt)
-		}else{
-			//match all
-			docQuery = bleve.NewMatchAllQuery()
 		}
 	}
 
@@ -123,8 +120,11 @@ func (f *Query) Query(
 				}
 			}
 		}
-		//add must doc query
-		boolQuery.AddMust(docQuery)
+
+		if docQuery != nil {
+			//add must doc query
+			boolQuery.AddMust(docQuery)
+		}
 
 		//init multi condition search request
 		searchRequest = bleve.NewSearchRequest(boolQuery)
