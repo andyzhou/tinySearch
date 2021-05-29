@@ -161,7 +161,11 @@ func (f *Query) Query(
 
 	//check result
 	if searchResult.Total <= 0 {
-		return nil, nil
+		result := &json.SearchResultJson{
+			Total: 0,
+			Records: nil,
+		}
+		return result, nil
 	}
 
 	//init result
