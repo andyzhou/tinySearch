@@ -46,7 +46,7 @@ func (f *Search) Quit() {
 func (f *Search) DocRemove(
 					tag string,
 					docId string,
-				) bool {
+				) error {
 	return f.manager.DocRemove(tag, docId)
 }
 
@@ -58,7 +58,7 @@ func (f *Search) DocSync(
 					tag string,
 					docId string,
 					jsonByte []byte,
-				) bool {
+				) error {
 	return f.manager.DocSync(tag, docId, jsonByte)
 }
 

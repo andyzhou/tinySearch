@@ -8,8 +8,8 @@ package iface
 
 type ISearch interface {
 	Quit()
-	DocRemove(tag, docId string) bool
-	DocSync(tag, docId string, jsonByte []byte) bool
+	DocRemove(tag, docId string) error
+	DocSync(tag, docId string, jsonByte []byte) error
 	GetSuggest() ISuggest
 	GetAgg() IAgg
 	GetQuery() IQuery

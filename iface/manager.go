@@ -11,8 +11,8 @@ type IManager interface {
 
 	//for doc sync and remove
 	DocsRemove(tag string, docIds []string) bool
-	DocRemove(tag, docId string) bool
-	DocSync(tag, docId string, jsonByte []byte) bool
+	DocRemove(tag, docId string) error
+	DocSync(tag, docId string, jsonByte []byte) error
 
 	//for rpc node
 	RemoveNode(addr string) bool

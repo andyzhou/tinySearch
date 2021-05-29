@@ -1,6 +1,7 @@
 package face
 
 import (
+	"errors"
 	"github.com/andyzhou/tinySearch/iface"
 	"sync"
 )
@@ -73,14 +74,14 @@ func (f *Manager) DocsRemove(
 func (f *Manager) DocRemove(
 					tag string,
 					docId string,
-				) bool {
+				) error {
 	//basic check
 	if tag == "" || docId == "" {
-		return false
+		return errors.New("invalid parameter")
 	}
 
 	if f.clients == nil {
-		return false
+		return errors.New("no any client")
 	}
 
 	//do doc sync on all clients
@@ -94,7 +95,7 @@ func (f *Manager) DocRemove(
 	}
 	f.clients.Range(sf)
 
-	return true
+	return nil
 }
 
 //doc sync to all clients
@@ -102,14 +103,14 @@ func (f *Manager) DocSync(
 					tag string,
 					docId string,
 					jsonByte []byte,
-				) bool {
+				) error {
 	//basic check
 	if tag == "" || docId == "" || jsonByte == nil {
-		return false
+		return errors.New("invalid parameter")
 	}
 
 	if f.clients == nil {
-		return false
+		return errors.New("no any client")
 	}
 
 	//do doc sync on all clients
@@ -123,7 +124,7 @@ func (f *Manager) DocSync(
 	}
 	f.clients.Range(sf)
 
-	return true
+	return nil
 }
 
 //remove client node
