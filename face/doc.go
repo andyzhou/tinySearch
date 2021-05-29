@@ -122,10 +122,13 @@ func (f *Doc) GetDoc(
 		return nil, errors.New("cant' get index")
 	}
 
-	//get doc
+	//get and check doc
 	doc, err := indexer.Document(docId)
 	if err != nil {
 		return nil, err
+	}
+	if doc == nil {
+		return nil, nil
 	}
 
 	//analyze doc
