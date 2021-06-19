@@ -168,6 +168,35 @@ func (f *Manager) AddNode(
 	return true
 }
 
+//get rand client
+func (f *Manager) GetClient() iface.IClient {
+	var (
+		dstClient iface.IClient
+		hasFound bool
+	)
+	if f.clients == nil {
+		return nil
+	}
+	sf := func(key, val interface{}) bool {
+		if hasFound {
+			return false
+		}
+		//check client
+		client, ok := val.(*Client)
+		if !ok || client == nil {
+			return false
+		}
+		if !client.isActive {
+			return false
+		}
+		dstClient = client
+		hasFound = true
+		return true
+	}
+	f.clients.Range(sf)
+	return dstClient
+}
+
 ////////////////
 //api for index
 ////////////////

@@ -2,6 +2,7 @@ package face
 
 import (
 	"context"
+	"errors"
 	"github.com/andyzhou/tinySearch/define"
 	search "github.com/andyzhou/tinySearch/pb"
 	"google.golang.org/grpc"
@@ -28,6 +29,7 @@ type DocSyncReq struct {
 //face info
 type Client struct {
 	addr string
+	isActive bool
 	conn *grpc.ClientConn //rpc client connect
 	client *search.SearchServiceClient //rpc client
 	docSyncChan chan DocSyncReq
@@ -59,6 +61,29 @@ func (f *Client) Quit() {
 }
 
 //call api
+func (f *Client) DocQuery(tag string, optJson []byte) ([][]byte, int32, error) {
+	//check
+	if tag == "" || optJson == nil {
+		return nil, 0, errors.New("invalid parameter")
+	}
+
+	//init real request
+	realReq := &search.DocQueryReq{
+		Tag:tag,
+		Json: optJson,
+	}
+
+	//call doc query api
+	resp, err := (*f.client).DocQuery(
+		context.Background(),
+		realReq,
+	)
+	if err != nil {
+		return nil, 0, err
+	}
+	return resp.RecList, resp.Total, nil
+}
+
 func (f *Client) DocRemove(
 					tag string,
 					docIds []string,
@@ -124,6 +149,10 @@ func (f *Client) DocSync(
 	return
 }
 
+//check client is active or not
+func (f *Client) IsActive() bool {
+	return f.isActive
+}
 
 ///////////////
 //private func
@@ -178,7 +207,9 @@ func (f *Client) docSyncProcess(
 		//remove doc
 		realReq := &search.DocRemoveReq{
 			Tag:req.Tag,
-			DocId:req.DocId,
+			DocId:[]string{
+				req.DocId,
+			},
 		}
 		//call doc remove api
 		resp, err = (*f.client).DocRemove(
@@ -214,6 +245,7 @@ func (f *Client) ping() bool {
 	//check status
 	isOk := f.checkStatus()
 	if isOk {
+		f.isActive = false
 		return true
 	}
 	//try re connect
@@ -255,6 +287,7 @@ func (f *Client) connServer() bool {
 	defer f.Unlock()
 	f.conn = conn
 	f.client = &client
+	f.isActive = true
 
 	return true
 }

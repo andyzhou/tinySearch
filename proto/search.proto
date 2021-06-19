@@ -25,8 +25,30 @@ message DocSyncResp {
   bool success = 1;
 }
 
+///////////////////////
+//proto for doc sync
+///////////////////////
+
+//message for doc query request
+message DocQueryReq {
+    string tag = 1;//index tag
+    bytes json = 2; //query opt json byte
+}
+
+//message for doc query response
+message DocQueryResp {
+    bool success = 1;
+    int32 total = 2;
+    repeated bytes recList = 3;//json slice
+}
+
+///////////////////////
 //define service
+///////////////////////
 service SearchService {
+    //doc query
+    rpc DocQuery(DocQueryReq) returns (DocQueryResp);
+
     //doc remove
     rpc DocRemove(DocRemoveReq) returns (DocSyncResp);
 

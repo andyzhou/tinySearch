@@ -8,7 +8,9 @@ package iface
 
 type IClient interface {
 	Quit()
-	DocRemove(tag, docId string) bool
+	DocQuery(tag string, optJson []byte) ([][]byte, int32, error)
+	DocRemove(tag string, docIds []string) bool
 	DocSync(tag, docId string, jsonByte []byte) bool
+	IsActive() bool
 }
 

@@ -83,7 +83,7 @@ func (m *DocSyncReq) GetJson() []byte {
 //message for doc remove request
 type DocRemoveReq struct {
 	Tag                  string   `protobuf:"bytes,1,opt,name=tag,proto3" json:"tag,omitempty"`
-	DocId                string   `protobuf:"bytes,2,opt,name=docId,proto3" json:"docId,omitempty"`
+	DocId                []string `protobuf:"bytes,2,rep,name=docId,proto3" json:"docId,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -121,11 +121,11 @@ func (m *DocRemoveReq) GetTag() string {
 	return ""
 }
 
-func (m *DocRemoveReq) GetDocId() string {
+func (m *DocRemoveReq) GetDocId() []string {
 	if m != nil {
 		return m.DocId
 	}
-	return ""
+	return nil
 }
 
 //message for doc sync response
@@ -168,29 +168,140 @@ func (m *DocSyncResp) GetSuccess() bool {
 	return false
 }
 
+//message for doc query request
+type DocQueryReq struct {
+	Tag                  string   `protobuf:"bytes,1,opt,name=tag,proto3" json:"tag,omitempty"`
+	Json                 []byte   `protobuf:"bytes,2,opt,name=json,proto3" json:"json,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DocQueryReq) Reset()         { *m = DocQueryReq{} }
+func (m *DocQueryReq) String() string { return proto.CompactTextString(m) }
+func (*DocQueryReq) ProtoMessage()    {}
+func (*DocQueryReq) Descriptor() ([]byte, []int) {
+	return fileDescriptor_453745cff914010e, []int{3}
+}
+
+func (m *DocQueryReq) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DocQueryReq.Unmarshal(m, b)
+}
+func (m *DocQueryReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DocQueryReq.Marshal(b, m, deterministic)
+}
+func (m *DocQueryReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DocQueryReq.Merge(m, src)
+}
+func (m *DocQueryReq) XXX_Size() int {
+	return xxx_messageInfo_DocQueryReq.Size(m)
+}
+func (m *DocQueryReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_DocQueryReq.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DocQueryReq proto.InternalMessageInfo
+
+func (m *DocQueryReq) GetTag() string {
+	if m != nil {
+		return m.Tag
+	}
+	return ""
+}
+
+func (m *DocQueryReq) GetJson() []byte {
+	if m != nil {
+		return m.Json
+	}
+	return nil
+}
+
+//message for doc query response
+type DocQueryResp struct {
+	Success              bool     `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Total                int32    `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	RecList              [][]byte `protobuf:"bytes,3,rep,name=recList,proto3" json:"recList,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DocQueryResp) Reset()         { *m = DocQueryResp{} }
+func (m *DocQueryResp) String() string { return proto.CompactTextString(m) }
+func (*DocQueryResp) ProtoMessage()    {}
+func (*DocQueryResp) Descriptor() ([]byte, []int) {
+	return fileDescriptor_453745cff914010e, []int{4}
+}
+
+func (m *DocQueryResp) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DocQueryResp.Unmarshal(m, b)
+}
+func (m *DocQueryResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DocQueryResp.Marshal(b, m, deterministic)
+}
+func (m *DocQueryResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DocQueryResp.Merge(m, src)
+}
+func (m *DocQueryResp) XXX_Size() int {
+	return xxx_messageInfo_DocQueryResp.Size(m)
+}
+func (m *DocQueryResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_DocQueryResp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DocQueryResp proto.InternalMessageInfo
+
+func (m *DocQueryResp) GetSuccess() bool {
+	if m != nil {
+		return m.Success
+	}
+	return false
+}
+
+func (m *DocQueryResp) GetTotal() int32 {
+	if m != nil {
+		return m.Total
+	}
+	return 0
+}
+
+func (m *DocQueryResp) GetRecList() [][]byte {
+	if m != nil {
+		return m.RecList
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*DocSyncReq)(nil), "search.DocSyncReq")
 	proto.RegisterType((*DocRemoveReq)(nil), "search.DocRemoveReq")
 	proto.RegisterType((*DocSyncResp)(nil), "search.DocSyncResp")
+	proto.RegisterType((*DocQueryReq)(nil), "search.DocQueryReq")
+	proto.RegisterType((*DocQueryResp)(nil), "search.DocQueryResp")
 }
 
 func init() { proto.RegisterFile("search.proto", fileDescriptor_453745cff914010e) }
 
 var fileDescriptor_453745cff914010e = []byte{
-	// 208 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x29, 0x4e, 0x4d, 0x2c,
-	0x4a, 0xce, 0xd0, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x83, 0xf0, 0x94, 0x3c, 0xb8, 0xb8,
-	0x5c, 0xf2, 0x93, 0x83, 0x2b, 0xf3, 0x92, 0x83, 0x52, 0x0b, 0x85, 0x04, 0xb8, 0x98, 0x4b, 0x12,
-	0xd3, 0x25, 0x18, 0x15, 0x18, 0x35, 0x38, 0x83, 0x40, 0x4c, 0x21, 0x11, 0x2e, 0xd6, 0x94, 0xfc,
-	0x64, 0xcf, 0x14, 0x09, 0x26, 0xb0, 0x18, 0x84, 0x23, 0x24, 0xc4, 0xc5, 0x92, 0x55, 0x9c, 0x9f,
-	0x27, 0xc1, 0xac, 0xc0, 0xa8, 0xc1, 0x13, 0x04, 0x66, 0x2b, 0x99, 0x71, 0xf1, 0xb8, 0xe4, 0x27,
-	0x07, 0xa5, 0xe6, 0xe6, 0x97, 0xa5, 0x92, 0x60, 0x96, 0x92, 0x3a, 0x17, 0x37, 0xdc, 0x05, 0xc5,
-	0x05, 0x42, 0x12, 0x5c, 0xec, 0xc5, 0xa5, 0xc9, 0xc9, 0xa9, 0xc5, 0xc5, 0x60, 0xad, 0x1c, 0x41,
-	0x30, 0xae, 0x51, 0x35, 0x17, 0x6f, 0x30, 0xd8, 0xd1, 0xc1, 0xa9, 0x45, 0x65, 0x99, 0xc9, 0xa9,
-	0x42, 0x66, 0x5c, 0x9c, 0x70, 0x1b, 0x85, 0x44, 0xf4, 0xa0, 0xfe, 0x43, 0x76, 0x84, 0x94, 0x30,
-	0x92, 0x28, 0xdc, 0x0a, 0x23, 0x2e, 0x76, 0x28, 0x57, 0x48, 0x08, 0x43, 0x1e, 0xbb, 0x1e, 0x27,
-	0x41, 0x2e, 0xfe, 0xe4, 0xfc, 0x5c, 0xbd, 0x92, 0xcc, 0xbc, 0x4a, 0xa8, 0x74, 0x12, 0x1b, 0x38,
-	0x24, 0x8d, 0x01, 0x01, 0x00, 0x00, 0xff, 0xff, 0x43, 0xd6, 0xde, 0x8d, 0x59, 0x01, 0x00, 0x00,
+	// 281 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x52, 0xcd, 0x6a, 0xf3, 0x30,
+	0x10, 0xc4, 0xd1, 0x97, 0xbf, 0xfd, 0x5c, 0x28, 0x9b, 0x14, 0x44, 0x4e, 0xc6, 0x97, 0xfa, 0xe4,
+	0x43, 0x42, 0xf3, 0x00, 0x25, 0x87, 0x16, 0x7a, 0xa9, 0x7c, 0xe9, 0xd5, 0xdd, 0x88, 0xd6, 0xa5,
+	0xb1, 0x5c, 0x49, 0x09, 0xf8, 0xb5, 0xfa, 0x84, 0xc5, 0xb2, 0x2d, 0x0c, 0x09, 0xed, 0xc5, 0xec,
+	0xac, 0x67, 0x46, 0xa3, 0x41, 0x10, 0x1a, 0x99, 0x6b, 0x7a, 0x4f, 0x2b, 0xad, 0xac, 0xc2, 0x49,
+	0x8b, 0xe2, 0x07, 0x80, 0x9d, 0xa2, 0xac, 0x2e, 0x49, 0xc8, 0x2f, 0xbc, 0x06, 0x66, 0xf3, 0x37,
+	0x1e, 0x44, 0x41, 0x32, 0x17, 0xcd, 0x88, 0x4b, 0x18, 0xef, 0x15, 0x3d, 0xee, 0xf9, 0xc8, 0xed,
+	0x5a, 0x80, 0x08, 0xff, 0x3e, 0x8c, 0x2a, 0x39, 0x8b, 0x82, 0x24, 0x14, 0x6e, 0x8e, 0xb7, 0x10,
+	0xee, 0x14, 0x09, 0x79, 0x50, 0x27, 0xf9, 0xa7, 0x17, 0xf3, 0x5e, 0xf1, 0x2d, 0xfc, 0xf7, 0x09,
+	0x4c, 0x85, 0x1c, 0xa6, 0xe6, 0x48, 0x24, 0x8d, 0x71, 0xd2, 0x99, 0xe8, 0x61, 0xbc, 0x71, 0xc4,
+	0xe7, 0xa3, 0xd4, 0xf5, 0x65, 0xff, 0x3e, 0xd5, 0x68, 0x90, 0xea, 0xc5, 0xa5, 0xea, 0x44, 0xbf,
+	0xd9, 0x37, 0xe9, 0xac, 0xb2, 0xf9, 0xa7, 0x93, 0x8f, 0x45, 0x0b, 0x1a, 0xbe, 0x96, 0xf4, 0x54,
+	0x18, 0xcb, 0x59, 0xc4, 0x92, 0x50, 0xf4, 0x70, 0xfd, 0x1d, 0xc0, 0x55, 0xe6, 0x4a, 0xcc, 0xa4,
+	0x3e, 0x15, 0x24, 0xf1, 0x0e, 0x66, 0xfd, 0x59, 0xb8, 0x48, 0xbb, 0xba, 0x07, 0x91, 0x57, 0xcb,
+	0xf3, 0xa5, 0xa9, 0x70, 0x0b, 0x73, 0x5f, 0x1c, 0x0e, 0x29, 0xbe, 0xcb, 0xd5, 0xd0, 0xcd, 0x37,
+	0xb5, 0x86, 0x69, 0x07, 0x11, 0xcf, 0xfe, 0x5f, 0xd6, 0xdc, 0xdf, 0xc0, 0x82, 0xd4, 0x21, 0xb5,
+	0x45, 0x59, 0xbb, 0x4f, 0x7b, 0x81, 0xd7, 0x89, 0x7b, 0x14, 0x9b, 0x9f, 0x00, 0x00, 0x00, 0xff,
+	0xff, 0x41, 0xcc, 0xb4, 0x56, 0x24, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -205,6 +316,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type SearchServiceClient interface {
+	//doc query
+	DocQuery(ctx context.Context, in *DocQueryReq, opts ...grpc.CallOption) (*DocQueryResp, error)
 	//doc remove
 	DocRemove(ctx context.Context, in *DocRemoveReq, opts ...grpc.CallOption) (*DocSyncResp, error)
 	//doc sync
@@ -217,6 +330,15 @@ type searchServiceClient struct {
 
 func NewSearchServiceClient(cc *grpc.ClientConn) SearchServiceClient {
 	return &searchServiceClient{cc}
+}
+
+func (c *searchServiceClient) DocQuery(ctx context.Context, in *DocQueryReq, opts ...grpc.CallOption) (*DocQueryResp, error) {
+	out := new(DocQueryResp)
+	err := c.cc.Invoke(ctx, "/search.SearchService/DocQuery", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *searchServiceClient) DocRemove(ctx context.Context, in *DocRemoveReq, opts ...grpc.CallOption) (*DocSyncResp, error) {
@@ -239,6 +361,8 @@ func (c *searchServiceClient) DocSync(ctx context.Context, in *DocSyncReq, opts 
 
 // SearchServiceServer is the server API for SearchService service.
 type SearchServiceServer interface {
+	//doc query
+	DocQuery(context.Context, *DocQueryReq) (*DocQueryResp, error)
 	//doc remove
 	DocRemove(context.Context, *DocRemoveReq) (*DocSyncResp, error)
 	//doc sync
@@ -249,6 +373,9 @@ type SearchServiceServer interface {
 type UnimplementedSearchServiceServer struct {
 }
 
+func (*UnimplementedSearchServiceServer) DocQuery(ctx context.Context, req *DocQueryReq) (*DocQueryResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DocQuery not implemented")
+}
 func (*UnimplementedSearchServiceServer) DocRemove(ctx context.Context, req *DocRemoveReq) (*DocSyncResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DocRemove not implemented")
 }
@@ -258,6 +385,24 @@ func (*UnimplementedSearchServiceServer) DocSync(ctx context.Context, req *DocSy
 
 func RegisterSearchServiceServer(s *grpc.Server, srv SearchServiceServer) {
 	s.RegisterService(&_SearchService_serviceDesc, srv)
+}
+
+func _SearchService_DocQuery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DocQueryReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SearchServiceServer).DocQuery(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/search.SearchService/DocQuery",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SearchServiceServer).DocQuery(ctx, req.(*DocQueryReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _SearchService_DocRemove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -300,6 +445,10 @@ var _SearchService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "search.SearchService",
 	HandlerType: (*SearchServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "DocQuery",
+			Handler:    _SearchService_DocQuery_Handler,
+		},
 		{
 			MethodName: "DocRemove",
 			Handler:    _SearchService_DocRemove_Handler,

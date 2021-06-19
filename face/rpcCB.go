@@ -18,6 +18,7 @@ import (
 //face info
 type IRpcCB struct {
 	manager iface.IManager //manager reference
+	query iface.IQuery
 	json.BaseJson
 }
 
@@ -28,6 +29,7 @@ func NewIRpcCB(
 	//self init
 	this := &IRpcCB{
 		manager:manager,
+		query: NewQuery(),
 	}
 	return this
 }
@@ -35,6 +37,54 @@ func NewIRpcCB(
 //////////////////////
 //call backs for rpc
 /////////////////////
+
+//doc query
+func (f *IRpcCB) DocQuery(
+					ctx context.Context,
+					in *search.DocQueryReq,
+				) (*search.DocQueryResp, error) {
+	var (
+		tip string
+	)
+
+	//check input
+	if in == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//decode query opt json
+	queryOptJson := json.NewQueryOptJson()
+	bRet := queryOptJson.Decode(in.Json)
+	if !bRet {
+		tip = fmt.Sprintf("invalid query opt json")
+		return nil, errors.New(tip)
+	}
+
+	//get index
+	index := f.manager.GetIndex(in.Tag)
+	if index == nil {
+		tip = fmt.Sprintf("can't get index by tag of %s", in.Tag)
+		return nil, errors.New(tip)
+	}
+
+	//query doc
+	result, err := f.query.Query(index, queryOptJson)
+	if err != nil {
+		return nil, err
+	}
+
+	//format result
+	resp := &search.DocQueryResp{
+		Success: true,
+		Total: int32(result.Total),
+		RecList: make([][]byte, 0),
+	}
+	for _, hitDocJson := range result.Records {
+		resp.RecList = append(resp.RecList, hitDocJson.OrgJson)
+	}
+
+	return resp, nil
+}
 
 //doc remove
 func (f *IRpcCB) DocRemove(
@@ -59,11 +109,12 @@ func (f *IRpcCB) DocRemove(
 
 	//remove from local index
 	indexer := index.GetIndex()
-	err := indexer.Delete(in.DocId)
-	if err != nil {
-		return nil, errors.New(err.Error())
+	for _, docId := range in.DocId {
+		err := indexer.Delete(docId)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 	}
-
 	//format result
 	result := &search.DocSyncResp{
 		Success:true,

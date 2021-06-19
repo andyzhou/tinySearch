@@ -6,8 +6,7 @@ import (
 )
 
 /*
- * face for service
- * this is main entry
+ * service api
  * @author <AndyZhou>
  * @mail <diudiu8848@163.com>
  */
@@ -49,9 +48,6 @@ func (f *Search) DocRemove(
 				) error {
 	return f.manager.DocRemove(tag, docId)
 }
-
-//batch doc remove
-
 
 //doc sync into batch node
 func (f *Search) DocSync(

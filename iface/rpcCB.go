@@ -12,6 +12,11 @@ import (
  */
 
 type IRpcCB interface {
+	DocQuery(
+		ctx context.Context,
+		in *search.DocQueryReq,
+	) (*search.DocQueryResp, error)
+
 	DocRemove(
 		ctx context.Context,
 		in *search.DocRemoveReq,

@@ -18,7 +18,7 @@ type SearchJson struct {
  type SearchResultJson struct {
  	Total uint64 `json:"total"`
  	Records []*HitDocJson `json:"records"`
-	 BaseJson
+ 	BaseJson
  }
 
 ///////////////////////////
