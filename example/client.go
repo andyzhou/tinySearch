@@ -148,12 +148,12 @@ func docTesting(
 		Val:"car",
 	}
 
-	filterTwo := &json.FilterField{
-		Kind:define.FilterKindMatch,
-		Field:"title",
-		Val:"test1",
-	}
-	queryOptJson.AddFilter(filterOne, filterTwo)
+	//filterTwo := &json.FilterField{
+	//	Kind:define.FilterKindMatch,
+	//	Field:"title",
+	//	Val:"test1",
+	//}
+	queryOptJson.AddFilter(filterOne)
 
 	//query batch doc
 	result, _ := query.Query(index, queryOptJson)
