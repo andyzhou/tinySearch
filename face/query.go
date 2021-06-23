@@ -66,6 +66,8 @@ func (f *Query) Query(
 	default:
 		if opt.Key != "" {
 			docQuery = f.createMatchQuery(opt)
+		}else{
+			docQuery = bleve.NewMatchAllQuery()
 		}
 	}
 
