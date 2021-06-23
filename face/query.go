@@ -139,6 +139,17 @@ func (f *Query) Query(
 		searchRequest.Highlight = bleve.NewHighlight()
 	}
 
+	//sort by
+	if opt.Sort != nil {
+		customSort := make([]search.SearchSort, 0)
+		cs := search.SortField{
+			Field: opt.Sort.Field,
+			Desc: !opt.Sort.Ascending,
+		}
+		customSort = append(customSort, &cs)
+		searchRequest.SortByCustom(customSort)
+	}
+
 	//check page and page size
 	if opt.Page <= 0 {
 		opt.Page = 1
