@@ -144,11 +144,13 @@ func (f *Query) Query(
 	//sort by
 	if opt.Sort != nil {
 		customSort := make([]search.SearchSort, 0)
-		cs := search.SortField{
-			Field: opt.Sort.Field,
-			Desc: !opt.Sort.Ascending,
+		for _, sort := range opt.Sort {
+			cs := search.SortField{
+				Field: sort.Field,
+				Desc: sort.Desc,
+			}
+			customSort = append(customSort, &cs)
 		}
-		customSort = append(customSort, &cs)
 		searchRequest.SortByCustom(customSort)
 	}
 

@@ -29,7 +29,7 @@ type FilterField struct {
 //sort field
 type SortField struct {
 	Field string `json:"field"`
-	Ascending bool `json:"ascending"` //true:asc false:dsc
+	Desc bool `json:"desc"` //true:desc false:asc
 }
 
 //term query para
@@ -47,7 +47,7 @@ type QueryOptJson struct {
 	Fields []string `json:"fields"`
 	Filters []*FilterField `json:"filters"`
 	AggField *AggField `json:"aggField"` //only for agg
-	Sort *SortField `json:"sort"`
+	Sort []*SortField `json:"sort"`
 	HighLight bool `json:"highLight"`
 	Page int `json:"page"`
 	PageSize int `json:"pageSize"`
@@ -78,6 +78,7 @@ func NewQueryOptJson() *QueryOptJson {
 		AggField: &AggField{
 			NumericRanges: make([]*RangeVal, 0),
 		},
+		Sort:make([]*SortField, 0),
 	}
 	return this
 }
