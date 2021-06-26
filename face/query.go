@@ -63,6 +63,8 @@ func (f *Query) Query(
 		docQuery = f.createPrefixQuery(opt)
 	case define.QueryKindOfMatchQuery:
 		docQuery = f.createMatchQuery(opt)
+	case define.QueryKindOfPhrase:
+		docQuery = bleve.NewMatchPhraseQuery(opt.Key)
 	default:
 		if opt.Key != "" {
 			docQuery = f.createMatchQuery(opt)
