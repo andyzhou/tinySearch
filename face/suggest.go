@@ -53,7 +53,7 @@ func (f *Suggest) GetSuggest(
 	}
 
 	//init query
-	docQuery := bleve.NewMatchQuery(opt.Key)
+	docQuery := bleve.NewPrefixQuery(opt.Key)
 
 	//set query field
 	docQuery.SetField("key")
