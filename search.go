@@ -22,7 +22,7 @@ type Search struct {
 }
 
 //construct
-func NewSearch(port int) *Search {
+func NewSearch(rpcPort int) *Search {
 	//self init
 	this := &Search{
 		manager: face.NewManager(),
@@ -32,7 +32,7 @@ func NewSearch(port int) *Search {
 		suggest: face.NewSuggest(),
 	}
 	//init rpc
-	this.rpc = face.NewRpc(port, this.manager)
+	this.rpc = face.NewRpc(rpcPort, this.manager)
 	return this
 }
 

@@ -1,7 +1,7 @@
 syntax = "proto3";
 package search;
 
-option java_package = "com.tiny.tinySearch";
+option java_package = "com.tc.tinySearch";
 
 ///////////////////////
 //proto for doc sync
