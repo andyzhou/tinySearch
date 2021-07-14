@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
 	search "github.com/andyzhou/tinySearch/pb"
@@ -51,6 +52,27 @@ func (f *IRpcCB) DocQuery(
 	//check input
 	if in == nil {
 		return nil, errors.New("invalid parameter")
+	}
+
+	//get key data
+	optKind := in.Kind
+
+	//do diff opt by kind
+	switch optKind {
+	case define.QueryOptKindOfAgg:
+		{
+
+		}
+	case define.QueryOptKindOfSuggest:
+		{
+
+		}
+	case define.QueryOptKindOfGen:
+		fallthrough
+	default:
+		{
+
+		}
 	}
 
 	//decode query opt json
@@ -164,3 +186,7 @@ func (f *IRpcCB) DocSync(
 	}
 	return result, nil
 }
+
+/////////////////
+//private func
+/////////////////

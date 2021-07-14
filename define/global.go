@@ -6,6 +6,13 @@ const (
 	ReqChanSize = 1024
 )
 
+//query opt kind
+const (
+	QueryOptKindOfGen = iota
+	QueryOptKindOfAgg
+	QueryOptKindOfSuggest
+)
+
 //query kind
 const (
 	QueryKindOfTerm = iota + 1

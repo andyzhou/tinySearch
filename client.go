@@ -12,6 +12,13 @@ import (
  * @mail <diudiu8848@163.com>
  */
 
+//query opt kind
+const (
+	QueryOptKindOfGen = iota
+	QueryOptKindOfAgg
+	QueryOptKindOfSuggest
+)
+
 //face info
 type Client struct {
 	manager iface.IManager
@@ -32,7 +39,7 @@ func (f *Client) Quit() {
 }
 
 //query doc
-func (f *Client) DocQuery(tag string, optJson []byte) ([][]byte, int32, error) {
+func (f *Client) DocQuery(optKind int, tag string, optJson []byte) ([][]byte, int32, error) {
 	//get client
 	client := f.manager.GetClient()
 	if client == nil {
@@ -40,7 +47,7 @@ func (f *Client) DocQuery(tag string, optJson []byte) ([][]byte, int32, error) {
 	}
 
 	//doc query
-	return client.DocQuery(tag, optJson)
+	return client.DocQuery(optKind, tag, optJson)
 }
 
 //remove doc

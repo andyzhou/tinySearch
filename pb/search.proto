@@ -26,13 +26,14 @@ message DocSyncResp {
 }
 
 ///////////////////////
-//proto for doc sync
+//proto for doc query
 ///////////////////////
 
 //message for doc query request
 message DocQueryReq {
-    string tag = 1;//index tag
-    bytes json = 2; //query opt json byte
+    int32 kind = 1; //query kind
+    string tag = 2; //index tag
+    bytes json = 3; //query opt json byte
 }
 
 //message for doc query response

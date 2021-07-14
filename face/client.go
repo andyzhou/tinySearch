@@ -61,7 +61,7 @@ func (f *Client) Quit() {
 }
 
 //call api
-func (f *Client) DocQuery(tag string, optJson []byte) ([][]byte, int32, error) {
+func (f *Client) DocQuery(optKind int, tag string, optJson []byte) ([][]byte, int32, error) {
 	//check
 	if tag == "" || optJson == nil {
 		return nil, 0, errors.New("invalid parameter")
