@@ -21,7 +21,7 @@ type SuggestOptJson struct {
  }
 
  type SuggestsJson struct {
- 	Total int `json:"total"`
+ 	Total int64 `json:"total"`
  	List []*SuggestJson `json:"list"`
  	BaseJson
  }

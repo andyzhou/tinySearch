@@ -121,6 +121,7 @@ func (f *Suggest) GetSuggest(
 
 	//init result
 	result := json.NewSuggestsJson()
+	result.Total = int64(searchResult.Total)
 
 	//format records
 	for _, hit := range searchResult.Hits {

@@ -22,7 +22,7 @@ import (
 
 const (
 	RpcPort = 6060
-	IndexPath = "/e/data"
+	IndexPath = "/data/search"
 	IndexTag = "test"
 )
 
@@ -81,49 +81,87 @@ func main() {
 }
 
 //doc testing
-func docTesting(
-		service iface.ISearch,
-	)  {
+func docTesting(service iface.ISearch)  {
+	if service == nil {
+		return
+	}
+
+	//test sync doc
+	//testSyncDoc(service)
+
+	//test query doc
+	//testQuery(service)
+
+	//test agg
+	//testAgg(service)
+
+	//test suggest
+	testSuggest(service)
+}
+
+//test suggest
+func testSuggest(service iface.ISearch) {
+	//get relate face
+	suggest := service.GetSuggest()
+
+	//opt
+	optJson := json.NewSuggestOptJson()
+	optJson.Key = "test"
+
+	//query
+	rec := suggest.GetSuggest(optJson)
+	fmt.Println("rec:", rec.Total)
+}
+
+//test agg
+func testAgg(service iface.ISearch) {
+	//get relate face
+	index := service.GetIndex(IndexTag)
+	agg := service.GetAgg()
+
+	//query opt
+	queryOptJson := json.NewQueryOptJson()
+
+	//key query
+	queryOptJson.Key = "test"
+	//queryOptJson.Fields = []string{
+	//	"cat",
+	//}
+
+	//setup filter
+	filterOne := &json.FilterField{
+		Kind:define.FilterKindMatch,
+		Field:"cat",
+		Val:"car",
+	}
+
+	//filterTwo := &json.FilterField{
+	//	Kind:define.FilterKindMatch,
+	//	Field:"title",
+	//	Val:"test1",
+	//}
+	queryOptJson.AddFilter(filterOne)
+
+	//agg doc
+	queryOptJson.AggField = &json.AggField{
+		Field:"cat",
+		Size:10,
+	}
+	aggResult, _ := agg.GetAggList(index, queryOptJson)
+	fmt.Println("aggResult:", aggResult)
+}
+
+//test query
+func testQuery(service iface.ISearch) {
 	var (
 		bRet bool
 	)
 
 	//get relate face
 	index := service.GetIndex(IndexTag)
-	doc := service.GetDoc()
+
+	//get query face
 	query := service.GetQuery()
-	agg := service.GetAgg()
-	if index == nil || doc == nil {
-		return
-	}
-
-	//init test doc json
-	docId := "2"
-	testDocJson := json.NewTestDocJson()
-	testDocJson.Id = docId
-	testDocJson.Title = "test-1"
-	testDocJson.Cat = "car"
-	testDocJson.Price = 10.1
-	testDocJson.Num = 20
-	testDocJson.Introduce = "this is test-1"
-	testDocJson.CreateAt = time.Now().Unix()
-
-
-	//sync doc
-	err := service.DocSync(IndexTag, docId, testDocJson.Encode())
-	fmt.Println("doc sync, err:", err)
-
-	//add doc into local
-	//err := doc.AddDoc(index, docId, testDocJson)
-	//fmt.Println("add doc result:", err)
-
-	//remove doc from local
-	//bRet = doc.RemoveDoc(index, docId)
-	//fmt.Println("remove doc result:", bRet)
-
-	//remove doc from batch nodes
-	//bRet = service.DocRemove(IndexTag, docId)
-	//fmt.Println("remove doc result:", bRet)
 
 	//query opt
 	queryOptJson := json.NewQueryOptJson()
@@ -136,7 +174,7 @@ func docTesting(
 	//}
 
 	//key query
-	//queryOptJson.Key = "car"
+	queryOptJson.Key = "test"
 	//queryOptJson.Fields = []string{
 	//	"cat",
 	//}
@@ -170,12 +208,22 @@ func docTesting(
 			//fmt.Println("testJson:", testJson)
 		}
 	}
+}
 
-	//agg doc
-	queryOptJson.AggField = &json.AggField{
-		Field:"cat",
-		Size:10,
-	}
-	aggResult, _ := agg.GetAggList(index, queryOptJson)
-	fmt.Println("aggResult:", aggResult)
+//test sync doc
+func testSyncDoc(service iface.ISearch) {
+	//init test doc json
+	docId := "2"
+	testDocJson := json.NewTestDocJson()
+	testDocJson.Id = docId
+	testDocJson.Title = "test-1"
+	testDocJson.Cat = "car"
+	testDocJson.Price = 10.1
+	testDocJson.Num = 20
+	testDocJson.Introduce = "this is test-1"
+	testDocJson.CreateAt = time.Now().Unix()
+
+	//sync doc
+	err := service.DocSync(IndexTag, docId, testDocJson.Encode())
+	fmt.Println("doc sync, err:", err)
 }
