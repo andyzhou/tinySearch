@@ -15,7 +15,7 @@ import (
 )
 
 /*
- * face for example client
+ * face for example service
  * @author <AndyZhou>
  * @mail <diudiu8848@163.com>
  */
