@@ -16,7 +16,7 @@ type SuggestOptJson struct {
  type SuggestJson struct {
  	Kind int `json:"kind"`
  	Key string `json:"key"`
- 	Count string `json:"count"`
+ 	Count int64 `json:"count"`
  	BaseJson
  }
 

@@ -21,7 +21,7 @@ type Client struct {
 func NewClient() *Client {
 	//self init
 	self := &Client{
-		manager: face.NewManager(),
+		manager: face.NewManager(""),
 	}
 	return self
 }

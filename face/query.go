@@ -22,13 +22,15 @@ import (
 
 //face info
 type Query struct {
+	suggester iface.ISuggest //refer of parent
 	Base
 }
 
 //construct
-func NewQuery() *Query {
+func NewQuery(suggester iface.ISuggest) *Query {
 	//self init
 	this := &Query{
+		suggester:suggester,
 	}
 	return this
 }
@@ -183,6 +185,16 @@ func (f *Query) Query(
 			Records: nil,
 		}
 		return result, nil
+	}
+
+	//sync into suggester
+	if f.suggester != nil && opt.Key != "" {
+		if searchResult.Total > 0 {
+			suggestJson := json.NewSuggestJson()
+			suggestJson.Key = opt.Key
+			suggestJson.Count = int64(searchResult.Total)
+			f.suggester.AddSuggest(suggestJson)
+		}
 	}
 
 	//init result

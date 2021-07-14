@@ -14,14 +14,16 @@ import (
 
 //face info
 type Manager struct {
+	dataPath string
 	indexes *sync.Map
 	clients *sync.Map
 }
 
 //construct
-func NewManager() *Manager{
+func NewManager(dataPath string) *Manager{
 	//self init
 	this := &Manager{
+		dataPath:dataPath,
 		indexes:new(sync.Map),
 		clients:new(sync.Map),
 	}
@@ -240,11 +242,10 @@ func (f *Manager) GetIndex(
 
 //add search index
 func (f *Manager) AddIndex(
-					dir string,
 					tag string,
 				) bool {
 	//basic check
-	if dir == "" || tag == "" || f.indexes == nil {
+	if tag == "" || f.indexes == nil {
 		return false
 	}
 
@@ -255,7 +256,7 @@ func (f *Manager) AddIndex(
 	}
 
 	//init new index
-	index := NewIndex(dir, tag)
+	index := NewIndex(f.dataPath, tag)
 
 	//create index
 	index.CreateIndex()

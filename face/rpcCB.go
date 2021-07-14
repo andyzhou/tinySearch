@@ -25,11 +25,12 @@ type IRpcCB struct {
 //construct
 func NewIRpcCB(
 			manager iface.IManager,
+			suggester iface.ISuggest,
 		) *IRpcCB {
 	//self init
 	this := &IRpcCB{
 		manager:manager,
-		query: NewQuery(),
+		query: NewQuery(suggester),
 	}
 	return this
 }

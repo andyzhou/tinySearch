@@ -21,7 +21,7 @@ type IManager interface {
 	//for index
 	RemoveIndex(tag string) bool
 	GetIndex(tag string) IIndex
-	AddIndex(dir, tag string) bool
+	AddIndex(tag string) bool
 
 	//get rand client
 	GetClient() IClient

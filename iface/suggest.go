@@ -9,6 +9,7 @@ import "github.com/andyzhou/tinySearch/json"
  */
 
 type ISuggest interface {
-	GetSuggest(index IIndex, opt *json.SuggestOptJson) *json.SuggestsJson
-	AddSuggest(index IIndex, doc *json.SuggestJson) bool
+	Quit()
+	GetSuggest(opt *json.SuggestOptJson) *json.SuggestsJson
+	AddSuggest(doc *json.SuggestJson) bool
 }

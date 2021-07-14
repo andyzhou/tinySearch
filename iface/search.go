@@ -15,7 +15,7 @@ type ISearch interface {
 	GetQuery() IQuery
 	GetDoc() IDoc
 	GetIndex(tag string) IIndex
-	AddIndex(dir, tag string) bool
+	AddIndex(tag string) bool
 	AddNode(addr ...string) bool
 	GetManager() IManager
 }

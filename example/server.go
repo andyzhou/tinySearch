@@ -22,7 +22,7 @@ import (
 
 const (
 	RpcPort = 6060
-	IndexPath = "/data/test"
+	IndexPath = "/e/data"
 	IndexTag = "test"
 )
 
@@ -58,14 +58,14 @@ func main() {
 	}(&wg)
 
 	//init service
-	service := tinySearch.NewSearch(RpcPort)
+	service := tinySearch.NewSearch(IndexPath, RpcPort)
 
 	//add node
 	rpcAddr := fmt.Sprintf(":%d", RpcPort)
 	service.AddNode(rpcAddr)
 
 	//add index
-	service.AddIndex(IndexPath, IndexTag)
+	service.AddIndex(IndexTag)
 
 	//start wait group
 	fmt.Println("start example...")

@@ -22,15 +22,17 @@ type Search struct {
 }
 
 //construct
-func NewSearch(rpcPort int) *Search {
+func NewSearch(dataPath string, rpcPort int) *Search {
 	//self init
 	this := &Search{
-		manager: face.NewManager(),
+		manager: face.NewManager(dataPath),
+		suggest: face.NewSuggest(dataPath),
 		doc:     face.NewDoc(),
-		query:   face.NewQuery(),
 		agg:     face.NewAgg(),
-		suggest: face.NewSuggest(),
 	}
+	//init query
+	this.query = face.NewQuery(this.suggest)
+
 	//init rpc
 	this.rpc = face.NewRpc(rpcPort, this.manager)
 	return this
@@ -38,6 +40,7 @@ func NewSearch(rpcPort int) *Search {
 
 //quit
 func (f *Search) Quit() {
+	f.suggest.Quit()
 	f.rpc.Stop()
 }
 
@@ -87,9 +90,9 @@ func (f *Search) GetIndex(
 
 //add index
 func (f *Search) AddIndex(
-					dir, tag string,
+					tag string,
 				) bool {
-	return f.manager.AddIndex(dir, tag)
+	return f.manager.AddIndex(tag)
 }
 
 //add rpc node
