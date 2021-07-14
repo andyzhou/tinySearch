@@ -34,7 +34,7 @@ func NewSearch(dataPath string, rpcPort int) *Search {
 	this.query = face.NewQuery(this.suggest)
 
 	//init rpc
-	this.rpc = face.NewRpc(rpcPort, this.manager)
+	this.rpc = face.NewRpc(rpcPort, this.manager, this.suggest)
 	return this
 }
 
