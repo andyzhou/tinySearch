@@ -18,7 +18,6 @@ import (
 
 //suggest record field
 const (
-	SuggestFieldKind = "kind"
 	SuggestFieldKey = "key"
 	SuggestFieldCount = "count"
 )
@@ -89,15 +88,6 @@ func (f *Suggest) GetSuggest(
 	//add must query
 	boolQuery.AddMust(docQuery)
 
-	if opt.Kind > 0 {
-		//add filter field and value
-		kindFloat := float64(opt.Kind)
-		kindFloatEnd := kindFloat + 1
-		pq := bleve.NewNumericRangeQuery(&kindFloat, &kindFloatEnd)
-		pq.SetField("kind")
-		boolQuery.AddMust(pq)
-	}
-
 	//init multi condition search request
 	searchRequest := bleve.NewSearchRequest(boolQuery)
 
@@ -138,13 +128,6 @@ func (f *Suggest) GetSuggest(
 		genMap := f.FormatDoc(doc)
 		for k, v := range genMap {
 			switch k {
-			case SuggestFieldKind:
-				{
-					v1, ok := v.(float64)
-					if ok {
-						suggestJson.Kind = int(v1)
-					}
-				}
 			case SuggestFieldKey:
 				{
 					v1, ok := v.(string)

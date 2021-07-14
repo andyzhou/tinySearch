@@ -106,7 +106,7 @@ func testSuggest(service iface.ISearch) {
 
 	//opt
 	optJson := json.NewSuggestOptJson()
-	optJson.Key = "test"
+	optJson.Key = "tes"
 
 	//query
 	rec := suggest.GetSuggest(optJson)

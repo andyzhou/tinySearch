@@ -7,14 +7,12 @@ package json
 //suggest opt json
 type SuggestOptJson struct {
 	Key string `json:"key"`
-	Kind int `json:"kind"`
 	Size int `json:"size"`
 	BaseJson
 }
 
  //suggest doc json
  type SuggestJson struct {
- 	Kind int `json:"kind"`
  	Key string `json:"key"`
  	Count int64 `json:"count"`
  	BaseJson
