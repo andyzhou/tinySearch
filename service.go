@@ -32,23 +32,6 @@ func (f *Service) Quit() {
 	f.rpcService.Stop()
 }
 
-//doc remove from batch node
-func (f *Service) DocRemove(
-					tag string,
-					docId string,
-				) error {
-	return f.manager.DocRemove(tag, docId)
-}
-
-//doc sync into batch node
-func (f *Service) DocSync(
-					tag string,
-					docId string,
-					jsonByte []byte,
-				) error {
-	return f.manager.DocSync(tag, docId, jsonByte)
-}
-
 //get suggest face
 func (f *Service) GetSuggest() iface.ISuggest {
 	return f.manager.GetSuggest()
@@ -81,11 +64,4 @@ func (f *Service) AddIndex(
 					tag string,
 				) bool {
 	return f.manager.AddIndex(tag)
-}
-
-//add rpc node
-func (f *Service) AddNode(
-					addr ...string,
-				) bool {
-	return f.manager.AddNode(addr...)
 }

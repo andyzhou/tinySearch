@@ -3,6 +3,7 @@ package face
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
 	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
@@ -61,16 +62,16 @@ func (f *Suggest) Quit() {
 //get suggest
 func (f *Suggest) GetSuggest(
 					opt *json.SuggestOptJson,
-				) *json.SuggestsJson {
+				) (*json.SuggestsJson, error) {
 	//basic check
 	if opt == nil {
-		return nil
+		return nil, errors.New("invalid parameter")
 	}
 
 	//get index
 	indexer := f.index.GetIndex()
 	if indexer == nil {
-		return nil
+		return nil, errors.New("can't get indexer")
 	}
 
 	//init query
@@ -98,13 +99,13 @@ func (f *Suggest) GetSuggest(
 	searchResult, err := indexer.Search(searchRequest)
 	if err != nil {
 		log.Println("Suggest::GetSuggest failed, err:", err.Error())
-		return nil
+		return nil, err
 	}
 
 	//check hits
 	if searchResult.Hits == nil ||
 		searchResult.Hits.Len() <= 0 {
-		return nil
+		return nil, nil
 	}
 
 	//init result
@@ -146,7 +147,7 @@ func (f *Suggest) GetSuggest(
 		result.AddObj(suggestJson)
 	}
 
-	return result
+	return result, nil
 }
 
 

@@ -42,32 +42,13 @@ func (f *RpcCB) DocQuery(
 				) (*search.DocQueryResp, error) {
 	var (
 		tip string
+		jsonByte []byte
+		err error
 	)
 
 	//check input
 	if in == nil {
 		return nil, errors.New("invalid parameter")
-	}
-
-	//get key data
-	optKind := in.Kind
-
-	//do diff opt by kind
-	switch optKind {
-	case define.QueryOptKindOfAgg:
-		{
-
-		}
-	case define.QueryOptKindOfSuggest:
-		{
-
-		}
-	case define.QueryOptKindOfGen:
-		fallthrough
-	default:
-		{
-
-		}
 	}
 
 	//decode query opt json
@@ -85,22 +66,39 @@ func (f *RpcCB) DocQuery(
 		return nil, errors.New(tip)
 	}
 
-	//query doc
-	query := f.manager.GetQuery()
-	result, err := query.Query(index, queryOptJson)
-	if err != nil {
-		return nil, err
-	}
-
 	//format result
 	resp := &search.DocQueryResp{
 		Success: true,
-		Total: int32(result.Total),
 		RecList: make([][]byte, 0),
 	}
-	for _, hitDocJson := range result.Records {
-		resp.RecList = append(resp.RecList, hitDocJson.OrgJson)
+
+	//get key data
+	optKind := in.Kind
+
+	//do diff opt by kind
+	switch optKind {
+	case define.QueryOptKindOfAgg:
+		{
+			jsonByte, err = f.aggDocQuery(index, queryOptJson)
+		}
+	case define.QueryOptKindOfSuggest:
+		{
+			jsonByte, err = f.suggestDocQuery(index, queryOptJson)
+		}
+	case define.QueryOptKindOfGen:
+		fallthrough
+	default:
+		{
+			jsonByte, err = f.genDocQuery(index, queryOptJson)
+		}
 	}
+
+	//format response
+	if err != nil {
+		return nil, err
+	}
+	resp.Success = true
+	resp.RecList = append(resp.RecList, jsonByte)
 
 	return resp, nil
 }
@@ -187,34 +185,47 @@ func (f *RpcCB) DocSync(
 //private func
 /////////////////
 
+//suggest query
+func (f *RpcCB) suggestDocQuery(
+					index iface.IIndex,
+					queryOptJson *json.QueryOptJson,
+				) ([]byte, error) {
+	//suggest doc
+	suggest := f.manager.GetSuggest()
+	suggestOptJson := json.NewSuggestOptJson()
+	suggestOptJson.Key = queryOptJson.Key
+	suggestOptJson.Size = queryOptJson.PageSize
+	suggestListJson, err := suggest.GetSuggest(suggestOptJson)
+	if err != nil {
+		return nil, err
+	}
+	return suggestListJson.Encode(), nil
+}
+
 //agg query
 func (f *RpcCB) aggDocQuery(
 					index iface.IIndex,
 					queryOptJson *json.QueryOptJson,
-				) (*search.DocQueryResp, error) {
-	return nil, nil
+				) ([]byte, error) {
+	//agg doc
+	agg := f.manager.GetAgg()
+	aggListJson, err := agg.GetAggList(index, queryOptJson)
+	if err != nil {
+		return nil, err
+	}
+	return aggListJson.Encode(), nil
 }
 
 //general query
 func (f *RpcCB) genDocQuery(
 					index iface.IIndex,
 					queryOptJson *json.QueryOptJson,
-				 ) (*search.DocQueryResp, error) {
+				 ) ([]byte, error) {
 	//query doc
 	query := f.manager.GetQuery()
-	result, err := query.Query(index, queryOptJson)
+	resultsJson, err := query.Query(index, queryOptJson)
 	if err != nil {
 		return nil, err
 	}
-
-	//format result
-	resp := &search.DocQueryResp{
-		Success: true,
-		Total: int32(result.Total),
-		RecList: make([][]byte, 0),
-	}
-	for _, hitDocJson := range result.Records {
-		resp.RecList = append(resp.RecList, hitDocJson.OrgJson)
-	}
-	return resp, nil
+	return resultsJson.Encode(), nil
 }

@@ -63,10 +63,70 @@ func main() {
 	fmt.Println("client start..")
 
 	//testing
-	testClientSyncDoc(client)
+	testing(client)
 
 	wg.Wait()
 	fmt.Println("client stop..")
+}
+
+//testing
+func testing(client *tinySearch.Client) {
+	//suggest doc
+	testClientSuggestDoc(client)
+
+	//agg doc
+	//testClientAggDoc(client)
+
+	//query doc
+	//testClientQueryDoc(client)
+
+	//remove doc
+	//testClientRemoveDoc(client)
+
+	//sync doc
+	//testClientSyncDoc(client)
+}
+
+//test suggest doc
+func testClientSuggestDoc(client *tinySearch.Client) {
+	optJson := json.NewQueryOptJson()
+	optJson.Key = "te"
+	resp, err := client.DocSuggest(ServerIndexTag, optJson)
+	fmt.Println("resp:", resp)
+	fmt.Println("err:", err)
+}
+
+//test agg doc
+func testClientAggDoc(client *tinySearch.Client) {
+	optJson := json.NewQueryOptJson()
+	optJson.Key = "test"
+	optJson.AggField = &json.AggField{
+		Field:"cat",
+		Size:10,
+	}
+	resp, err := client.DocAgg(ServerIndexTag, optJson)
+	fmt.Println("resp:", resp)
+	fmt.Println("err:", err)
+}
+
+//test query doc
+func testClientQueryDoc(client *tinySearch.Client) {
+	optJson := json.NewQueryOptJson()
+	optJson.Key = "test"
+	resp, err := client.DocQuery(ServerIndexTag, optJson)
+	fmt.Println("resp:", resp)
+	fmt.Println("err:", err)
+}
+
+//test remove doc
+func testClientRemoveDoc(client *tinySearch.Client) {
+	docId := "4"
+	err := client.DocRemove(ServerIndexTag, docId)
+	if err != nil {
+		fmt.Println("remove doc failed, err:", err.Error())
+	}else{
+		fmt.Println("remove doc succeed.")
+	}
 }
 
 //test sync doc

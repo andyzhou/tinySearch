@@ -1,7 +1,6 @@
 package face
 
 import (
-	"errors"
 	"github.com/andyzhou/tinySearch/iface"
 	"sync"
 )
@@ -15,7 +14,6 @@ import (
 type Manager struct {
 	dataPath string
 	indexes *sync.Map
-	clients *sync.Map
 	//sub face
 	doc iface.IDoc
 	query iface.IQuery
@@ -29,7 +27,6 @@ func NewManager(dataPath string) *Manager{
 	this := &Manager{
 		dataPath:dataPath,
 		indexes:new(sync.Map),
-		clients:new(sync.Map),
 		doc:NewDoc(),
 		agg:NewAgg(),
 		suggest:NewSuggest(dataPath),
@@ -40,18 +37,6 @@ func NewManager(dataPath string) *Manager{
 
 //quit
 func (f *Manager) Quit() {
-	if f.clients == nil {
-		return
-	}
-	sf := func(_, v interface{}) bool {
-		client, ok := v.(*RpcClient)
-		if !ok {
-			return false
-		}
-		client.Quit()
-		return true
-	}
-	f.clients.Range(sf)
 }
 
 //get sub face
@@ -69,130 +54,6 @@ func (f *Manager) GetAgg() iface.IAgg {
 
 func (f *Manager) GetSuggest() iface.ISuggest {
 	return f.suggest
-}
-
-//batch doc remove
-func (f *Manager) DocsRemove(
-					tag string,
-					docIds []string,
-				) bool {
-	//basic check
-	if tag == "" || docIds == nil {
-		return false
-	}
-	if f.clients == nil {
-		return false
-	}
-
-	//do doc sync on all clients
-	sf := func(k, v interface{}) bool {
-		client, ok := v.(*RpcClient)
-		if !ok {
-			return false
-		}
-		client.DocRemove(tag, docIds)
-		return true
-	}
-	f.clients.Range(sf)
-	return true
-}
-
-//doc remove from all clients
-func (f *Manager) DocRemove(
-					tag string,
-					docId string,
-				) error {
-	//basic check
-	if tag == "" || docId == "" {
-		return errors.New("invalid parameter")
-	}
-
-	if f.clients == nil {
-		return errors.New("no any client")
-	}
-
-	//do doc sync on all clients
-	sf := func(k, v interface{}) bool {
-		client, ok := v.(*RpcClient)
-		if !ok {
-			return false
-		}
-		client.DocRemove(tag, []string{docId})
-		return true
-	}
-	f.clients.Range(sf)
-
-	return nil
-}
-
-//doc sync to all clients
-func (f *Manager) DocSync(
-					tag string,
-					docId string,
-					jsonByte []byte,
-				) error {
-	//basic check
-	if tag == "" || docId == "" || jsonByte == nil {
-		return errors.New("invalid parameter")
-	}
-
-	if f.clients == nil {
-		return errors.New("no any client")
-	}
-
-	//do doc sync on all clients
-	sf := func(k, v interface{}) bool {
-		client, ok := v.(*RpcClient)
-		if !ok {
-			return false
-		}
-		client.DocSync(tag, docId, jsonByte)
-		return true
-	}
-	f.clients.Range(sf)
-
-	return nil
-}
-
-//remove client node
-func (f *Manager) RemoveNode(
-					addr string,
-				) bool {
-	//basic check
-	if addr == "" || f.clients == nil {
-		return false
-	}
-
-	//remove
-	f.clients.Delete(addr)
-
-	return true
-}
-
-//add client node
-func (f *Manager) AddNode(
-					addrArr ...string,
-				) bool {
-	//basic check
-	if addrArr == nil || len(addrArr) <= 0 || f.clients == nil {
-		return false
-	}
-
-	for _, addr := range addrArr {
-		//check record
-		_, ok := f.clients.Load(addr)
-		if ok {
-			continue
-		}
-
-		//init new client
-		client := NewRpcClient(addr)
-
-		//sync into map
-		f.clients.Store(addr, client)
-	}
-
-	return true
 }
 
 ////////////////

@@ -2,6 +2,7 @@ package tinySearch
 
 import (
 	"errors"
+	"fmt"
 	"github.com/andyzhou/tinySearch/face"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
@@ -85,16 +86,12 @@ func (f *Client) DocSuggest(
 	}
 
 	//format result
-	suggestsJson := json.NewSuggestsJson()
-	for _, jsonByte := range jsonByteSlice {
-		suggestJson := json.NewSuggestJson()
-		bRet = suggestJson.Decode(jsonByte)
-		if !bRet {
-			continue
-		}
-		suggestsJson.AddObj(suggestJson)
+	resultJson := json.NewSuggestsJson()
+	bRet = resultJson.Decode(jsonByteSlice[0])
+	if !bRet {
+		return nil, errors.New("invalid json byte data")
 	}
-	return suggestsJson, nil
+	return resultJson, nil
 }
 
 //agg doc
@@ -133,16 +130,12 @@ func (f *Client) DocAgg(
 	}
 
 	//format result
-	aggJsonSlice := json.NewAggregatesJson()
-	for _, jsonByte := range jsonByteSlice {
-		aggJson := json.NewAggregateJson()
-		bRet = aggJson.Decode(jsonByte)
-		if !bRet {
-			continue
-		}
-		aggJsonSlice.AddObj(aggJson)
+	resultJson := json.NewAggregatesJson()
+	bRet = resultJson.Decode(jsonByteSlice[0])
+	if !bRet {
+		return nil, errors.New("invalid json byte data")
 	}
-	return aggJsonSlice, nil
+	return resultJson, nil
 }
 
 //query doc
@@ -166,7 +159,7 @@ func (f *Client) DocQuery(
 	}
 
 	//call api
-	jsonByteSlice, hitDocs, err := client.DocQuery(
+	jsonByteSlice, _, err := client.DocQuery(
 								QueryOptKindOfGen,
 								indexTag,
 								optJson.Encode(),
@@ -181,17 +174,12 @@ func (f *Client) DocQuery(
 	}
 
 	//format result
-	queryResultJsons := json.NewSearchResultJson()
-	queryResultJsons.Total = uint64(hitDocs)
-	for _, jsonByte := range jsonByteSlice {
-		hitDocJson := json.NewHitDocJson()
-		bRet = hitDocJson.Decode(jsonByte)
-		if !bRet {
-			continue
-		}
-		queryResultJsons.AddDoc(hitDocJson)
+	resultJson := json.NewSearchResultJson()
+	bRet = resultJson.Decode(jsonByteSlice[0])
+	if !bRet {
+		return nil, errors.New("invalid json byte data")
 	}
-	return queryResultJsons, nil
+	return resultJson, nil
 }
 
 //remove doc
@@ -199,40 +187,70 @@ func (f *Client) DocRemove(
 					indexTag string,
 					docIds ...string,
 				) error {
+	var (
+		bRet bool
+	)
 	//check
 	if indexTag == "" || docIds == nil {
 		return errors.New("invalid parameter")
 	}
-	//get rpc client
-	client := f.getClient()
-	if client == nil {
-		return errors.New("can't get active rpc client")
+	if f.rpcClients == nil {
+		return errors.New("no any active rpc client")
 	}
-	bRet := client.DocRemove(indexTag, docIds)
-	if !bRet {
-		return errors.New("doc remove failed")
+	//run on all rpc clients
+	succeed := 0
+	failed := 0
+	for _, client := range f.rpcClients {
+		if !client.IsActive() {
+			failed++
+			continue
+		}
+		bRet = client.DocRemove(indexTag, docIds...)
+		if bRet {
+			succeed++
+		}else{
+			failed++
+		}
+	}
+	if failed > 0 {
+		return errors.New(fmt.Sprintf("failed:%v, succeed:%v", failed, succeed))
 	}
 	return nil
 }
 
 //add sync
-//used for add, sync doc
+//used for add, sync doc, run on all nodes
 func (f *Client) DocSync(
 					indexTag, docId string,
 					docJson []byte,
 				) error {
+	var (
+		bRet bool
+	)
 	//check
 	if indexTag == "" || docId == "" || docJson == nil {
 		return errors.New("invalid parameter")
 	}
-	//get rpc client
-	client := f.getClient()
-	if client == nil {
-		return errors.New("can't get active rpc client")
+	if f.rpcClients == nil {
+		return errors.New("no any active rpc client")
 	}
-	bRet := client.DocSync(indexTag, docId, docJson)
-	if !bRet {
-		return errors.New("doc sync failed")
+	//run on all rpc clients
+	succeed := 0
+	failed := 0
+	for _, client := range f.rpcClients {
+		if !client.IsActive() {
+			failed++
+			continue
+		}
+		bRet = client.DocSync(indexTag, docId, docJson)
+		if bRet {
+			succeed++
+		}else{
+			failed++
+		}
+	}
+	if failed > 0 {
+		return errors.New(fmt.Sprintf("failed:%v, succeed:%v", failed, succeed))
 	}
 	return nil
 }

@@ -67,6 +67,7 @@ func (f *RpcClient) DocQuery(optKind int, tag string, optJson []byte) ([][]byte,
 
 	//init real request
 	realReq := &search.DocQueryReq{
+		Kind:int32(optKind),
 		Tag:tag,
 		Json: optJson,
 	}
@@ -84,7 +85,7 @@ func (f *RpcClient) DocQuery(optKind int, tag string, optJson []byte) ([][]byte,
 
 func (f *RpcClient) DocRemove(
 					tag string,
-					docIds []string,
+					docIds ...string,
 				) (bRet bool) {
 	//basic check
 	if tag == "" || docIds == nil || f.client == nil {
@@ -109,8 +110,9 @@ func (f *RpcClient) DocRemove(
 	}
 
 	//send to chan
-	f.docSyncChan <- req
-	bRet = true
+	//f.docSyncChan <- req
+	//bRet = true
+	bRet = f.docSyncProcess(&req)
 	return
 }
 

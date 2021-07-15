@@ -7,15 +7,6 @@ package iface
 type IManager interface {
 	Quit()
 
-	//for doc sync and remove
-	DocsRemove(tag string, docIds []string) bool
-	DocRemove(tag, docId string) error
-	DocSync(tag, docId string, jsonByte []byte) error
-
-	//for rpc node
-	RemoveNode(addr string) bool
-	AddNode(addr ...string) bool
-
 	//for index
 	RemoveIndex(tag string) bool
 	GetIndex(tag string) IIndex
@@ -26,7 +17,4 @@ type IManager interface {
 	GetQuery() IQuery
 	GetAgg() IAgg
 	GetSuggest() ISuggest
-
-	//get rand client
-	//GetClient() IClient
 }
