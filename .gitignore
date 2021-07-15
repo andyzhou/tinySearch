@@ -1,1 +1,3 @@
-tinySearch_darwin
+*_darwin
+*.exe
+logs
