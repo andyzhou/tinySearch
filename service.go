@@ -7,14 +7,12 @@ import (
 
 /*
  * service api
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
  */
 
 //face info
 type Service struct {
 	manager iface.IManager
-	rpc iface.IRpc
+	rpcService iface.IRpcService
 }
 
 //construct
@@ -24,14 +22,14 @@ func NewService(dataPath string, rpcPort int) *Service {
 		manager: face.NewManager(dataPath),
 	}
 	//init rpc
-	this.rpc = face.NewRpc(rpcPort, this.manager)
+	this.rpcService = face.NewRpcService(rpcPort, this.manager)
 	return this
 }
 
 //quit
 func (f *Service) Quit() {
 	f.manager.Quit()
-	f.rpc.Stop()
+	f.rpcService.Stop()
 }
 
 //doc remove from batch node
@@ -90,9 +88,4 @@ func (f *Service) AddNode(
 					addr ...string,
 				) bool {
 	return f.manager.AddNode(addr...)
-}
-
-//get manager face
-func (f *Service) GetManager() iface.IManager {
-	return f.manager
 }

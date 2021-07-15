@@ -2,8 +2,6 @@ package iface
 
 /*
  * interface for inter manager
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
  */
 
 type IManager interface {
@@ -30,5 +28,5 @@ type IManager interface {
 	GetSuggest() ISuggest
 
 	//get rand client
-	GetClient() IClient
+	//GetClient() IClient
 }

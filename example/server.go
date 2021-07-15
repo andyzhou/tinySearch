@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/andyzhou/tinySearch"
 	"github.com/andyzhou/tinySearch/define"
-	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
 	"log"
 	"os"
@@ -73,7 +72,7 @@ func main() {
 	wg.Add(1)
 
 	//testing
-	go docTesting(service)
+	//go docTesting(service)
 
 	wg.Wait()
 	service.Quit()
@@ -81,7 +80,7 @@ func main() {
 }
 
 //doc testing
-func docTesting(service iface.ISearch)  {
+func docTesting(service *tinySearch.Service)  {
 	if service == nil {
 		return
 	}
@@ -100,7 +99,7 @@ func docTesting(service iface.ISearch)  {
 }
 
 //test suggest
-func testSuggest(service iface.ISearch) {
+func testSuggest(service *tinySearch.Service) {
 	//get relate face
 	suggest := service.GetSuggest()
 
@@ -110,11 +109,13 @@ func testSuggest(service iface.ISearch) {
 
 	//query
 	rec := suggest.GetSuggest(optJson)
-	fmt.Println("rec:", rec.Total)
+	if rec != nil {
+		fmt.Println("rec:", rec.Total)
+	}
 }
 
 //test agg
-func testAgg(service iface.ISearch) {
+func testAgg(service *tinySearch.Service) {
 	//get relate face
 	index := service.GetIndex(IndexTag)
 	agg := service.GetAgg()
@@ -152,7 +153,7 @@ func testAgg(service iface.ISearch) {
 }
 
 //test query
-func testQuery(service iface.ISearch) {
+func testQuery(service *tinySearch.Service) {
 	var (
 		bRet bool
 	)
@@ -211,7 +212,7 @@ func testQuery(service iface.ISearch) {
 }
 
 //test sync doc
-func testSyncDoc(service iface.ISearch) {
+func testSyncDoc(service *tinySearch.Service) {
 	//init test doc json
 	docId := "2"
 	testDocJson := json.NewTestDocJson()

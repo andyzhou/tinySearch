@@ -11,8 +11,6 @@ import (
 
 /*
  * face for base
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
  */
 
 //face info

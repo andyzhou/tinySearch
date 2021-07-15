@@ -11,9 +11,7 @@ import (
 )
 
 /*
- * face for rpc call back
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
+ * rpc call back for rpc service
  */
 
 //face info
@@ -33,9 +31,9 @@ func NewRpcCB(
 	return this
 }
 
-//////////////////////
-//call backs for rpc
-/////////////////////
+/////////////////////////////
+//call backs for rpc service
+/////////////////////////////
 
 //doc query
 func (f *RpcCB) DocQuery(

@@ -4,8 +4,6 @@ import "github.com/andyzhou/tinySearch/json"
 
 /*
  * interface for doc
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
  */
 
 type IDoc interface {

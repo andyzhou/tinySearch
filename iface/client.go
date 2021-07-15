@@ -2,11 +2,9 @@ package iface
 
 /*
  * interface for rpc client
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
  */
 
-type IClient interface {
+type IRpcClient interface {
 	Quit()
 	DocQuery(optKind int, tag string, optJson []byte) ([][]byte, int32, error)
 	DocRemove(tag string, docIds []string) bool

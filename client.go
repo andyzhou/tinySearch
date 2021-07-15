@@ -5,12 +5,12 @@ import (
 	"github.com/andyzhou/tinySearch/face"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
+	"log"
+	"sync"
 )
 
 /*
  * client api
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
  */
 
 //query opt kind
@@ -22,21 +22,31 @@ const (
 
 //face info
 type Client struct {
-	manager iface.IManager
+	rpcClients map[string]iface.IRpcClient
+	sync.RWMutex
 }
 
 //construct
 func NewClient() *Client {
 	//self init
 	self := &Client{
-		manager: face.NewManager(""),
+		rpcClients:make(map[string]iface.IRpcClient),
 	}
 	return self
 }
 
 //quit
 func (f *Client) Quit() {
-	f.manager.Quit()
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("Client:Quit panic, err:", err)
+		}
+	}()
+	if f.rpcClients != nil {
+		for _, client := range f.rpcClients {
+			client.Quit()
+		}
+	}
 }
 
 //suggest doc
@@ -48,15 +58,20 @@ func (f *Client) DocSuggest(
 		bRet bool
 	)
 
-	//get client
-	client := f.manager.GetClient()
+	//check
+	if indexTag == "" || optJson == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//get rpc client
+	client := f.getClient()
 	if client == nil {
-		return nil, errors.New("can't get client")
+		return nil, errors.New("can't get active rpc client")
 	}
 
 	//call api
 	jsonByteSlice, _, err := client.DocQuery(
-		QueryOptKindOfAgg,
+		QueryOptKindOfSuggest,
 		indexTag,
 		optJson.Encode(),
 	)
@@ -91,10 +106,15 @@ func (f *Client) DocAgg(
 		bRet bool
 	)
 
-	//get client
-	client := f.manager.GetClient()
+	//check
+	if indexTag == "" || optJson == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//get rpc client
+	client := f.getClient()
 	if client == nil {
-		return nil, errors.New("can't get client")
+		return nil, errors.New("can't get active rpc client")
 	}
 
 	//call api
@@ -134,10 +154,15 @@ func (f *Client) DocQuery(
 		bRet bool
 	)
 
-	//get client
-	client := f.manager.GetClient()
+	//check
+	if indexTag == "" || optJson == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//get rpc client
+	client := f.getClient()
 	if client == nil {
-		return nil, errors.New("can't get client")
+		return nil, errors.New("can't get active rpc client")
 	}
 
 	//call api
@@ -170,17 +195,46 @@ func (f *Client) DocQuery(
 }
 
 //remove doc
-func (f *Client) DocRemove(tag, docId string) error {
-	//remove doc from relate nodes pass manager
-	err := f.manager.DocRemove(tag, docId)
-	return err
+func (f *Client) DocRemove(
+					indexTag string,
+					docIds ...string,
+				) error {
+	//check
+	if indexTag == "" || docIds == nil {
+		return errors.New("invalid parameter")
+	}
+	//get rpc client
+	client := f.getClient()
+	if client == nil {
+		return errors.New("can't get active rpc client")
+	}
+	bRet := client.DocRemove(indexTag, docIds)
+	if !bRet {
+		return errors.New("doc remove failed")
+	}
+	return nil
 }
 
-//sync doc
-func (f *Client) DocSync(tag, docId string, docJson []byte) error {
-	//sync doc to relate nodes pass manager
-	err := f.manager.DocSync(tag, docId, docJson)
-	return err
+//add sync
+//used for add, sync doc
+func (f *Client) DocSync(
+					indexTag, docId string,
+					docJson []byte,
+				) error {
+	//check
+	if indexTag == "" || docId == "" || docJson == nil {
+		return errors.New("invalid parameter")
+	}
+	//get rpc client
+	client := f.getClient()
+	if client == nil {
+		return errors.New("can't get active rpc client")
+	}
+	bRet := client.DocSync(indexTag, docId, docJson)
+	if !bRet {
+		return errors.New("doc sync failed")
+	}
+	return nil
 }
 
 //add search service nodes
@@ -189,8 +243,33 @@ func (f *Client) AddNodes(nodes ... string) bool {
 	if nodes == nil || len(nodes) <= 0 {
 		return false
 	}
+	//check and init new rpc client
+	for _, node := range nodes {
+		//check
+		_, ok := f.rpcClients[node]
+		if ok {
+			continue
+		}
+		//create new rpc client
+		rpcClient := face.NewRpcClient(node)
+		f.rpcClients[node] = rpcClient
+	}
+	return true
+}
 
-	//add into manager
-	bRet := f.manager.AddNode(nodes...)
-	return bRet
+//////////////
+//private func
+//////////////
+
+//get rand active rpc client
+func (f *Client) getClient() iface.IRpcClient {
+	if f.rpcClients == nil {
+		return nil
+	}
+	for _, client := range f.rpcClients {
+		if client.IsActive() {
+			return client
+		}
+	}
+	return nil
 }

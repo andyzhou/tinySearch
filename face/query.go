@@ -16,8 +16,6 @@ import (
 
 /*
  * face for query
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
  */
 
 //face info

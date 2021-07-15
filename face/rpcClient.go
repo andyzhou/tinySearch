@@ -13,8 +13,6 @@ import (
 
 /*
  * face for rpc client
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
  */
 
 //doc sync request
@@ -27,7 +25,7 @@ type DocSyncReq struct {
 }
 
 //face info
-type Client struct {
+type RpcClient struct {
 	addr string
 	isActive bool
 	conn *grpc.ClientConn //rpc client connect
@@ -38,9 +36,9 @@ type Client struct {
 }
 
 //construct
-func NewClient(addr string) *Client {
+func NewRpcClient(addr string) *RpcClient {
 	//self init
-	this := &Client{
+	this := &RpcClient{
 		addr:addr,
 		docSyncChan:make(chan DocSyncReq, define.ReqChanSize),
 		closeChan:make(chan bool, 1),
@@ -56,12 +54,12 @@ func NewClient(addr string) *Client {
 }
 
 //quit
-func (f *Client) Quit() {
+func (f *RpcClient) Quit() {
 	f.closeChan <- true
 }
 
 //call api
-func (f *Client) DocQuery(optKind int, tag string, optJson []byte) ([][]byte, int32, error) {
+func (f *RpcClient) DocQuery(optKind int, tag string, optJson []byte) ([][]byte, int32, error) {
 	//check
 	if tag == "" || optJson == nil {
 		return nil, 0, errors.New("invalid parameter")
@@ -84,7 +82,7 @@ func (f *Client) DocQuery(optKind int, tag string, optJson []byte) ([][]byte, in
 	return resp.RecList, resp.Total, nil
 }
 
-func (f *Client) DocRemove(
+func (f *RpcClient) DocRemove(
 					tag string,
 					docIds []string,
 				) (bRet bool) {
@@ -116,7 +114,7 @@ func (f *Client) DocRemove(
 	return
 }
 
-func (f *Client) DocSync(
+func (f *RpcClient) DocSync(
 					tag string,
 					docId string,
 					jsonByte []byte,
@@ -150,7 +148,7 @@ func (f *Client) DocSync(
 }
 
 //check client is active or not
-func (f *Client) IsActive() bool {
+func (f *RpcClient) IsActive() bool {
 	return f.isActive
 }
 
@@ -159,7 +157,7 @@ func (f *Client) IsActive() bool {
 ///////////////
 
 //run main process
-func (f *Client) runMainProcess() {
+func (f *RpcClient) runMainProcess() {
 	var (
 		ticker = time.NewTicker(time.Second * define.ClientCheckTicker)
 		req DocSyncReq
@@ -191,7 +189,7 @@ func (f *Client) runMainProcess() {
 }
 
 //doc sync into rpc server
-func (f *Client) docSyncProcess(
+func (f *RpcClient) docSyncProcess(
 					req *DocSyncReq,
 				) bool {
 	var (
@@ -241,7 +239,7 @@ func (f *Client) docSyncProcess(
 }
 
 //ping server
-func (f *Client) ping() bool {
+func (f *RpcClient) ping() bool {
 	//check status
 	isOk := f.checkStatus()
 	if isOk {
@@ -254,7 +252,7 @@ func (f *Client) ping() bool {
 }
 
 //check server status
-func (f *Client) checkStatus() bool {
+func (f *RpcClient) checkStatus() bool {
 	//check connect
 	if f.conn == nil {
 		return false
@@ -268,7 +266,7 @@ func (f *Client) checkStatus() bool {
 }
 
 //connect rpc server
-func (f *Client) connServer() bool {
+func (f *RpcClient) connServer() bool {
 	//try connect
 	conn, err := grpc.Dial(f.addr, grpc.WithInsecure())
 	if err != nil {

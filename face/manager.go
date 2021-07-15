@@ -7,9 +7,8 @@ import (
 )
 
 /*
- * face for inter manager
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
+ * inter manager for rpc service
+ * - sync doc for new or remove
  */
 
 //face info
@@ -45,7 +44,7 @@ func (f *Manager) Quit() {
 		return
 	}
 	sf := func(_, v interface{}) bool {
-		client, ok := v.(*Client)
+		client, ok := v.(*RpcClient)
 		if !ok {
 			return false
 		}
@@ -87,7 +86,7 @@ func (f *Manager) DocsRemove(
 
 	//do doc sync on all clients
 	sf := func(k, v interface{}) bool {
-		client, ok := v.(*Client)
+		client, ok := v.(*RpcClient)
 		if !ok {
 			return false
 		}
@@ -114,7 +113,7 @@ func (f *Manager) DocRemove(
 
 	//do doc sync on all clients
 	sf := func(k, v interface{}) bool {
-		client, ok := v.(*Client)
+		client, ok := v.(*RpcClient)
 		if !ok {
 			return false
 		}
@@ -143,7 +142,7 @@ func (f *Manager) DocSync(
 
 	//do doc sync on all clients
 	sf := func(k, v interface{}) bool {
-		client, ok := v.(*Client)
+		client, ok := v.(*RpcClient)
 		if !ok {
 			return false
 		}
@@ -187,42 +186,13 @@ func (f *Manager) AddNode(
 		}
 
 		//init new client
-		client := NewClient(addr)
+		client := NewRpcClient(addr)
 
 		//sync into map
 		f.clients.Store(addr, client)
 	}
 
 	return true
-}
-
-//get rand client
-func (f *Manager) GetClient() iface.IClient {
-	var (
-		dstClient iface.IClient
-		hasFound bool
-	)
-	if f.clients == nil {
-		return nil
-	}
-	sf := func(key, val interface{}) bool {
-		if hasFound {
-			return false
-		}
-		//check client
-		client, ok := val.(*Client)
-		if !ok || client == nil {
-			return false
-		}
-		if !client.isActive {
-			return false
-		}
-		dstClient = client
-		hasFound = true
-		return true
-	}
-	f.clients.Range(sf)
-	return dstClient
 }
 
 ////////////////

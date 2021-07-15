@@ -12,8 +12,6 @@ import (
 
 /*
  * face for suggest
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
  */
 
 //suggest record field

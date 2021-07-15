@@ -6,9 +6,7 @@ import (
 )
 
 /*
- * interface for rpc call back
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
+ * interface for rpc service call back
  */
 
 type IRpcCB interface {

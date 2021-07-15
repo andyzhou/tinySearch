@@ -11,12 +11,10 @@ import (
 
 /*
  * face for rpc service
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
  */
 
 //face info
-type Rpc struct {
+type RpcService struct {
 	addr string //rpc address
 	manager iface.IManager //reference
 	listener *net.Listener
@@ -24,12 +22,12 @@ type Rpc struct {
 }
 
 //construct
-func NewRpc(
+func NewRpcService(
 			port int,
 			manager iface.IManager,//reference
-		) *Rpc {
+		) *RpcService {
 	//self init
-	this := &Rpc{
+	this := &RpcService{
 		addr:fmt.Sprintf(":%d", port),
 		manager:manager,
 	}
@@ -39,7 +37,7 @@ func NewRpc(
 }
 
 //stop service
-func (f *Rpc) Stop() {
+func (f *RpcService) Stop() {
 	if f.service != nil {
 		f.service.Stop()
 	}
@@ -53,7 +51,7 @@ func (f *Rpc) Stop() {
 /////////////////
 
 //start service
-func (f *Rpc) start() {
+func (f *RpcService) start() {
 	//basic check
 	if f.listener == nil || f.service == nil {
 		return
@@ -64,7 +62,7 @@ func (f *Rpc) start() {
 }
 
 //begin rpc service
-func (f *Rpc) beginService() {
+func (f *RpcService) beginService() {
 	if f.listener == nil {
 		return
 	}
@@ -78,7 +76,7 @@ func (f *Rpc) beginService() {
 }
 
 //create rpc service
-func (f *Rpc) createService() {
+func (f *RpcService) createService() {
 	//listen tcp port
 	listen, err := net.Listen("tcp", f.addr)
 	if err != nil {
