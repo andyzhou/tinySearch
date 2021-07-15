@@ -71,7 +71,7 @@ func (f *Client) DocSuggest(
 	}
 
 	//call api
-	jsonByteSlice, _, err := client.DocQuery(
+	jsonByte, err := client.DocQuery(
 		QueryOptKindOfSuggest,
 		indexTag,
 		optJson.Encode(),
@@ -81,13 +81,13 @@ func (f *Client) DocSuggest(
 	}
 
 	//analyze result
-	if jsonByteSlice == nil || len(jsonByteSlice) <= 0 {
+	if jsonByte == nil {
 		return nil, nil
 	}
 
 	//format result
 	resultJson := json.NewSuggestsJson()
-	bRet = resultJson.Decode(jsonByteSlice[0])
+	bRet = resultJson.Decode(jsonByte)
 	if !bRet {
 		return nil, errors.New("invalid json byte data")
 	}
@@ -115,7 +115,7 @@ func (f *Client) DocAgg(
 	}
 
 	//call api
-	jsonByteSlice, _, err := client.DocQuery(
+	jsonByte, err := client.DocQuery(
 									QueryOptKindOfAgg,
 									indexTag,
 									optJson.Encode(),
@@ -125,13 +125,13 @@ func (f *Client) DocAgg(
 	}
 
 	//analyze result
-	if jsonByteSlice == nil || len(jsonByteSlice) <= 0 {
+	if jsonByte == nil {
 		return nil, nil
 	}
 
 	//format result
 	resultJson := json.NewAggregatesJson()
-	bRet = resultJson.Decode(jsonByteSlice[0])
+	bRet = resultJson.Decode(jsonByte)
 	if !bRet {
 		return nil, errors.New("invalid json byte data")
 	}
@@ -159,7 +159,7 @@ func (f *Client) DocQuery(
 	}
 
 	//call api
-	jsonByteSlice, _, err := client.DocQuery(
+	jsonByte, err := client.DocQuery(
 								QueryOptKindOfGen,
 								indexTag,
 								optJson.Encode(),
@@ -169,13 +169,13 @@ func (f *Client) DocQuery(
 	}
 
 	//analyze result
-	if jsonByteSlice == nil || len(jsonByteSlice) <= 0 {
+	if jsonByte == nil {
 		return nil, nil
 	}
 
 	//format result
 	resultJson := json.NewSearchResultJson()
-	bRet = resultJson.Decode(jsonByteSlice[0])
+	bRet = resultJson.Decode(jsonByte)
 	if !bRet {
 		return nil, errors.New("invalid json byte data")
 	}
