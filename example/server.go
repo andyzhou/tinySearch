@@ -58,7 +58,7 @@ func main() {
 	}(&wg)
 
 	//init service
-	service := tinySearch.NewSearch(IndexPath, RpcPort)
+	service := tinySearch.NewService(IndexPath, RpcPort)
 
 	//add node
 	rpcAddr := fmt.Sprintf(":%d", RpcPort)

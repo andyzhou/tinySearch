@@ -12,15 +12,15 @@ import (
  */
 
 //face info
-type Search struct {
+type Service struct {
 	manager iface.IManager
 	rpc iface.IRpc
 }
 
 //construct
-func NewSearch(dataPath string, rpcPort int) *Search {
+func NewService(dataPath string, rpcPort int) *Service {
 	//self init
-	this := &Search{
+	this := &Service{
 		manager: face.NewManager(dataPath),
 	}
 	//init rpc
@@ -29,13 +29,13 @@ func NewSearch(dataPath string, rpcPort int) *Search {
 }
 
 //quit
-func (f *Search) Quit() {
+func (f *Service) Quit() {
 	f.manager.Quit()
 	f.rpc.Stop()
 }
 
 //doc remove from batch node
-func (f *Search) DocRemove(
+func (f *Service) DocRemove(
 					tag string,
 					docId string,
 				) error {
@@ -43,7 +43,7 @@ func (f *Search) DocRemove(
 }
 
 //doc sync into batch node
-func (f *Search) DocSync(
+func (f *Service) DocSync(
 					tag string,
 					docId string,
 					jsonByte []byte,
@@ -52,47 +52,47 @@ func (f *Search) DocSync(
 }
 
 //get suggest face
-func (f *Search) GetSuggest() iface.ISuggest {
+func (f *Service) GetSuggest() iface.ISuggest {
 	return f.manager.GetSuggest()
 }
 
 //get agg face
-func (f *Search) GetAgg() iface.IAgg {
+func (f *Service) GetAgg() iface.IAgg {
 	return f.manager.GetAgg()
 }
 
 //get query face
-func (f *Search) GetQuery() iface.IQuery {
+func (f *Service) GetQuery() iface.IQuery {
 	return f.manager.GetQuery()
 }
 
 //get doc face
-func (f *Search) GetDoc() iface.IDoc {
+func (f *Service) GetDoc() iface.IDoc {
 	return f.manager.GetDoc()
 }
 
 //get index face
-func (f *Search) GetIndex(
+func (f *Service) GetIndex(
 					tag string,
 				) iface.IIndex {
 	return f.manager.GetIndex(tag)
 }
 
 //add index
-func (f *Search) AddIndex(
+func (f *Service) AddIndex(
 					tag string,
 				) bool {
 	return f.manager.AddIndex(tag)
 }
 
 //add rpc node
-func (f *Search) AddNode(
+func (f *Service) AddNode(
 					addr ...string,
 				) bool {
 	return f.manager.AddNode(addr...)
 }
 
 //get manager face
-func (f *Search) GetManager() iface.IManager {
+func (f *Service) GetManager() iface.IManager {
 	return f.manager
 }
