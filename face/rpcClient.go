@@ -110,9 +110,8 @@ func (f *RpcClient) DocRemove(
 	}
 
 	//send to chan
-	//f.docSyncChan <- req
-	//bRet = true
-	bRet = f.docSyncProcess(&req)
+	f.docSyncChan <- req
+	bRet = true
 	return
 }
 
@@ -144,9 +143,8 @@ func (f *RpcClient) DocSync(
 	}
 
 	//send to chan
-	//f.docSyncChan <- req
-	//bRet = true
-	bRet = f.docSyncProcess(&req)
+	f.docSyncChan <- req
+	bRet = true
 	return
 }
 
