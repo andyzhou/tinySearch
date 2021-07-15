@@ -2,7 +2,7 @@ package define
 
 const (
 	RecPerPage = 10
-	ClientCheckTicker = 10
+	ClientCheckTicker = 3
 	ReqChanSize = 1024
 )
 

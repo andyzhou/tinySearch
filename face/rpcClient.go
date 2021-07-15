@@ -95,7 +95,7 @@ func (f *RpcClient) DocRemove(
 	//try catch panic
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("Client::DocRemove panic, err:", err)
+			log.Println("RpcClient::DocRemove panic, err:", err)
 			bRet = false
 			return
 		}
@@ -128,7 +128,7 @@ func (f *RpcClient) DocSync(
 	//try catch panic
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("Client::DocSync panic, err:", err)
+			log.Println("RpcClient::DocSync panic, err:", err)
 			bRet = false
 			return
 		}
@@ -142,8 +142,9 @@ func (f *RpcClient) DocSync(
 	}
 
 	//send to chan
-	f.docSyncChan <- req
-	bRet = true
+	//f.docSyncChan <- req
+	//bRet = true
+	bRet = f.docSyncProcess(&req)
 	return
 }
 
@@ -231,7 +232,7 @@ func (f *RpcClient) docSyncProcess(
 	}
 
 	if err != nil {
-		log.Println("Client::docSyncProcess failed, err:", err.Error())
+		log.Println("RpcClient::docSyncProcess failed, err:", err.Error())
 		return false
 	}
 
@@ -270,7 +271,7 @@ func (f *RpcClient) connServer() bool {
 	//try connect
 	conn, err := grpc.Dial(f.addr, grpc.WithInsecure())
 	if err != nil {
-		log.Println("Client::connServer failed, err:", err.Error())
+		log.Println("RpcClient::connServer failed, err:", err.Error())
 		return false
 	}
 

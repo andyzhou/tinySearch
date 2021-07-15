@@ -14,9 +14,7 @@ import (
 )
 
 /*
- * face for example service
- * @author <AndyZhou>
- * @mail <diudiu8848@163.com>
+ * service example
  */
 
 const (
@@ -67,7 +65,7 @@ func main() {
 	service.AddIndex(IndexTag)
 
 	//start wait group
-	fmt.Println("start example...")
+	fmt.Printf("start server on %v\n", rpcAddr)
 
 	wg.Add(1)
 
@@ -76,7 +74,7 @@ func main() {
 
 	wg.Wait()
 	service.Quit()
-	fmt.Println("stop example...")
+	fmt.Println("stop server...")
 }
 
 //doc testing
