@@ -17,21 +17,18 @@ import (
  */
 
 //face info
-type IRpcCB struct {
+type RpcCB struct {
 	manager iface.IManager //manager reference
-	query iface.IQuery
 	json.BaseJson
 }
 
 //construct
-func NewIRpcCB(
+func NewRpcCB(
 			manager iface.IManager,
-			suggester iface.ISuggest,
-		) *IRpcCB {
+		) *RpcCB {
 	//self init
-	this := &IRpcCB{
+	this := &RpcCB{
 		manager:manager,
-		query: NewQuery(suggester),
 	}
 	return this
 }
@@ -41,7 +38,7 @@ func NewIRpcCB(
 /////////////////////
 
 //doc query
-func (f *IRpcCB) DocQuery(
+func (f *RpcCB) DocQuery(
 					ctx context.Context,
 					in *search.DocQueryReq,
 				) (*search.DocQueryResp, error) {
@@ -91,7 +88,8 @@ func (f *IRpcCB) DocQuery(
 	}
 
 	//query doc
-	result, err := f.query.Query(index, queryOptJson)
+	query := f.manager.GetQuery()
+	result, err := query.Query(index, queryOptJson)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +108,7 @@ func (f *IRpcCB) DocQuery(
 }
 
 //doc remove
-func (f *IRpcCB) DocRemove(
+func (f *RpcCB) DocRemove(
 					ctx context.Context,
 					in *search.DocRemoveReq,
 				) (*search.DocSyncResp, error) {
@@ -146,7 +144,7 @@ func (f *IRpcCB) DocRemove(
 }
 
 //doc sync
-func (f *IRpcCB) DocSync(
+func (f *RpcCB) DocSync(
 					ctx context.Context,
 					in *search.DocSyncReq,
 				) (*search.DocSyncResp, error) {
@@ -190,3 +188,35 @@ func (f *IRpcCB) DocSync(
 /////////////////
 //private func
 /////////////////
+
+//agg query
+func (f *RpcCB) aggDocQuery(
+					index iface.IIndex,
+					queryOptJson *json.QueryOptJson,
+				) (*search.DocQueryResp, error) {
+	return nil, nil
+}
+
+//general query
+func (f *RpcCB) genDocQuery(
+					index iface.IIndex,
+					queryOptJson *json.QueryOptJson,
+				 ) (*search.DocQueryResp, error) {
+	//query doc
+	query := f.manager.GetQuery()
+	result, err := query.Query(index, queryOptJson)
+	if err != nil {
+		return nil, err
+	}
+
+	//format result
+	resp := &search.DocQueryResp{
+		Success: true,
+		Total: int32(result.Total),
+		RecList: make([][]byte, 0),
+	}
+	for _, hitDocJson := range result.Records {
+		resp.RecList = append(resp.RecList, hitDocJson.OrgJson)
+	}
+	return resp, nil
+}

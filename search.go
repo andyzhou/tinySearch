@@ -13,10 +13,6 @@ import (
 
 //face info
 type Search struct {
-	suggest iface.ISuggest
-	agg iface.IAgg
-	query iface.IQuery
-	doc iface.IDoc
 	manager iface.IManager
 	rpc iface.IRpc
 }
@@ -26,21 +22,15 @@ func NewSearch(dataPath string, rpcPort int) *Search {
 	//self init
 	this := &Search{
 		manager: face.NewManager(dataPath),
-		suggest: face.NewSuggest(dataPath),
-		doc:     face.NewDoc(),
-		agg:     face.NewAgg(),
 	}
-	//init query
-	this.query = face.NewQuery(this.suggest)
-
 	//init rpc
-	this.rpc = face.NewRpc(rpcPort, this.manager, this.suggest)
+	this.rpc = face.NewRpc(rpcPort, this.manager)
 	return this
 }
 
 //quit
 func (f *Search) Quit() {
-	f.suggest.Quit()
+	f.manager.Quit()
 	f.rpc.Stop()
 }
 
@@ -63,22 +53,22 @@ func (f *Search) DocSync(
 
 //get suggest face
 func (f *Search) GetSuggest() iface.ISuggest {
-	return f.suggest
+	return f.manager.GetSuggest()
 }
 
 //get agg face
 func (f *Search) GetAgg() iface.IAgg {
-	return f.agg
+	return f.manager.GetAgg()
 }
 
 //get query face
 func (f *Search) GetQuery() iface.IQuery {
-	return f.query
+	return f.manager.GetQuery()
 }
 
 //get doc face
 func (f *Search) GetDoc() iface.IDoc {
-	return f.doc
+	return f.manager.GetDoc()
 }
 
 //get index face

@@ -17,6 +17,11 @@ type Manager struct {
 	dataPath string
 	indexes *sync.Map
 	clients *sync.Map
+	//sub face
+	doc iface.IDoc
+	query iface.IQuery
+	agg iface.IAgg
+	suggest iface.ISuggest
 }
 
 //construct
@@ -26,7 +31,11 @@ func NewManager(dataPath string) *Manager{
 		dataPath:dataPath,
 		indexes:new(sync.Map),
 		clients:new(sync.Map),
+		doc:NewDoc(),
+		agg:NewAgg(),
+		suggest:NewSuggest(dataPath),
 	}
+	this.query = NewQuery(this.suggest)
 	return this
 }
 
@@ -44,6 +53,23 @@ func (f *Manager) Quit() {
 		return true
 	}
 	f.clients.Range(sf)
+}
+
+//get sub face
+func (f *Manager) GetDoc() iface.IDoc {
+	return f.doc
+}
+
+func (f *Manager) GetQuery() iface.IQuery {
+	return f.query
+}
+
+func (f *Manager) GetAgg() iface.IAgg {
+	return f.agg
+}
+
+func (f *Manager) GetSuggest() iface.ISuggest {
+	return f.suggest
 }
 
 //batch doc remove

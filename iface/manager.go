@@ -23,6 +23,12 @@ type IManager interface {
 	GetIndex(tag string) IIndex
 	AddIndex(tag string) bool
 
+	//get sub face
+	GetDoc() IDoc
+	GetQuery() IQuery
+	GetAgg() IAgg
+	GetSuggest() ISuggest
+
 	//get rand client
 	GetClient() IClient
 }

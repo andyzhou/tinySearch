@@ -18,8 +18,7 @@ import (
 //face info
 type Rpc struct {
 	addr string //rpc address
-	manager iface.IManager //refer
-	suggester iface.ISuggest //refer
+	manager iface.IManager //reference
 	listener *net.Listener
 	service *grpc.Server //rpc service
 }
@@ -28,13 +27,11 @@ type Rpc struct {
 func NewRpc(
 			port int,
 			manager iface.IManager,//reference
-			suggester iface.ISuggest,
 		) *Rpc {
 	//self init
 	this := &Rpc{
 		addr:fmt.Sprintf(":%d", port),
 		manager:manager,
-		suggester:suggester,
 	}
 	//create service
 	this.createService()
@@ -95,7 +92,7 @@ func (f *Rpc) createService() {
 	//register call back
 	search.RegisterSearchServiceServer(
 			f.service,
-			NewIRpcCB(f.manager, f.suggester),
+			NewRpcCB(f.manager),
 		)
 	f.listener = &listen
 
