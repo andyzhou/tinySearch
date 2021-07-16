@@ -244,7 +244,7 @@ func (f *RpcClient) ping() bool {
 	//check status
 	isOk := f.checkStatus()
 	if isOk {
-		f.isActive = false
+		f.isActive = true
 		return true
 	}
 	//try re connect
@@ -269,6 +269,7 @@ func (f *RpcClient) checkStatus() bool {
 //connect rpc server
 func (f *RpcClient) connServer() bool {
 	//try connect
+	f.isActive = false
 	conn, err := grpc.Dial(f.addr, grpc.WithInsecure())
 	if err != nil {
 		log.Println("RpcClient::connServer failed, err:", err.Error())
