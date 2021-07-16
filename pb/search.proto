@@ -23,6 +23,7 @@ message DocRemoveReq {
 //message for doc sync response
 message DocSyncResp {
   bool success = 1;
+  string errMsg = 2;
 }
 
 ///////////////////////
@@ -39,15 +40,15 @@ message DocQueryReq {
 //message for doc query response
 message DocQueryResp {
     bool success = 1;
-    int32 total = 2;
-    repeated bytes recList = 3;//json slice
+    string errMsg = 2;
+    bytes jsonByte = 3;//json obj byte
 }
 
 ///////////////////////
 //define service
 ///////////////////////
 service SearchService {
-    //doc query
+    //doc query, include general query, agg, suggest, etc.
     rpc DocQuery(DocQueryReq) returns (DocQueryResp);
 
     //doc remove

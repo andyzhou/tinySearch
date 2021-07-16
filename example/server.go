@@ -62,9 +62,6 @@ func main() {
 
 	wg.Add(1)
 
-	//testing
-	//go docTesting(service)
-
 	wg.Wait()
 	service.Quit()
 	fmt.Println("stop server...")

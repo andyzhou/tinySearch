@@ -68,8 +68,7 @@ func (f *RpcCB) DocQuery(
 
 	//format result
 	resp := &search.DocQueryResp{
-		Success: true,
-		RecList: make([][]byte, 0),
+		JsonByte: make([]byte, 0),
 	}
 
 	//get key data
@@ -98,7 +97,7 @@ func (f *RpcCB) DocQuery(
 		return nil, err
 	}
 	resp.Success = true
-	resp.RecList = append(resp.RecList, jsonByte)
+	resp.JsonByte = jsonByte
 
 	return resp, nil
 }
