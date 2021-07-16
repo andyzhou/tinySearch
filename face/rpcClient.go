@@ -286,7 +286,9 @@ func (f *RpcClient) connServer() bool {
 	defer f.Unlock()
 	f.conn = conn
 	f.client = &client
-	f.isActive = true
+
+	//ping server
+	f.ping()
 
 	return true
 }
