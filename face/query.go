@@ -3,7 +3,6 @@ package face
 import (
 	"errors"
 	"fmt"
-	//"fmt"
 	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"

@@ -1,3 +1,4 @@
 *_darwin
 *.exe
 logs
+.idea
