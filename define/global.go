@@ -26,8 +26,9 @@ const (
 const (
 	FilterKindMatch = iota + 1
 	FilterKindMatchRange
-	FilterKindQuery
+	FilterKindPhraseQuery
 	FilterKindNumericRange
 	FilterKindDateRange
 	FilterKindSubDocIds
+	FilterKindExcludePhraseQuery
 )

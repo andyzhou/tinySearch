@@ -3,7 +3,6 @@ package face
 import (
 	"errors"
 	"fmt"
-
 	//"fmt"
 	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/iface"
@@ -97,12 +96,24 @@ func (f *Query) Query(
 					pg.SetField(filter.Field)
 					boolQuery.AddMust(pg)
 				}
-			case define.FilterKindQuery:
+			case define.FilterKindPhraseQuery:
+			case define.FilterKindExcludePhraseQuery:
 				{
-					//sub phrase query
-					tempStr = fmt.Sprintf("%v", filter.Val)
-					pq := bleve.NewPhraseQuery([]string{tempStr}, filter.Field)
-					boolQuery.AddMust(pq)
+					//sub terms phrase query
+					termSlice := make([]string, 0)
+					switch filter.Val.(type) {
+					case []string:
+						termSlice = filter.Val.([]string)
+					default:
+						tmpStr := fmt.Sprintf("%v", filter.Val)
+						termSlice = append(termSlice, tmpStr)
+					}
+					pq := bleve.NewPhraseQuery(termSlice, filter.Field)
+					if filter.Kind == define.FilterKindExcludePhraseQuery {
+						boolQuery.AddMustNot(pq)
+					}else{
+						boolQuery.AddMust(pq)
+					}
 				}
 			case define.FilterKindNumericRange:
 				{
