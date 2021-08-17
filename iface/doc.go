@@ -10,6 +10,7 @@ type IDoc interface {
 	GetCount(index IIndex) (int64, error)
 	RemoveDocs(index IIndex, docIds []string) error
 	RemoveDoc(index IIndex, docId string) error
+	GetDocs(index IIndex, docIds ...string) (map[string]*json.HitDocJson, error)
 	GetDoc(index IIndex, docId string) (*json.HitDocJson, error)
 	AddDoc(index IIndex, docId string, jsonObj interface{}) error
 }

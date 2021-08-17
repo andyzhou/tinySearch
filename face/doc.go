@@ -104,6 +104,38 @@ func (f *Doc) RemoveDoc(
 	return nil
 }
 
+//get batch docs by id
+func (f *Doc) GetDocs(
+				index iface.IIndex,
+				docIds ...string,
+			) (map[string]*json.HitDocJson, error) {
+	//basic check
+	if index == nil || docIds == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//get indexer
+	indexer := index.GetIndex()
+	if indexer == nil {
+		return nil, errors.New("cant' get index")
+	}
+
+	//get batch doc by ids
+	result := make(map[string]*json.HitDocJson)
+	for _, docId := range docIds {
+		doc, err := indexer.Document(docId)
+		if err != nil || doc == nil {
+			continue
+		}
+		hitJson, err := f.AnalyzeDoc(doc, nil)
+		if err != nil || hitJson == nil {
+			continue
+		}
+		result[docId] = hitJson
+	}
+	return result, nil
+}
+
 //get one doc by id
 func (f *Doc) GetDoc(
 				index iface.IIndex,
