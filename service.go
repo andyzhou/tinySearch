@@ -3,6 +3,7 @@ package tinySearch
 import (
 	"github.com/andyzhou/tinySearch/face"
 	"github.com/andyzhou/tinySearch/iface"
+	"log"
 )
 
 /*
@@ -28,6 +29,11 @@ func NewService(dataPath string, rpcPort int) *Service {
 
 //quit
 func (f *Service) Quit() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("Service:Quit panic, err:", err)
+		}
+	}()
 	f.manager.Quit()
 	f.rpcService.Stop()
 }

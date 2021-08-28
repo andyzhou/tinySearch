@@ -7,7 +7,6 @@ import (
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
 	"github.com/blevesearch/bleve/v2"
-	"github.com/blevesearch/bleve/v2/search/query"
 	"log"
 )
 
@@ -17,12 +16,14 @@ import (
 
 //face info
 type Agg struct {
+	query iface.IQuery //reference
 }
 
 //construct
-func NewAgg() *Agg {
+func NewAgg(query iface.IQuery) *Agg {
 	//self init
 	this := &Agg{
+		query: query,
 	}
 	return this
 }
@@ -32,11 +33,6 @@ func (f *Agg) GetAggList(
 				index iface.IIndex,
 				opt *json.QueryOptJson,
 			) (*json.AggregatesJson, error) {
-	var (
-		searchRequest *bleve.SearchRequest
-		docQuery *query.MatchQuery
-	)
-
 	//basic check
 	if index == nil || opt == nil {
 		return nil, errors.New("invalid parameter")
@@ -52,15 +48,13 @@ func (f *Agg) GetAggList(
 		return nil, errors.New("can't get indexer")
 	}
 
-	//init query
-	docQuery = bleve.NewMatchQuery(opt.Key)
-
+	//default check
 	if opt.AggSize <= 0 {
 		opt.AggSize = define.RecPerPage
 	}
 
-	//general search request
-	searchRequest = bleve.NewSearchRequest(docQuery)
+	//build search request
+	searchRequest := f.query.BuildSearchReq(opt)
 
 	//set aggregating facet
 	aggField := opt.AggField

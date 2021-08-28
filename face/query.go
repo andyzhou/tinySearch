@@ -36,12 +36,6 @@ func (f *Query) Query(
 					index iface.IIndex,
 					opt *json.QueryOptJson,
 				) (*json.SearchResultJson, error) {
-	var (
-		tempStr string
-		docQuery query.Query
-		searchRequest *bleve.SearchRequest
-	)
-
 	//basic check
 	if index == nil || opt == nil {
 		return nil, errors.New("invalid parameter")
@@ -52,6 +46,85 @@ func (f *Query) Query(
 	if indexer == nil {
 		return nil, errors.New("can't get indexer")
 	}
+
+	//build search request
+	searchRequest := f.BuildSearchReq(opt)
+
+	//set high light
+	if opt.HighLight {
+		//other search request
+		searchRequest.Highlight = bleve.NewHighlight()
+	}
+
+	//sort by
+	if opt.Sort != nil {
+		customSort := make([]search.SearchSort, 0)
+		for _, sort := range opt.Sort {
+			cs := search.SortField{
+				Field: sort.Field,
+				Desc: sort.Desc,
+			}
+			customSort = append(customSort, &cs)
+		}
+		searchRequest.SortByCustom(customSort)
+	}
+
+	//check page and page size
+	if opt.Page <= 0 {
+		opt.Page = 1
+	}
+	if opt.PageSize <= 0 {
+		opt.PageSize = define.RecPerPage
+	}
+
+	//set others
+	searchRequest.From = (opt.Page - 1) * opt.PageSize
+	searchRequest.Size = opt.PageSize
+	searchRequest.Explain = true
+
+	//begin search
+	searchResult, err := indexer.Search(searchRequest)
+	if err != nil {
+		log.Println("Query::Query failed, err:", err.Error())
+		return nil, err
+	}
+
+	//check result
+	if searchResult.Total <= 0 {
+		result := &json.SearchResultJson{
+			Total: 0,
+			Records: nil,
+		}
+		return result, nil
+	}
+
+	//sync into suggester
+	if f.suggester != nil && opt.Key != "" {
+		if searchResult.Total > 0 {
+			suggestJson := json.NewSuggestJson()
+			suggestJson.Key = opt.Key
+			suggestJson.Count = int64(searchResult.Total)
+			f.suggester.AddSuggest(suggestJson)
+		}
+	}
+
+	//init result
+	result := json.NewSearchResultJson()
+	result.Total = searchResult.Total
+
+	//format records
+	result.Records = f.formatResult(indexer, &searchResult.Hits)
+
+	return result, nil
+}
+
+//build query object
+func (f *Query) BuildSearchReq(opt *json.QueryOptJson) *bleve.SearchRequest {
+	var (
+		tempStr string
+		docQuery query.Query
+		searchRequest *bleve.SearchRequest
+	)
 
 	//setup search kind
 	switch opt.QueryKind {
@@ -146,73 +219,7 @@ func (f *Query) Query(
 		//general search request
 		searchRequest = bleve.NewSearchRequest(docQuery)
 	}
-
-	//set high light
-	if opt.HighLight {
-		//other search request
-		searchRequest.Highlight = bleve.NewHighlight()
-	}
-
-	//sort by
-	if opt.Sort != nil {
-		customSort := make([]search.SearchSort, 0)
-		for _, sort := range opt.Sort {
-			cs := search.SortField{
-				Field: sort.Field,
-				Desc: sort.Desc,
-			}
-			customSort = append(customSort, &cs)
-		}
-		searchRequest.SortByCustom(customSort)
-	}
-
-	//check page and page size
-	if opt.Page <= 0 {
-		opt.Page = 1
-	}
-	if opt.PageSize <= 0 {
-		opt.PageSize = define.RecPerPage
-	}
-
-	//set others
-	searchRequest.From = (opt.Page - 1) * opt.PageSize
-	searchRequest.Size = opt.PageSize
-	searchRequest.Explain = true
-
-	//begin search
-	searchResult, err := indexer.Search(searchRequest)
-	if err != nil {
-		log.Println("Query::Query failed, err:", err.Error())
-		return nil, err
-	}
-
-	//check result
-	if searchResult.Total <= 0 {
-		result := &json.SearchResultJson{
-			Total: 0,
-			Records: nil,
-		}
-		return result, nil
-	}
-
-	//sync into suggester
-	if f.suggester != nil && opt.Key != "" {
-		if searchResult.Total > 0 {
-			suggestJson := json.NewSuggestJson()
-			suggestJson.Key = opt.Key
-			suggestJson.Count = int64(searchResult.Total)
-			f.suggester.AddSuggest(suggestJson)
-		}
-	}
-
-	//init result
-	result := json.NewSearchResultJson()
-	result.Total = searchResult.Total
-
-	//format records
-	result.Records = f.formatResult(indexer, &searchResult.Hits)
-
-	return result, nil
+	return searchRequest
 }
 
 //////////////////////

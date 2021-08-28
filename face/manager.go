@@ -28,10 +28,10 @@ func NewManager(dataPath string) *Manager{
 		dataPath:dataPath,
 		indexes:new(sync.Map),
 		doc:NewDoc(),
-		agg:NewAgg(),
 		suggest:NewSuggest(dataPath),
 	}
 	this.query = NewQuery(this.suggest)
+	this.agg = NewAgg(this.query)
 	return this
 }
 
