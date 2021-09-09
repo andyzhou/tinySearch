@@ -5,6 +5,7 @@ import (
 	"github.com/andyzhou/tinySearch"
 	"github.com/andyzhou/tinySearch/json"
 	"log"
+	"math/rand"
 	"os"
 	"os/signal"
 	"sync"
@@ -72,10 +73,10 @@ func main() {
 //testing
 func testing(client *tinySearch.Client) {
 	//suggest doc
-	testClientSuggestDoc(client)
+	//testClientSuggestDoc(client)
 
 	//agg doc
-	//testClientAggDoc(client)
+	testClientAggDoc(client)
 
 	//query doc
 	//testClientQueryDoc(client)
@@ -131,21 +132,30 @@ func testClientRemoveDoc(client *tinySearch.Client) {
 
 //test sync doc
 func testClientSyncDoc(client *tinySearch.Client) {
+	docIdBegin := 3001
+	docIdEnd := 4000
+	for id := docIdBegin; id <= docIdEnd; id++ {
+		addOneDoc(id, client)
+	}
+}
+
+//add one doc
+func addOneDoc(docId int, client *tinySearch.Client)  {
 	//init test doc json
-	docId := "4"
+	docIdStr := fmt.Sprintf("%d", docId)
 	testDocJson := json.NewTestDocJson()
-	testDocJson.Id = docId
-	testDocJson.Title = "test-4"
-	testDocJson.Cat = "car"
+	testDocJson.Id = docIdStr
+	testDocJson.Title = fmt.Sprintf("test-%d", docId)
+	testDocJson.Cat = "job"
 	testDocJson.Price = 10.1
-	testDocJson.Num = 20
+	testDocJson.Num = int64(rand.Intn(100))
 	testDocJson.Introduce = "this is test-1"
 	testDocJson.CreateAt = time.Now().Unix()
 
-	err := client.DocSync(ServerIndexTag, docId, testDocJson.Encode())
+	err := client.DocSync(ServerIndexTag, docIdStr, testDocJson.Encode())
 	if err != nil {
-		fmt.Println("sync doc failed, err:", err.Error())
+		fmt.Printf("sync doc %d failed, err:%v\n", docId, err.Error())
 	}else{
-		fmt.Println("sync doc succeed.")
+		fmt.Printf("sync doc %d succeed.\n", docId)
 	}
 }

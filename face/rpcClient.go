@@ -49,7 +49,6 @@ func NewRpcClient(addr string) *RpcClient {
 
 	//spawn main process
 	go this.runMainProcess()
-
 	return this
 }
 
@@ -109,8 +108,10 @@ func (f *RpcClient) DocRemove(
 		IsRemove:true,
 	}
 
-	//send to chan
-	f.docSyncChan <- req
+	//async send to chan
+	select {
+	case f.docSyncChan <- req:
+	}
 	bRet = true
 	return
 }
@@ -142,8 +143,10 @@ func (f *RpcClient) DocSync(
 		JsonByte:jsonByte,
 	}
 
-	//send to chan
-	f.docSyncChan <- req
+	//async send to chan
+	select {
+	case f.docSyncChan <- req:
+	}
 	bRet = true
 	return
 }
@@ -165,6 +168,17 @@ func (f *RpcClient) runMainProcess() {
 		isOk, needQuit bool
 	)
 
+	//defer
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("RpcClient:mainProcess panic, err:", err)
+		}
+		ticker.Stop()
+		//close chan
+		close(f.docSyncChan)
+		close(f.closeChan)
+	}()
+
 	//loop
 	for {
 		if needQuit {
@@ -183,10 +197,6 @@ func (f *RpcClient) runMainProcess() {
 			needQuit = true
 		}
 	}
-
-	//close chan
-	close(f.docSyncChan)
-	close(f.closeChan)
 }
 
 //doc sync into rpc server

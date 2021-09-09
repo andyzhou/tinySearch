@@ -169,7 +169,9 @@ func (f *Suggest) AddSuggest(
 	}()
 
 	//send to chan
-	f.syncReqChan <- *doc
+	select {
+	case f.syncReqChan <- *doc:
+	}
 	bRet = true
 	return
 }
