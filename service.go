@@ -68,6 +68,12 @@ func (f *Service) GetIndex(
 //add index
 func (f *Service) AddIndex(
 					tag string,
-				) bool {
-	return f.manager.AddIndex(tag)
+					useChineseTokenizer ...bool,
+				) error {
+	return f.manager.AddIndex(tag, useChineseTokenizer...)
+}
+
+//set dict file
+func (f *Service) SetDict(dict string) bool {
+	return f.manager.SetDictPath(dict)
 }

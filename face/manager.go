@@ -1,6 +1,7 @@
 package face
 
 import (
+	"errors"
 	"github.com/andyzhou/tinySearch/iface"
 	"sync"
 )
@@ -13,6 +14,7 @@ import (
 //face info
 type Manager struct {
 	dataPath string
+	dictFile string
 	indexes *sync.Map
 	//sub face
 	doc iface.IDoc
@@ -100,26 +102,49 @@ func (f *Manager) GetIndex(
 //add search index
 func (f *Manager) AddIndex(
 					tag string,
-				) bool {
+					useChineseTokenizer ...bool,
+				) error {
+	var (
+		err error
+	)
 	//basic check
 	if tag == "" || f.indexes == nil {
-		return false
+		return errors.New("invalid parameter")
 	}
 
 	//check record
 	_, ok := f.indexes.Load(tag)
 	if ok {
-		return false
+		return nil
 	}
 
 	//init new index
 	index := NewIndex(f.dataPath, tag)
-
-	//create index
-	index.CreateIndex()
+	if useChineseTokenizer != nil && useChineseTokenizer[0] {
+		//create index with chinese tokenizer support
+		indexMapping, err := index.CreateChineseMap(f.dictFile)
+		if err != nil {
+			return err
+		}
+		err = index.CreateIndex(indexMapping)
+	}else{
+		//create default index
+		err = index.CreateIndex()
+	}
+	if err != nil {
+		return err
+	}
 
 	//sync into map
 	f.indexes.Store(tag, index)
+	return nil
+}
 
+//set dict file path
+func (f *Manager) SetDictPath(dict string) bool {
+	if dict == "" {
+		return false
+	}
+	f.dictFile = dict
 	return true
 }

@@ -3,7 +3,9 @@ package face
 import (
 	"errors"
 	"fmt"
+	_ "github.com/andyzhou/jiebago/tokenizers" //for init tokenizers
 	"github.com/blevesearch/bleve/v2"
+	_ "github.com/blevesearch/bleve/v2/analysis/analyzer/custom" //for init 'custom'
 	"github.com/blevesearch/bleve/v2/mapping"
 	"log"
 	"os"
@@ -12,7 +14,13 @@ import (
 
 /*
  * face for index
+ * - chinese token base on 'github.com/wangbin/jiebago'
  */
+
+//inter macro define
+const (
+	CustomTokenizerOfJieBa = "jieba"
+)
 
 //face info
 type Index struct {
@@ -56,14 +64,22 @@ func (f *Index) GetIndex() bleve.Index {
 }
 
 //create index
-func (f *Index) CreateIndex() error {
+func (f *Index) CreateIndex(indexMap ...*mapping.IndexMappingImpl) error {
+	var (
+		indexMapping *mapping.IndexMappingImpl
+	)
 	//basic check
 	if f.tag == "" || f.indexer != nil {
 		return errors.New("invalid parameter")
 	}
 
-	//init index mapping
-	indexMapping := mapping.NewIndexMapping()
+	if indexMap != nil {
+		//use diy index mapping
+		indexMapping = indexMap[0]
+	}else{
+		//init index mapping
+		indexMapping = mapping.NewIndexMapping()
+	}
 
 	//format sub dir path
 	subDir := fmt.Sprintf("%s/%s", f.indexDir, f.tag)
@@ -87,4 +103,46 @@ func (f *Index) CreateIndex() error {
 	f.indexer = index
 
 	return nil
+}
+
+//create chinese index mapping
+func (f *Index) CreateChineseMap(dictPath string) (*mapping.IndexMappingImpl, error) {
+	if dictPath == "" {
+		return nil, errors.New("invalid dict path for index")
+	}
+
+	// open a new index
+	indexMapping := bleve.NewIndexMapping()
+
+	//set tokenizer
+	err := indexMapping.AddCustomTokenizer(
+		CustomTokenizerOfJieBa,
+		map[string]interface{}{
+			"file": dictPath,
+			"type": CustomTokenizerOfJieBa,
+		})
+	if err != nil {
+		return nil, err
+	}
+
+	// create a custom analyzer
+	err = indexMapping.AddCustomAnalyzer(
+		CustomTokenizerOfJieBa,
+		map[string]interface{}{
+			"type":      "custom",
+			"tokenizer": CustomTokenizerOfJieBa,
+			"token_filters": []string{
+				"possessive_en",
+				"to_lower",
+				"stop_en",
+			},
+		})
+
+	if err != nil {
+		return nil, err
+	}
+
+	//set default analyzer
+	indexMapping.DefaultAnalyzer = CustomTokenizerOfJieBa
+	return indexMapping, nil
 }

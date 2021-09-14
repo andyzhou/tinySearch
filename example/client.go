@@ -76,7 +76,7 @@ func testing(client *tinySearch.Client) {
 	//testClientSuggestDoc(client)
 
 	//agg doc
-	testClientAggDoc(client)
+	//testClientAggDoc(client)
 
 	//query doc
 	//testClientQueryDoc(client)
@@ -85,7 +85,7 @@ func testing(client *tinySearch.Client) {
 	//testClientRemoveDoc(client)
 
 	//sync doc
-	//testClientSyncDoc(client)
+	testClientSyncDoc(client)
 }
 
 //test suggest doc

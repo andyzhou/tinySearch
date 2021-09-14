@@ -1,8 +1,15 @@
 # github.com/RoaringBitmap/roaring v0.4.23
 github.com/RoaringBitmap/roaring
+# github.com/andyzhou/jiebago v0.3.3-0.20210914061230-750d728b25e3
+github.com/andyzhou/jiebago
+github.com/andyzhou/jiebago/dictionary
+github.com/andyzhou/jiebago/finalseg
+github.com/andyzhou/jiebago/tokenizers
+github.com/andyzhou/jiebago/util
 # github.com/blevesearch/bleve/v2 v2.0.3
 github.com/blevesearch/bleve/v2
 github.com/blevesearch/bleve/v2/analysis
+github.com/blevesearch/bleve/v2/analysis/analyzer/custom
 github.com/blevesearch/bleve/v2/analysis/analyzer/standard
 github.com/blevesearch/bleve/v2/analysis/datetime/flexible
 github.com/blevesearch/bleve/v2/analysis/datetime/optional

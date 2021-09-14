@@ -16,7 +16,8 @@ import (
 
 const (
 	RpcPort = 6060
-	IndexPath = "/data/search"
+	IndexDictFile = "./private/userdict.txt"
+	IndexPath = "./search_data"
 	IndexTag = "test"
 )
 
@@ -54,8 +55,11 @@ func main() {
 	//init service
 	service := tinySearch.NewService(IndexPath, RpcPort)
 
+	//set chinese dict file
+	service.SetDict(IndexDictFile)
+
 	//add index
-	service.AddIndex(IndexTag)
+	service.AddIndex(IndexTag, true)
 
 	//start wait group
 	fmt.Printf("start server on port %v\n", RpcPort)

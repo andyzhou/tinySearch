@@ -1,6 +1,9 @@
 package iface
 
-import "github.com/blevesearch/bleve/v2"
+import (
+	"github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/mapping"
+)
 
 /*
  * interface for index
@@ -9,5 +12,6 @@ import "github.com/blevesearch/bleve/v2"
 type IIndex interface {
 	RemoveIndex() bool
 	GetIndex() bleve.Index
-	CreateIndex() error
+	CreateIndex(indexMap ...*mapping.IndexMappingImpl) error
+	CreateChineseMap(dictPath string) (*mapping.IndexMappingImpl, error)
 }
