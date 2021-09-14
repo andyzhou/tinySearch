@@ -12,6 +12,7 @@ import (
 type IIndex interface {
 	RemoveIndex() bool
 	GetIndex() bleve.Index
-	CreateIndex(indexMap ...*mapping.IndexMappingImpl) error
+	CreateIndex() error
 	CreateChineseMap(dictPath string) (*mapping.IndexMappingImpl, error)
+	SetDictPath(dict string) bool
 }

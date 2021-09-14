@@ -10,8 +10,7 @@ type IManager interface {
 	//for index
 	RemoveIndex(tag string) bool
 	GetIndex(tag string) IIndex
-	AddIndex(tag string, useChineseTokenizer ...bool) error
-	SetDictPath(dict string) bool
+	AddIndex(tag string) error
 
 	//get sub face
 	GetDoc() IDoc

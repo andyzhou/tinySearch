@@ -24,13 +24,20 @@ type Manager struct {
 }
 
 //construct
-func NewManager(dataPath string) *Manager{
+func NewManager(dataPath string, dictFile ...string) *Manager{
+	var (
+		dictFilePath string
+	)
+	if dictFile != nil && dictFile[0] != "" {
+		dictFilePath = dictFile[0]
+	}
 	//self init
 	this := &Manager{
 		dataPath:dataPath,
+		dictFile: dictFilePath,
 		indexes:new(sync.Map),
 		doc:NewDoc(),
-		suggest:NewSuggest(dataPath),
+		suggest:NewSuggest(dataPath, dictFilePath),
 	}
 	this.query = NewQuery(this.suggest)
 	this.agg = NewAgg(this.query)
@@ -102,7 +109,6 @@ func (f *Manager) GetIndex(
 //add search index
 func (f *Manager) AddIndex(
 					tag string,
-					useChineseTokenizer ...bool,
 				) error {
 	var (
 		err error
@@ -119,18 +125,8 @@ func (f *Manager) AddIndex(
 	}
 
 	//init new index
-	index := NewIndex(f.dataPath, tag)
-	if useChineseTokenizer != nil && useChineseTokenizer[0] {
-		//create index with chinese tokenizer support
-		indexMapping, err := index.CreateChineseMap(f.dictFile)
-		if err != nil {
-			return err
-		}
-		err = index.CreateIndex(indexMapping)
-	}else{
-		//create default index
-		err = index.CreateIndex()
-	}
+	index := NewIndex(f.dataPath, tag, f.dictFile)
+	err = index.CreateIndex()
 	if err != nil {
 		return err
 	}
@@ -138,13 +134,4 @@ func (f *Manager) AddIndex(
 	//sync into map
 	f.indexes.Store(tag, index)
 	return nil
-}
-
-//set dict file path
-func (f *Manager) SetDictPath(dict string) bool {
-	if dict == "" {
-		return false
-	}
-	f.dictFile = dict
-	return true
 }

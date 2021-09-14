@@ -25,16 +25,24 @@ const (
 //face info
 type Index struct {
 	indexDir string
+	dictFile string
 	tag string
 	indexer bleve.Index
 	sync.RWMutex
 }
 
 //construct
-func NewIndex(indexDir, tag string) *Index {
+func NewIndex(indexDir, tag string, dictFile ...string) *Index {
+	var (
+		dictFilePath string
+	)
+	if dictFile != nil && dictFile[0] != "" {
+		dictFilePath = dictFile[0]
+	}
 	//self init
 	this := &Index{
 		indexDir:indexDir,
+		dictFile: dictFilePath,
 		tag:tag,
 	}
 	return this
@@ -64,20 +72,25 @@ func (f *Index) GetIndex() bleve.Index {
 }
 
 //create index
-func (f *Index) CreateIndex(indexMap ...*mapping.IndexMappingImpl) error {
+func (f *Index) CreateIndex() error {
 	var (
 		indexMapping *mapping.IndexMappingImpl
+		err error
 	)
+
 	//basic check
 	if f.tag == "" || f.indexer != nil {
 		return errors.New("invalid parameter")
 	}
 
-	if indexMap != nil {
-		//use diy index mapping
-		indexMapping = indexMap[0]
+	if f.dictFile != "" {
+		//create index with chinese tokenizer support
+		indexMapping, err = f.CreateChineseMap(f.dictFile)
+		if err != nil {
+			return err
+		}
 	}else{
-		//init index mapping
+		//init default index mapping
 		indexMapping = mapping.NewIndexMapping()
 	}
 
@@ -145,4 +158,13 @@ func (f *Index) CreateChineseMap(dictPath string) (*mapping.IndexMappingImpl, er
 	//set default analyzer
 	indexMapping.DefaultAnalyzer = CustomTokenizerOfJieBa
 	return indexMapping, nil
+}
+
+//set tokenizer file
+func (f *Index) SetDictPath(dict string) bool {
+	if dict == "" {
+		return false
+	}
+	f.dictFile = dict
+	return true
 }

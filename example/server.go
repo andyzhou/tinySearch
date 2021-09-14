@@ -53,13 +53,10 @@ func main() {
 	}(&wg)
 
 	//init service
-	service := tinySearch.NewService(IndexPath, RpcPort)
-
-	//set chinese dict file
-	service.SetDict(IndexDictFile)
+	service := tinySearch.NewService(IndexPath, RpcPort, tinySearch.DefaultDictFile)
 
 	//add index
-	service.AddIndex(IndexTag, true)
+	service.AddIndex(IndexTag)
 
 	//start wait group
 	fmt.Printf("start server on port %v\n", RpcPort)

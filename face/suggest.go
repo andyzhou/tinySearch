@@ -37,14 +37,14 @@ type Suggest struct {
 }
 
 //construct
-func NewSuggest(dataPath string) *Suggest {
+func NewSuggest(dataPath, dictFile string) *Suggest {
 	//self init
 	this := &Suggest{
 		dataPath:dataPath,
 		syncReqChan:make(chan json.SuggestJson, interSuggestChanSize),
 		closeChan:make(chan bool, 1),
 	}
-	this.interInit()
+	this.interInit(dictFile)
 	go this.runMainProcess()
 	return this
 }
@@ -268,9 +268,9 @@ func (f *Suggest) genMd5(
 }
 
 //inter init
-func (f *Suggest) interInit() {
+func (f *Suggest) interInit(dictFile string) {
 	//init inter suggest index
-	f.index = NewIndex(f.dataPath, interSuggestIndexTag)
+	f.index = NewIndex(f.dataPath, interSuggestIndexTag, dictFile)
 
 	//create index
 	f.index.CreateIndex()

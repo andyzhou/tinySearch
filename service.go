@@ -10,6 +10,11 @@ import (
  * service api
  */
 
+//inter macro define
+const (
+	DefaultDictFile = "./private/userdict.txt"
+)
+
 //face info
 type Service struct {
 	manager iface.IManager
@@ -17,10 +22,10 @@ type Service struct {
 }
 
 //construct
-func NewService(dataPath string, rpcPort int) *Service {
+func NewService(dataPath string, rpcPort int, dictFile ...string) *Service {
 	//self init
 	this := &Service{
-		manager: face.NewManager(dataPath),
+		manager: face.NewManager(dataPath, dictFile...),
 	}
 	//init rpc
 	this.rpcService = face.NewRpcService(rpcPort, this.manager)
@@ -68,12 +73,6 @@ func (f *Service) GetIndex(
 //add index
 func (f *Service) AddIndex(
 					tag string,
-					useChineseTokenizer ...bool,
 				) error {
-	return f.manager.AddIndex(tag, useChineseTokenizer...)
-}
-
-//set dict file
-func (f *Service) SetDict(dict string) bool {
-	return f.manager.SetDictPath(dict)
+	return f.manager.AddIndex(tag)
 }
