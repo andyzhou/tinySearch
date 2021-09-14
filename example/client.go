@@ -79,13 +79,13 @@ func testing(client *tinySearch.Client) {
 	//testClientAggDoc(client)
 
 	//query doc
-	//testClientQueryDoc(client)
+	testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
 
 	//sync doc
-	testClientSyncDoc(client)
+	//testClientSyncDoc(client)
 }
 
 //test suggest doc
@@ -113,9 +113,12 @@ func testClientAggDoc(client *tinySearch.Client) {
 //test query doc
 func testClientQueryDoc(client *tinySearch.Client) {
 	optJson := json.NewQueryOptJson()
-	optJson.Key = "test"
+	optJson.Key = "交代"
+	optJson.HighLight = true
 	resp, err := client.DocQuery(ServerIndexTag, optJson)
-	fmt.Println("resp:", resp)
+	if resp != nil {
+		fmt.Println("resp size:", resp.Total)
+	}
 	fmt.Println("err:", err)
 }
 
@@ -132,8 +135,8 @@ func testClientRemoveDoc(client *tinySearch.Client) {
 
 //test sync doc
 func testClientSyncDoc(client *tinySearch.Client) {
-	docIdBegin := 3001
-	docIdEnd := 4000
+	docIdBegin := 1
+	docIdEnd := 2
 	for id := docIdBegin; id <= docIdEnd; id++ {
 		addOneDoc(id, client)
 	}
@@ -145,11 +148,11 @@ func addOneDoc(docId int, client *tinySearch.Client)  {
 	docIdStr := fmt.Sprintf("%d", docId)
 	testDocJson := json.NewTestDocJson()
 	testDocJson.Id = docIdStr
-	testDocJson.Title = fmt.Sprintf("test-%d", docId)
+	testDocJson.Title = fmt.Sprintf("工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作-%d", docId)
 	testDocJson.Cat = "job"
 	testDocJson.Price = 10.1
 	testDocJson.Num = int64(rand.Intn(100))
-	testDocJson.Introduce = "this is test-1"
+	testDocJson.Introduce = "The second one 你 中文测试中文 is even more interesting! 吃水果"
 	testDocJson.CreateAt = time.Now().Unix()
 
 	err := client.DocSync(ServerIndexTag, docIdStr, testDocJson.Encode())
