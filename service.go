@@ -22,13 +22,16 @@ type Service struct {
 }
 
 //construct
+//if rpc port > 0, will start rpc service
 func NewService(dataPath string, rpcPort int, dictFile ...string) *Service {
 	//self init
 	this := &Service{
 		manager: face.NewManager(dataPath, dictFile...),
 	}
-	//init rpc
-	this.rpcService = face.NewRpcService(rpcPort, this.manager)
+	//init rpc if rpc port > 0
+	if rpcPort > 0 {
+		this.rpcService = face.NewRpcService(rpcPort, this.manager)
+	}
 	return this
 }
 
@@ -40,7 +43,9 @@ func (f *Service) Quit() {
 		}
 	}()
 	f.manager.Quit()
-	f.rpcService.Stop()
+	if f.rpcService != nil {
+		f.rpcService.Stop()
+	}
 }
 
 //get suggest face
