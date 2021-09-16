@@ -49,12 +49,12 @@ func (j *AggregatesJson) AddObj(obj *AggregateJson) bool {
 }
 
 //encode json data
-func (j *AggregatesJson) Encode() []byte {
+func (j *AggregatesJson) Encode() ([]byte, error) {
 	return j.BaseJson.Encode(j)
 }
 
 //decode json data
-func (j *AggregatesJson) Decode(data []byte) bool {
+func (j *AggregatesJson) Decode(data []byte) error {
 	return j.BaseJson.Decode(data, j)
 }
 
@@ -69,11 +69,11 @@ func NewAggregateJson() *AggregateJson {
 }
 
 //encode json data
-func (j *AggregateJson) Encode() []byte {
+func (j *AggregateJson) Encode() ([]byte, error) {
 	return j.BaseJson.Encode(j)
 }
 
 //decode json data
-func (j *AggregateJson) Decode(data []byte) bool {
+func (j *AggregateJson) Decode(data []byte) error {
 	return j.BaseJson.Decode(data, j)
 }

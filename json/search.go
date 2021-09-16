@@ -32,12 +32,12 @@ func NewSearchJson() *SearchJson {
 }
 
 //encode json data
-func (j *SearchJson) Encode() []byte {
+func (j *SearchJson) Encode() ([]byte, error) {
 	return j.BaseJson.Encode(j)
 }
 
 //decode json data
-func (j *SearchJson) Decode(data []byte) bool {
+func (j *SearchJson) Decode(data []byte) error {
 	return j.BaseJson.Decode(data, j)
 }
 
@@ -62,12 +62,12 @@ func (j *SearchResultJson) AddDoc(obj *HitDocJson) bool {
 }
 
 //encode json data
-func (j *SearchResultJson) Encode() []byte {
+func (j *SearchResultJson) Encode() ([]byte, error) {
 	return j.BaseJson.Encode(j)
 }
 
 //decode json data
-func (j *SearchResultJson) Decode(data []byte) bool {
+func (j *SearchResultJson) Decode(data []byte) error {
 	return j.BaseJson.Decode(data, j)
 }
 

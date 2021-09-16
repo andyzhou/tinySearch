@@ -234,9 +234,12 @@ func (f *Suggest) addSuggestProcess(
 		genMap := f.FormatDoc(oldRec)
 		if genMap != nil {
 			oldDocJson := json.NewSuggestJson()
-			oldDocByte := oldDocJson.EncodeSimple(genMap)
-			bRet := oldDocJson.Decode(oldDocByte)
-			if bRet {
+			oldDocByte, err := oldDocJson.EncodeSimple(genMap)
+			if err != nil {
+				return false
+			}
+			err = oldDocJson.Decode(oldDocByte)
+			if err == nil {
 				//check doc count
 				if oldDocJson.Count >= doc.Count {
 					//same data, not need sync

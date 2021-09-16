@@ -42,12 +42,12 @@ func NewTestDocJson() *TestDocJson {
 }
 
 //encode json data
-func (j *TestDocJson) Encode() []byte {
+func (j *TestDocJson) Encode() ([]byte, error) {
 	return j.BaseJson.Encode(j)
 }
 
 //decode json data
-func (j *TestDocJson) Decode(data []byte) bool {
+func (j *TestDocJson) Decode(data []byte) error {
 	return j.BaseJson.Decode(data, j)
 }
 
@@ -73,12 +73,12 @@ func (j *HitDocJson) AddHighLight(field, val string) bool {
 }
 
 //encode json data
-func (j *HitDocJson) Encode() []byte {
+func (j *HitDocJson) Encode() ([]byte, error) {
 	return j.BaseJson.Encode(j)
 }
 
 //decode json data
-func (j *HitDocJson) Decode(data []byte) bool {
+func (j *HitDocJson) Decode(data []byte) error {
 	return j.BaseJson.Decode(data, j)
 }
 

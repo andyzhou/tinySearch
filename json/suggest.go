@@ -46,12 +46,12 @@ func (j *SuggestsJson) AddObj(obj *SuggestJson) bool {
 }
 
 //encode json data
-func (j *SuggestsJson) Encode() []byte {
+func (j *SuggestsJson) Encode() ([]byte, error) {
 	return j.BaseJson.Encode(j)
 }
 
 //decode json data
-func (j *SuggestsJson) Decode(data []byte) bool {
+func (j *SuggestsJson) Decode(data []byte) error {
 	return j.BaseJson.Decode(data, j)
 }
 
@@ -66,12 +66,12 @@ func NewSuggestJson() *SuggestJson {
 }
 
 //encode json data
-func (j *SuggestJson) Encode() []byte {
+func (j *SuggestJson) Encode() ([]byte, error) {
 	return j.BaseJson.Encode(j)
 }
 
 //decode json data
-func (j *SuggestJson) Decode(data []byte) bool {
+func (j *SuggestJson) Decode(data []byte) error {
 	return j.BaseJson.Decode(data, j)
 }
 
@@ -87,11 +87,11 @@ func NewSuggestOptJson() *SuggestOptJson {
 }
 
 //encode json data
-func (j *SuggestOptJson) Encode() []byte {
+func (j *SuggestOptJson) Encode() ([]byte, error) {
 	return j.BaseJson.Encode(j)
 }
 
 //decode json data
-func (j *SuggestOptJson) Decode(data []byte) bool {
+func (j *SuggestOptJson) Decode(data []byte) error {
 	return j.BaseJson.Decode(data, j)
 }

@@ -102,11 +102,11 @@ func (j *QueryOptJson) AddFilter(obj ... *FilterField) bool {
 }
 
 //encode json data
-func (j *QueryOptJson) Encode() []byte {
+func (j *QueryOptJson) Encode() ([]byte, error) {
 	return j.BaseJson.Encode(j)
 }
 
 //decode json data
-func (j *QueryOptJson) Decode(data []byte) bool {
+func (j *QueryOptJson) Decode(data []byte) error {
 	return j.BaseJson.Decode(data, j)
 }

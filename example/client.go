@@ -155,7 +155,8 @@ func addOneDoc(docId int, client *tinySearch.Client)  {
 	testDocJson.Introduce = "The second one 你 中文测试中文 is even more interesting! 吃水果"
 	testDocJson.CreateAt = time.Now().Unix()
 
-	err := client.DocSync(ServerIndexTag, docIdStr, testDocJson.Encode())
+	jsonByte, _ := testDocJson.Encode()
+	err := client.DocSync(ServerIndexTag, docIdStr, jsonByte)
 	if err != nil {
 		fmt.Printf("sync doc %d failed, err:%v\n", docId, err.Error())
 	}else{

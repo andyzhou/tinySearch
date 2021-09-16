@@ -53,10 +53,9 @@ func (f *RpcCB) DocQuery(
 
 	//decode query opt json
 	queryOptJson := json.NewQueryOptJson()
-	bRet := queryOptJson.Decode(in.Json)
-	if !bRet {
-		tip = fmt.Sprintf("invalid query opt json")
-		return nil, errors.New(tip)
+	err = queryOptJson.Decode(in.Json)
+	if err != nil {
+		return nil, err
 	}
 
 	//get index
@@ -161,14 +160,14 @@ func (f *RpcCB) DocSync(
 
 	//decode json byte
 	kvMap := make(map[string]interface{})
-	bRet := f.BaseJson.DecodeSimple(in.Json, kvMap)
-	if !bRet {
-		return nil, errors.New("decode json byte failed")
+	err := f.BaseJson.DecodeSimple(in.Json, kvMap)
+	if err != nil {
+		return nil, err
 	}
 
 	//add into local index
 	indexer := index.GetIndex()
-	err := indexer.Index(in.DocId, kvMap)
+	err = indexer.Index(in.DocId, kvMap)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -198,7 +197,7 @@ func (f *RpcCB) suggestDocQuery(
 	if err != nil {
 		return nil, err
 	}
-	return suggestListJson.Encode(), nil
+	return suggestListJson.Encode()
 }
 
 //agg query
@@ -212,7 +211,7 @@ func (f *RpcCB) aggDocQuery(
 	if err != nil {
 		return nil, err
 	}
-	return aggListJson.Encode(), nil
+	return aggListJson.Encode()
 }
 
 //general query
@@ -226,5 +225,5 @@ func (f *RpcCB) genDocQuery(
 	if err != nil {
 		return nil, err
 	}
-	return resultsJson.Encode(), nil
+	return resultsJson.Encode()
 }

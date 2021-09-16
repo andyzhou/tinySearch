@@ -35,7 +35,10 @@ func (f *Base) AnalyzeDoc(
 	}
 
 	//get json byte
-	jsonByte := jsonObj.EncodeSimple(genMap)
+	jsonByte, err := jsonObj.EncodeSimple(genMap)
+	if err != nil {
+		return nil, err
+	}
 
 	//init hit doc json
 	hitDocJson := json.NewHitDocJson()
