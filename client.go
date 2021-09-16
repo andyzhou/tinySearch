@@ -83,10 +83,6 @@ func (f *Client) DocSuggest(
 					indexTag string,
 					optJson *json.QueryOptJson,
 				) (*json.SuggestsJson, error) {
-	var (
-		bRet bool
-	)
-
 	//check
 	if indexTag == "" || optJson == nil {
 		return nil, errors.New("invalid parameter")
@@ -98,11 +94,16 @@ func (f *Client) DocSuggest(
 		return nil, errors.New("can't get active rpc client")
 	}
 
+	optJsonByte, err := optJson.Encode()
+	if err != nil {
+		return nil, err
+	}
+
 	//call api
 	jsonByte, err := client.DocQuery(
 		QueryOptKindOfSuggest,
 		indexTag,
-		optJson.Encode(),
+		optJsonByte,
 	)
 	if err != nil {
 		return nil, err
@@ -115,9 +116,9 @@ func (f *Client) DocSuggest(
 
 	//format result
 	resultJson := json.NewSuggestsJson()
-	bRet = resultJson.Decode(jsonByte)
-	if !bRet {
-		return nil, errors.New("invalid json byte data")
+	err = resultJson.Decode(jsonByte)
+	if err != nil {
+		return nil, err
 	}
 	return resultJson, nil
 }
@@ -127,10 +128,6 @@ func (f *Client) DocAgg(
 					indexTag string,
 					optJson *json.QueryOptJson,
 				) (*json.AggregatesJson, error) {
-	var (
-		bRet bool
-	)
-
 	//check
 	if indexTag == "" || optJson == nil {
 		return nil, errors.New("invalid parameter")
@@ -142,11 +139,16 @@ func (f *Client) DocAgg(
 		return nil, errors.New("can't get active rpc client")
 	}
 
+	optJsonByte, err := optJson.Encode()
+	if err != nil {
+		return nil, err
+	}
+
 	//call api
 	jsonByte, err := client.DocQuery(
 									QueryOptKindOfAgg,
 									indexTag,
-									optJson.Encode(),
+									optJsonByte,
 								)
 	if err != nil {
 		return nil, err
@@ -159,9 +161,9 @@ func (f *Client) DocAgg(
 
 	//format result
 	resultJson := json.NewAggregatesJson()
-	bRet = resultJson.Decode(jsonByte)
-	if !bRet {
-		return nil, errors.New("invalid json byte data")
+	err = resultJson.Decode(jsonByte)
+	if err != nil {
+		return nil, err
 	}
 	return resultJson, nil
 }
@@ -171,10 +173,6 @@ func (f *Client) DocQuery(
 					indexTag string,
 					optJson *json.QueryOptJson,
 				) (*json.SearchResultJson, error) {
-	var (
-		bRet bool
-	)
-
 	//check
 	if indexTag == "" || optJson == nil {
 		return nil, errors.New("invalid parameter")
@@ -186,11 +184,16 @@ func (f *Client) DocQuery(
 		return nil, errors.New("can't get active rpc client")
 	}
 
+	optJsonByte, err := optJson.Encode()
+	if err != nil {
+		return nil, err
+	}
+
 	//call api
 	jsonByte, err := client.DocQuery(
 								QueryOptKindOfGen,
 								indexTag,
-								optJson.Encode(),
+								optJsonByte,
 							)
 	if err != nil {
 		return nil, err
@@ -203,9 +206,9 @@ func (f *Client) DocQuery(
 
 	//format result
 	resultJson := json.NewSearchResultJson()
-	bRet = resultJson.Decode(jsonByte)
-	if !bRet {
-		return nil, errors.New("invalid json byte data")
+	err = resultJson.Decode(jsonByte)
+	if err != nil {
+		return nil, err
 	}
 	return resultJson, nil
 }
