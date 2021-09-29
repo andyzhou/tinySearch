@@ -31,6 +31,51 @@ func NewQuery(suggester iface.ISuggest) *Query {
 	return this
 }
 
+//query all doc
+func (f *Query) QueryAll(
+			index iface.IIndex,
+		) (*json.SearchResultJson, error) {
+	//basic check
+	if index == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//get indexer
+	indexer := index.GetIndex()
+	if indexer == nil {
+		return nil, errors.New("can't get indexer")
+	}
+
+	//init search request
+	matchAll := bleve.NewMatchAllQuery()
+	searchRequest := bleve.NewSearchRequest(matchAll)
+	searchRequest.Explain = true
+
+	//begin search
+	searchResult, err := indexer.Search(searchRequest)
+	if err != nil {
+		log.Println("Query::QueryAll failed, err:", err.Error())
+		return nil, err
+	}
+
+	//check result
+	if searchResult.Total <= 0 {
+		result := &json.SearchResultJson{
+			Total: 0,
+			Records: nil,
+		}
+		return result, nil
+	}
+
+	//init result
+	result := json.NewSearchResultJson()
+	result.Total = searchResult.Total
+
+	//format records
+	result.Records = f.formatResult(indexer, &searchResult.Hits)
+	return result, nil
+}
+
 //query doc
 func (f *Query) Query(
 					index iface.IIndex,
