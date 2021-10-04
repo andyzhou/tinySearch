@@ -5,3 +5,5 @@ logs
 server_*
 client_*
 tinySearch_*
+*_darwin
+./search_data
