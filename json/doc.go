@@ -26,6 +26,7 @@ type TestDocJson struct {
 	Cat string `json:"cat"`
 	Price float64 `json:"price"`
 	Num int64 `json:"num"`
+	Prop map[string]interface{} `json:"prop"`
 	Introduce string `json:"introduce"`
 	CreateAt int64 `json:"createAt"`
 	BaseJson
@@ -37,6 +38,7 @@ type TestDocJson struct {
 
 func NewTestDocJson() *TestDocJson {
 	this := &TestDocJson{
+		Prop: make(map[string]interface{}),
 	}
 	return this
 }

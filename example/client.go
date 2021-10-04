@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/andyzhou/tinySearch"
+	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/json"
 	"log"
 	"math/rand"
@@ -112,9 +113,22 @@ func testClientAggDoc(client *tinySearch.Client) {
 
 //test query doc
 func testClientQueryDoc(client *tinySearch.Client) {
+	//filter for age property
+	filterAge := json.NewFilterField()
+	filterAge.Field = "prop.age"
+	filterAge.Kind = define.FilterKindNumericRange
+	filterAge.MinFloatVal = float64(5)
+	filterAge.MaxFloatVal = float64(100)
+
+	//filter for city property
+	filterCity := json.NewFilterField()
+	filterCity.Kind = define.FilterKindMatch
+	filterCity.Field = "prop.city"
+	filterCity.Val = "beijing"
+
 	optJson := json.NewQueryOptJson()
-	optJson.Key = "交代"
 	optJson.HighLight = true
+	optJson.AddFilter(filterAge, filterCity)
 	resp, err := client.DocQuery(ServerIndexTag, optJson)
 	if resp != nil {
 		fmt.Println("resp size:", resp.Total)
@@ -136,7 +150,7 @@ func testClientRemoveDoc(client *tinySearch.Client) {
 //test sync doc
 func testClientSyncDoc(client *tinySearch.Client) {
 	docIdBegin := 1
-	docIdEnd := 2
+	docIdEnd := 10
 	for id := docIdBegin; id <= docIdEnd; id++ {
 		addOneDoc(id, client)
 	}
@@ -151,6 +165,8 @@ func addOneDoc(docId int, client *tinySearch.Client)  {
 	testDocJson.Title = fmt.Sprintf("工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作-%d", docId)
 	testDocJson.Cat = "job"
 	testDocJson.Price = 10.1
+	testDocJson.Prop["age"] = docId
+	testDocJson.Prop["city"] = "beijing"
 	testDocJson.Num = int64(rand.Intn(100))
 	testDocJson.Introduce = "The second one 你 中文测试中文 is even more interesting! 吃水果"
 	testDocJson.CreateAt = time.Now().Unix()
