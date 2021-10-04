@@ -12,7 +12,7 @@ import (
 
 //inter macro define
 const (
-	DefaultDictFile = "./private/userdict.txt"
+	DefaultDictFile = "./private/dict.txt"
 )
 
 //face info
@@ -23,7 +23,11 @@ type Service struct {
 
 //construct
 //if rpc port > 0, will start rpc service
-func NewService(dataPath string, rpcPort int, dictFile ...string) *Service {
+func NewService(
+			dataPath string,
+			rpcPort int,
+			dictFile ...string,
+		) *Service {
 	//self init
 	this := &Service{
 		manager: face.NewManager(dataPath, dictFile...),
@@ -69,15 +73,11 @@ func (f *Service) GetDoc() iface.IDoc {
 }
 
 //get index face
-func (f *Service) GetIndex(
-					tag string,
-				) iface.IIndex {
+func (f *Service) GetIndex(tag string) iface.IIndex {
 	return f.manager.GetIndex(tag)
 }
 
 //add index
-func (f *Service) AddIndex(
-					tag string,
-				) error {
+func (f *Service) AddIndex(tag string) error {
 	return f.manager.AddIndex(tag)
 }
