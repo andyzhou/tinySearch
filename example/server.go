@@ -16,7 +16,6 @@ import (
 
 const (
 	RpcPort = 6060
-	IndexDictFile = "./private/userdict.txt"
 	IndexPath = "./search_data"
 	IndexTag = "test"
 )

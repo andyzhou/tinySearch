@@ -166,7 +166,6 @@ func (f *Query) Query(
 //build query object
 func (f *Query) BuildSearchReq(opt *json.QueryOptJson) *bleve.SearchRequest {
 	var (
-		tempStr string
 		docQuery query.Query
 		searchRequest *bleve.SearchRequest
 	)
@@ -180,7 +179,7 @@ func (f *Query) BuildSearchReq(opt *json.QueryOptJson) *bleve.SearchRequest {
 	case define.QueryKindOfMatchQuery:
 		docQuery = f.createMatchQuery(opt)
 	case define.QueryKindOfPhrase:
-		docQuery = bleve.NewMatchPhraseQuery(opt.Key)
+		docQuery = f.createPhraseQuery(opt)
 	default:
 		if opt.Key != "" {
 			docQuery = f.createMatchQuery(opt)
@@ -190,74 +189,13 @@ func (f *Query) BuildSearchReq(opt *json.QueryOptJson) *bleve.SearchRequest {
 	}
 
 	//set filter fields
-	if opt.Filters != nil && len(opt.Filters) > 0 {
-		//init bool query
-		boolQuery := bleve.NewBooleanQuery()
-
-		//add filter field and value
-		for _, filter := range opt.Filters {
-			//do sub query by kind
-			switch filter.Kind {
-			case define.FilterKindMatch:
-				{
-					//match by condition
-					tempStr = fmt.Sprintf("%v", filter.Val)
-					pg := bleve.NewTermQuery(tempStr)
-					pg.SetField(filter.Field)
-					boolQuery.AddMust(pg)
-				}
-			case define.FilterKindMatchRange:
-				{
-					//match by range
-					pg := bleve.NewTermRangeQuery(filter.MinVal, filter.MinVal)
-					pg.SetField(filter.Field)
-					boolQuery.AddMust(pg)
-				}
-			case define.FilterKindPhraseQuery:
-			case define.FilterKindExcludePhraseQuery:
-				{
-					//sub terms phrase query
-					termSlice := make([]string, 0)
-					switch filter.Val.(type) {
-					case []string:
-						termSlice = filter.Val.([]string)
-					default:
-						tmpStr := fmt.Sprintf("%v", filter.Val)
-						termSlice = append(termSlice, tmpStr)
-					}
-					pq := bleve.NewPhraseQuery(termSlice, filter.Field)
-					if filter.Kind == define.FilterKindExcludePhraseQuery {
-						boolQuery.AddMustNot(pq)
-					}else{
-						boolQuery.AddMust(pq)
-					}
-				}
-			case define.FilterKindNumericRange:
-				{
-					//min <= val < max
-					pg := bleve.NewNumericRangeQuery(&filter.MinFloatVal, &filter.MaxFloatVal)
-					pg.SetField(filter.Field)
-					boolQuery.AddMust(pg)
-				}
-			case define.FilterKindDateRange:
-				{
-					pg := bleve.NewDateRangeQuery(filter.StartTime, filter.EndTime)
-					pg.SetField(filter.Field)
-					boolQuery.AddMust(pg)
-				}
-			case define.FilterKindSubDocIds:
-				{
-					pg := bleve.NewDocIDQuery(filter.DocIds)
-					boolQuery.AddMust(pg)
-				}
-			}
-		}
-
+	//create bool query
+	boolQuery := f.createFilterQuery(opt)
+	if boolQuery != nil {
 		if docQuery != nil {
 			//add must doc query
 			boolQuery.AddMust(docQuery)
 		}
-
 		//init multi condition search request
 		searchRequest = bleve.NewSearchRequest(boolQuery)
 	}else{
@@ -267,9 +205,99 @@ func (f *Query) BuildSearchReq(opt *json.QueryOptJson) *bleve.SearchRequest {
 	return searchRequest
 }
 
+////////////////////////////
+//create filter bool query
+////////////////////////////
+
+func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
+	var (
+		tempStr string
+	)
+
+	//check
+	if opt.Filters == nil || len(opt.Filters) <= 0 {
+		return nil
+	}
+
+	//init bool query
+	boolQuery := bleve.NewBooleanQuery()
+
+	//add filter field and value
+	for _, filter := range opt.Filters {
+		//do sub query by kind
+		switch filter.Kind {
+		case define.FilterKindMatch:
+			{
+				//match by condition
+				tempStr = fmt.Sprintf("%v", filter.Val)
+				pg := bleve.NewTermQuery(tempStr)
+				pg.SetField(filter.Field)
+				boolQuery.AddMust(pg)
+			}
+		case define.FilterKindMatchRange:
+			{
+				//match by range
+				pg := bleve.NewTermRangeQuery(filter.MinVal, filter.MinVal)
+				pg.SetField(filter.Field)
+				boolQuery.AddMust(pg)
+			}
+		case define.FilterKindPhraseQuery:
+		case define.FilterKindExcludePhraseQuery:
+			{
+				//sub terms phrase query
+				termSlice := make([]string, 0)
+				switch filter.Val.(type) {
+				case []string:
+					termSlice = filter.Val.([]string)
+				default:
+					tmpStr := fmt.Sprintf("%v", filter.Val)
+					termSlice = append(termSlice, tmpStr)
+				}
+				pq := bleve.NewPhraseQuery(termSlice, filter.Field)
+				if filter.Kind == define.FilterKindExcludePhraseQuery {
+					boolQuery.AddMustNot(pq)
+				} else {
+					boolQuery.AddMust(pq)
+				}
+			}
+		case define.FilterKindNumericRange:
+			{
+				//min <= val < max
+				pg := bleve.NewNumericRangeQuery(&filter.MinFloatVal, &filter.MaxFloatVal)
+				pg.SetField(filter.Field)
+				boolQuery.AddMust(pg)
+			}
+		case define.FilterKindDateRange:
+			{
+				pg := bleve.NewDateRangeQuery(filter.StartTime, filter.EndTime)
+				pg.SetField(filter.Field)
+				boolQuery.AddMust(pg)
+			}
+		case define.FilterKindSubDocIds:
+			{
+				pg := bleve.NewDocIDQuery(filter.DocIds)
+				boolQuery.AddMust(pg)
+			}
+		}
+	}
+	return boolQuery
+}
+
+
 //////////////////////
 //create relate query
 //////////////////////
+
+func (f *Query) createPhraseQuery(opt *json.QueryOptJson) query.Query {
+	subQuery := bleve.NewMatchPhraseQuery(opt.Key)
+	if opt.Fields != nil {
+		for _, field := range opt.Fields {
+			//set query field
+			subQuery.SetField(field)
+		}
+	}
+	return subQuery
+}
 
 func (f *Query) createMatchQuery(opt *json.QueryOptJson) query.Query {
 	subQuery := bleve.NewMatchQuery(opt.Key)
