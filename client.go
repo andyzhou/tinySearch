@@ -243,7 +243,9 @@ func (f *Client) DocRemove(
 	}
 
 	//send to chan
-	f.removeChan <- req
+	select {
+	case f.removeChan <- req:
+	}
 	return
 }
 
@@ -279,7 +281,9 @@ func (f *Client) DocSync(
 	}
 
 	//send to chan
-	f.syncChan <- req
+	select {
+	case f.syncChan <- req:
+	}
 	return
 }
 
@@ -338,6 +342,8 @@ func (f *Client) runMainProcess() {
 				//remove relate doc by ids
 				f.removeBatchDocByIds(&removeReq)
 			}
+		case <- f.closeChan:
+			return
 		}
 	}
 }
