@@ -21,7 +21,7 @@ type HitDocJson struct {
 
 //testing doc json
 type TestDocJson struct {
-	Id string `json:"id"`
+	Id int64 `json:"id,string,omitempty"` //for fix int64 Unmarshal issue
 	Title string `json:"title"`
 	Cat string `json:"cat"`
 	Price float64 `json:"price"`

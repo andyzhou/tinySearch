@@ -80,13 +80,13 @@ func testing(client *tinySearch.Client) {
 	//testClientAggDoc(client)
 
 	//query doc
-	testClientQueryDoc(client)
+	//testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
 
 	//sync doc
-	//testClientSyncDoc(client)
+	testClientSyncDoc(client)
 }
 
 //test suggest doc
@@ -149,19 +149,22 @@ func testClientRemoveDoc(client *tinySearch.Client) {
 
 //test sync doc
 func testClientSyncDoc(client *tinySearch.Client) {
-	docIdBegin := 1
-	docIdEnd := 10
+	var (
+		docIdBegin, docIdEnd int64
+	)
+	docIdBegin = 1445641905684619264
+	docIdEnd = 1445641905684619265
 	for id := docIdBegin; id <= docIdEnd; id++ {
 		addOneDoc(id, client)
 	}
 }
 
 //add one doc
-func addOneDoc(docId int, client *tinySearch.Client)  {
+func addOneDoc(docId int64, client *tinySearch.Client)  {
 	//init test doc json
-	docIdStr := fmt.Sprintf("%d", docId)
+	docIdStr := fmt.Sprintf("%v", docId)
 	testDocJson := json.NewTestDocJson()
-	testDocJson.Id = docIdStr
+	testDocJson.Id = docId
 	testDocJson.Title = fmt.Sprintf("工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作-%d", docId)
 	testDocJson.Cat = "job"
 	testDocJson.Price = 10.1
@@ -172,6 +175,11 @@ func addOneDoc(docId int, client *tinySearch.Client)  {
 	testDocJson.CreateAt = time.Now().Unix()
 
 	jsonByte, _ := testDocJson.Encode()
+
+	//kv := make(map[string]interface{})
+	//vv := json.NewBaseJson()
+	//vv.DecodeSimple(jsonByte, kv)
+
 	err := client.DocSync(ServerIndexTag, docIdStr, jsonByte)
 	if err != nil {
 		fmt.Printf("sync doc %d failed, err:%v\n", docId, err.Error())
