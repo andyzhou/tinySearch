@@ -58,7 +58,11 @@ func (f *RpcClient) Quit() {
 }
 
 //call api
-func (f *RpcClient) DocQuery(optKind int, tag string, optJson []byte) ([]byte, error) {
+func (f *RpcClient) DocQuery(
+				optKind int,
+				tag string,
+				optJson []byte,
+			) ([]byte, error) {
 	//check
 	if tag == "" || optJson == nil {
 		return nil, errors.New("invalid parameter")
@@ -114,6 +118,32 @@ func (f *RpcClient) DocRemove(
 	}
 	bRet = true
 	return
+}
+
+func (f *RpcClient) DocGet(
+				tag string,
+				docIds ...string,
+			) ([][]byte, error) {
+	//check
+	if tag == "" || docIds == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//init real request
+	realReq := &search.DocGetReq{
+		Tag:tag,
+		DocIds: docIds,
+	}
+
+	//call doc query api
+	resp, err := (*f.client).DocGet(
+		context.Background(),
+		realReq,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return resp.JsonByte, nil
 }
 
 func (f *RpcClient) DocSync(

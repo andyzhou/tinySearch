@@ -85,8 +85,11 @@ func testing(client *tinySearch.Client) {
 	//remove doc
 	//testClientRemoveDoc(client)
 
+	//get doc
+	//testClientGetDoc(client)
+
 	//sync doc
-	testClientSyncDoc(client)
+	//testClientSyncDoc(client)
 }
 
 //test suggest doc
@@ -111,14 +114,37 @@ func testClientAggDoc(client *tinySearch.Client) {
 	fmt.Println("err:", err)
 }
 
+
+//get doc
+func testClientGetDoc(client *tinySearch.Client)  {
+	docIds := []string{
+		fmt.Sprintf("%v", 1445641905684619264),
+	}
+	jsonByteSlice, err := client.DocGet(ServerIndexTag, docIds...)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, jsonByte := range jsonByteSlice {
+		testDocJson := json.NewTestDocJson()
+		err = testDocJson.Decode(jsonByte)
+		if err != nil {
+			fmt.Println(err)
+		}else{
+			fmt.Println(testDocJson)
+		}
+	}
+}
+
 //test query doc
 func testClientQueryDoc(client *tinySearch.Client) {
 	//filter for age property
-	filterAge := json.NewFilterField()
-	filterAge.Field = "prop.age"
-	filterAge.Kind = define.FilterKindNumericRange
-	filterAge.MinFloatVal = float64(5)
-	filterAge.MaxFloatVal = float64(100)
+	//filterAge := json.NewFilterField()
+	//filterAge.Field = "prop.age"
+	//filterAge.Kind = define.FilterKindNumericRange
+	//filterAge.MinFloatVal = float64(5)
+	//filterAge.MaxFloatVal = float64(100)
 
 	//filter for city property
 	filterCity := json.NewFilterField()
@@ -128,12 +154,25 @@ func testClientQueryDoc(client *tinySearch.Client) {
 
 	optJson := json.NewQueryOptJson()
 	optJson.HighLight = true
-	optJson.AddFilter(filterAge, filterCity)
+	optJson.AddFilter(filterCity)
 	resp, err := client.DocQuery(ServerIndexTag, optJson)
-	if resp != nil {
-		fmt.Println("resp size:", resp.Total)
+	if err != nil {
+		fmt.Println("err:", err)
+		return
 	}
-	fmt.Println("err:", err)
+	if resp == nil {
+		fmt.Println("no any record")
+		return
+	}
+
+	//analyze result
+	for _, jsonObj := range resp.Records {
+		testJson := json.NewTestDocJson()
+		err = testJson.Decode(jsonObj.OrgJson)
+		if err != nil {
+			continue
+		}
+	}
 }
 
 //test remove doc

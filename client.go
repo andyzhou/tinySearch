@@ -249,6 +249,26 @@ func (f *Client) DocRemove(
 	return
 }
 
+//get doc
+func (f *Client) DocGet(
+					indexTag string,
+					docIds ...string,
+				) ([][]byte, error) {
+	//check
+	if indexTag == "" || docIds == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//get rpc client
+	client := f.getClient()
+	if client == nil {
+		return nil, errors.New("can't get active rpc client")
+	}
+
+	//call rpc api
+	return client.DocGet(indexTag, docIds...)
+}
+
 //add sync
 //used for add, sync doc, run on all nodes
 func (f *Client) DocSync(

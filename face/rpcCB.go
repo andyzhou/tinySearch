@@ -137,6 +137,49 @@ func (f *RpcCB) DocRemove(
 	return result, nil
 }
 
+//doc get
+func (f *RpcCB) DocGet(
+				ctx context.Context,
+				in *search.DocGetReq,
+			) (*search.DocGetResp, error) {
+	var (
+		tip string
+	)
+	//check input value
+	if in == nil || in.DocIds == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//get index
+	index := f.manager.GetIndex(in.Tag)
+	if index == nil {
+		tip = fmt.Sprintf("can't get index by tag of %s", in.Tag)
+		return nil, errors.New(tip)
+	}
+
+	//get doc face
+	doc := f.manager.GetDoc()
+
+	//get batch docs
+	hitDocs, err := doc.GetDocs(index, in.DocIds...)
+	if err != nil {
+		return nil, err
+	}
+	if hitDocs == nil {
+		return nil, errors.New("no any records")
+	}
+
+	//format result
+	result := &search.DocGetResp{
+		Success:true,
+		JsonByte:make([][]byte, 0),
+	}
+	for _, hitDoc := range hitDocs {
+		result.JsonByte = append(result.JsonByte, hitDoc.OrgJson)
+	}
+	return result, nil
+}
+
 //doc sync
 func (f *RpcCB) DocSync(
 					ctx context.Context,

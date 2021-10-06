@@ -30,6 +30,19 @@ message DocSyncResp {
 //proto for doc query
 ///////////////////////
 
+//message for doc get
+message DocGetReq {
+    string tag = 1; //index tag
+    repeated string docIds = 2; //doc id array
+}
+
+//message for doc get response
+message DocGetResp {
+    bool success = 1;
+    string errMsg = 2;
+    repeated bytes jsonByte = 3; //json obj byte array
+}
+
 //message for doc query request
 message DocQueryReq {
     int32 kind = 1; //query kind
@@ -50,6 +63,9 @@ message DocQueryResp {
 service SearchService {
     //doc query, include general query, agg, suggest, etc.
     rpc DocQuery(DocQueryReq) returns (DocQueryResp);
+
+    //doc get
+    rpc DocGet(DocGetReq) returns(DocGetResp);
 
     //doc remove
     rpc DocRemove(DocRemoveReq) returns (DocSyncResp);

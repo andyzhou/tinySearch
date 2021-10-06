@@ -20,6 +20,11 @@ type IRpcCB interface {
 		in *search.DocRemoveReq,
 	) (*search.DocSyncResp, error)
 
+	DocGet(
+		ctx context.Context,
+		in *search.DocGetReq,
+	) (*search.DocGetResp, error)
+
 	DocSync(
 		ctx context.Context,
 		in *search.DocSyncReq,
