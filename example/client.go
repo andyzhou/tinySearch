@@ -80,7 +80,7 @@ func testing(client *tinySearch.Client) {
 	//testClientAggDoc(client)
 
 	//query doc
-	//testClientQueryDoc(client)
+	testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
@@ -149,8 +149,8 @@ func testClientQueryDoc(client *tinySearch.Client) {
 	//filter for city property
 	filterCity := json.NewFilterField()
 	filterCity.Kind = define.FilterKindMatch
-	filterCity.Field = "prop.city"
-	filterCity.Val = "beijing"
+	filterCity.Field = "cat"//"prop.city"
+	filterCity.Val = "job"
 
 	optJson := json.NewQueryOptJson()
 	optJson.HighLight = true
@@ -172,6 +172,7 @@ func testClientQueryDoc(client *tinySearch.Client) {
 		if err != nil {
 			continue
 		}
+		fmt.Println(testJson)
 	}
 }
 

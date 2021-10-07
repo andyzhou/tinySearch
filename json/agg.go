@@ -1,5 +1,7 @@
 package json
 
+import "encoding/json"
+
 /*
  * json for agg
  */
@@ -15,8 +17,8 @@ type AggField struct {
 //aggregate json
 type AggregateJson struct {
 	Name string `json:"name"`
-	Min float64 `json:"min"`
-	Max float64 `json:"max"`
+	Min json.Number `json:"min,string,omitempty"`
+	Max json.Number `json:"max,string,omitempty"`
 	Count int `json:"count"`
 	BaseJson
 }

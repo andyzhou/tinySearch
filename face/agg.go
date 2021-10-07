@@ -1,6 +1,7 @@
 package face
 
 import (
+	genJson "encoding/json"
 	"errors"
 	"fmt"
 	"github.com/andyzhou/tinySearch/define"
@@ -93,8 +94,8 @@ func (f *Agg) GetAggList(
 			//format final query for agg
 			aggJson := json.NewAggregateJson()
 			aggJson.Name = v.Name
-			aggJson.Min = *v.Min
-			aggJson.Max = *v.Max
+			aggJson.Min = genJson.Number(fmt.Sprintf("%v", *v.Min))
+			aggJson.Max = genJson.Number(fmt.Sprintf("%v", *v.Max))
 			aggJson.Count = v.Count
 
 			//add into slice
