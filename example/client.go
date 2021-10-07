@@ -1,6 +1,7 @@
 package main
 
 import (
+	genJson "encoding/json"
 	"fmt"
 	"github.com/andyzhou/tinySearch"
 	"github.com/andyzhou/tinySearch/define"
@@ -88,7 +89,6 @@ func testing(client *tinySearch.Client) {
 	//get doc
 	//testClientGetDoc(client)
 
-	//sync doc
 	//testClientSyncDoc(client)
 }
 
@@ -152,9 +152,15 @@ func testClientQueryDoc(client *tinySearch.Client) {
 	filterCity.Field = "cat"//"prop.city"
 	filterCity.Val = "job"
 
+	//filter for price
+	filterPrice := json.NewFilterField()
+	filterPrice.Kind = define.FilterKindMatch
+	filterPrice.Field = "price"//"prop.city"
+	filterPrice.Val = "10.2"
+
 	optJson := json.NewQueryOptJson()
 	optJson.HighLight = true
-	optJson.AddFilter(filterCity)
+	optJson.AddFilter(filterPrice)
 	resp, err := client.DocQuery(ServerIndexTag, optJson)
 	if err != nil {
 		fmt.Println("err:", err)
@@ -207,7 +213,7 @@ func addOneDoc(docId int64, client *tinySearch.Client)  {
 	testDocJson.Id = docId
 	testDocJson.Title = fmt.Sprintf("工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作-%d", docId)
 	testDocJson.Cat = "job"
-	testDocJson.Price = 10.1
+	testDocJson.Price = genJson.Number(fmt.Sprintf("%v", 10.2))
 	testDocJson.Prop["age"] = docId
 	testDocJson.Prop["city"] = "beijing"
 	testDocJson.Num = int64(rand.Intn(100))
