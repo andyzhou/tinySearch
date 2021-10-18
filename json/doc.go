@@ -29,6 +29,7 @@ type TestDocJson struct {
 	Price json.Number `json:"price,string,omitempty"` //need use match
 	Num int64 `json:"num"`
 	Prop map[string]interface{} `json:"prop"`
+	Tags map[string]interface{} `json:"tags"`
 	Introduce string `json:"introduce"`
 	CreateAt int64 `json:"createAt"`
 	BaseJson
@@ -41,6 +42,7 @@ type TestDocJson struct {
 func NewTestDocJson() *TestDocJson {
 	this := &TestDocJson{
 		Prop: make(map[string]interface{}),
+		Tags: make(map[string]interface{}),
 	}
 	return this
 }

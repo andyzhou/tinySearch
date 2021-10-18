@@ -81,7 +81,7 @@ func testing(client *tinySearch.Client) {
 	//testClientAggDoc(client)
 
 	//query doc
-	testClientQueryDoc(client)
+	//testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
@@ -89,7 +89,7 @@ func testing(client *tinySearch.Client) {
 	//get doc
 	//testClientGetDoc(client)
 
-	//testClientSyncDoc(client)
+	testClientSyncDoc(client)
 }
 
 //test suggest doc
@@ -176,6 +176,8 @@ func testClientQueryDoc(client *tinySearch.Client) {
 		testJson := json.NewTestDocJson()
 		err = testJson.Decode(jsonObj.OrgJson)
 		if err != nil {
+			//fmt.Println(string(jsonObj.OrgJson))
+			//fmt.Println(err.Error())
 			continue
 		}
 		fmt.Println(testJson)
@@ -211,22 +213,32 @@ func addOneDoc(docId int64, client *tinySearch.Client)  {
 	docIdStr := fmt.Sprintf("%v", docId)
 	testDocJson := json.NewTestDocJson()
 	testDocJson.Id = docId
-	testDocJson.Title = fmt.Sprintf("工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作-%d", docId)
+	testDocJson.Title = fmt.Sprintf("工信处女干事每月件的安装工作-%d", docId)
 	testDocJson.Cat = "job"
 	testDocJson.Price = genJson.Number(fmt.Sprintf("%v", 10.2))
 	testDocJson.Prop["age"] = docId
 	testDocJson.Prop["city"] = "beijing"
 	testDocJson.Num = int64(rand.Intn(100))
-	testDocJson.Introduce = "The second one 你 中文测试中文 is even more interesting! 吃水果"
+	testDocJson.Introduce = "The second one 你 中文re interesting! 吃水果"
 	testDocJson.CreateAt = time.Now().Unix()
 
-	jsonByte, _ := testDocJson.Encode()
+	tagA := "teat"
+	tagB := "aaa"
+
+	testDocJson.Tags[tagA] = 1
+	testDocJson.Tags[tagB] = 1
+
+	jsonByte, err := testDocJson.Encode()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 
 	//kv := make(map[string]interface{})
 	//vv := json.NewBaseJson()
 	//vv.DecodeSimple(jsonByte, kv)
 
-	err := client.DocSync(ServerIndexTag, docIdStr, jsonByte)
+	err = client.DocSync(ServerIndexTag, docIdStr, jsonByte)
 	if err != nil {
 		fmt.Printf("sync doc %d failed, err:%v\n", docId, err.Error())
 	}else{
