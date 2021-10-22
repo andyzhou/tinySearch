@@ -27,6 +27,8 @@ type FilterField struct {
 	MaxFloatVal json.Number `json:"maxFloatVal,string,omitempty"` //for numeric range
 	StartTime time.Time `json:"startTime"` //for date range
 	EndTime time.Time `json:"endTime"` //for date range
+	IsMust bool `json:"isMust"`
+	IsExclude bool `json:"isExclude"`
 }
 
 //sort field

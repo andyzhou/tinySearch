@@ -180,6 +180,8 @@ func (f *Query) BuildSearchReq(opt *json.QueryOptJson) *bleve.SearchRequest {
 		docQuery = f.createMatchQuery(opt)
 	case define.QueryKindOfPhrase:
 		docQuery = f.createPhraseQuery(opt)
+	case define.QueryKindOfMatchAll:
+		docQuery = bleve.NewMatchAllQuery()
 	default:
 		if opt.Key != "" {
 			docQuery = f.createMatchQuery(opt)
@@ -232,14 +234,32 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 				tempStr = fmt.Sprintf("%v", filter.Val)
 				pg := bleve.NewTermQuery(tempStr)
 				pg.SetField(filter.Field)
-				boolQuery.AddMust(pg)
+				if filter.IsMust {
+					boolQuery.AddMust(pg)
+				}else{
+					boolQuery.AddShould(pg)
+				}
 			}
 		case define.FilterKindMatchRange:
 			{
 				//match by range
 				pg := bleve.NewTermRangeQuery(filter.MinVal, filter.MinVal)
 				pg.SetField(filter.Field)
-				boolQuery.AddMust(pg)
+				if filter.IsMust {
+					boolQuery.AddMust(pg)
+				}else{
+					boolQuery.AddShould(pg)
+				}
+			}
+		case define.FilterKindPrefix:
+			{
+				pg := bleve.NewPrefixQuery(fmt.Sprintf("%v", filter.Val))
+				pg.SetField(filter.Field)
+				if filter.IsMust {
+					boolQuery.AddMust(pg)
+				}else{
+					boolQuery.AddShould(pg)
+				}
 			}
 		case define.FilterKindPhraseQuery:
 		case define.FilterKindExcludePhraseQuery:
@@ -254,10 +274,14 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 					termSlice = append(termSlice, tmpStr)
 				}
 				pq := bleve.NewPhraseQuery(termSlice, filter.Field)
-				if filter.Kind == define.FilterKindExcludePhraseQuery {
+				if filter.IsExclude {
 					boolQuery.AddMustNot(pq)
 				} else {
-					boolQuery.AddMust(pq)
+					if filter.IsMust {
+						boolQuery.AddMust(pq)
+					}else{
+						boolQuery.AddShould(pq)
+					}
 				}
 			}
 		case define.FilterKindNumericRange:
@@ -267,24 +291,35 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 				maxFloatVal, _ := filter.MaxFloatVal.Float64()
 				pg := bleve.NewNumericRangeQuery(&minFloatVal, &maxFloatVal)
 				pg.SetField(filter.Field)
-				boolQuery.AddMust(pg)
+				if filter.IsMust {
+					boolQuery.AddMust(pg)
+				}else{
+					boolQuery.AddShould(pg)
+				}
 			}
 		case define.FilterKindDateRange:
 			{
 				pg := bleve.NewDateRangeQuery(filter.StartTime, filter.EndTime)
 				pg.SetField(filter.Field)
-				boolQuery.AddMust(pg)
+				if filter.IsMust {
+					boolQuery.AddMust(pg)
+				}else{
+					boolQuery.AddShould(pg)
+				}
 			}
 		case define.FilterKindSubDocIds:
 			{
 				pg := bleve.NewDocIDQuery(filter.DocIds)
-				boolQuery.AddMust(pg)
+				if filter.IsMust {
+					boolQuery.AddMust(pg)
+				}else{
+					boolQuery.AddShould(pg)
+				}
 			}
 		}
 	}
 	return boolQuery
 }
-
 
 //////////////////////
 //create relate query

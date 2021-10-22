@@ -20,6 +20,7 @@ const (
 	QueryKindOfPhrase
 	QueryKindOfPrefix
 	QueryKindOfNumericRange
+	QueryKindOfMatchAll
 )
 
 //filter kind
@@ -31,4 +32,5 @@ const (
 	FilterKindDateRange
 	FilterKindSubDocIds
 	FilterKindExcludePhraseQuery
+	FilterKindPrefix
 )
