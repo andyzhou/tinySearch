@@ -78,10 +78,10 @@ func testing(client *tinySearch.Client) {
 	//testClientSuggestDoc(client)
 
 	//agg doc
-	//testClientAggDoc(client)
+	testClientAggDoc(client)
 
 	//query doc
-	//testClientQueryDoc(client)
+	testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
@@ -89,7 +89,7 @@ func testing(client *tinySearch.Client) {
 	//get doc
 	//testClientGetDoc(client)
 
-	testClientSyncDoc(client)
+	//testClientSyncDoc(client)
 }
 
 //test suggest doc
@@ -104,7 +104,7 @@ func testClientSuggestDoc(client *tinySearch.Client) {
 //test agg doc
 func testClientAggDoc(client *tinySearch.Client) {
 	optJson := json.NewQueryOptJson()
-	optJson.Key = "test"
+	optJson.Key = "工作"
 	optJson.AggField = &json.AggField{
 		Field:"cat",
 		Size:10,
