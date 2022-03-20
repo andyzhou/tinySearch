@@ -3,6 +3,7 @@ package tinySearch
 import (
 	"github.com/andyzhou/tinySearch/face"
 	"github.com/andyzhou/tinySearch/iface"
+	"github.com/andyzhou/tinySearch/rpc"
 	"log"
 )
 
@@ -34,7 +35,7 @@ func NewService(
 	}
 	//init rpc if rpc port > 0
 	if rpcPort > 0 {
-		this.rpcService = face.NewRpcService(rpcPort, this.manager)
+		this.rpcService = rpc.NewRpcService(rpcPort, this.manager)
 	}
 	return this
 }

@@ -1,4 +1,4 @@
-package face
+package rpc
 
 import (
 	"context"

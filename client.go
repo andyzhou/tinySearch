@@ -3,9 +3,9 @@ package tinySearch
 import (
 	"errors"
 	"fmt"
-	"github.com/andyzhou/tinySearch/face"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
+	"github.com/andyzhou/tinySearch/rpc"
 	"log"
 	"sync"
 )
@@ -321,7 +321,7 @@ func (f *Client) AddNodes(nodes ... string) bool {
 			continue
 		}
 		//create new rpc client
-		rpcClient := face.NewRpcClient(node)
+		rpcClient := rpc.NewRpcClient(node)
 		f.rpcClients[node] = rpcClient
 	}
 	return true

@@ -1,4 +1,4 @@
-package face
+package rpc
 
 import (
 	"context"
@@ -193,8 +193,8 @@ func (f *RpcClient) IsActive() bool {
 //run main process
 func (f *RpcClient) runMainProcess() {
 	var (
-		ticker = time.NewTicker(time.Second * define.ClientCheckTicker)
-		req DocSyncReq
+		ticker         = time.NewTicker(time.Second * define.ClientCheckTicker)
+		req            DocSyncReq
 		isOk, needQuit bool
 	)
 
