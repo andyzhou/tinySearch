@@ -4,6 +4,14 @@ package search;
 option java_package = "com.tc.tinySearch";
 
 ///////////////////////
+//proto for common
+///////////////////////
+
+message TinySearchBase {
+    string token = 1;
+}
+
+///////////////////////
 //proto for doc sync
 ///////////////////////
 

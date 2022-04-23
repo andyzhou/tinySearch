@@ -240,6 +240,9 @@ func (f *RpcCB) suggestDocQuery(
 	if err != nil {
 		return nil, err
 	}
+	if suggestListJson == nil {
+		return nil, nil
+	}
 	return suggestListJson.Encode()
 }
 
@@ -254,6 +257,9 @@ func (f *RpcCB) aggDocQuery(
 	if err != nil {
 		return nil, err
 	}
+	if aggListJson == nil {
+		return nil, nil
+	}
 	return aggListJson.Encode()
 }
 
@@ -267,6 +273,9 @@ func (f *RpcCB) genDocQuery(
 	resultsJson, err := query.Query(index, queryOptJson)
 	if err != nil {
 		return nil, err
+	}
+	if resultsJson == nil {
+		return nil, nil
 	}
 	return resultsJson.Encode()
 }

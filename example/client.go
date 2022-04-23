@@ -75,7 +75,7 @@ func main() {
 //testing
 func testing(client *tinySearch.Client) {
 	//suggest doc
-	//testClientSuggestDoc(client)
+	testClientSuggestDoc(client)
 
 	//agg doc
 	testClientAggDoc(client)
@@ -87,7 +87,7 @@ func testing(client *tinySearch.Client) {
 	//testClientRemoveDoc(client)
 
 	//get doc
-	//testClientGetDoc(client)
+	testClientGetDoc(client)
 
 	//testClientSyncDoc(client)
 }
@@ -97,8 +97,11 @@ func testClientSuggestDoc(client *tinySearch.Client) {
 	optJson := json.NewQueryOptJson()
 	optJson.Key = "te"
 	resp, err := client.DocSuggest(ServerIndexTag, optJson)
-	fmt.Println("resp:", resp)
-	fmt.Println("err:", err)
+	if err != nil {
+		log.Println("testClientSuggestDoc failed, err:", err)
+	}else{
+		log.Println("testClientSuggestDoc resp:", resp)
+	}
 }
 
 //test agg doc
@@ -110,8 +113,11 @@ func testClientAggDoc(client *tinySearch.Client) {
 		Size:10,
 	}
 	resp, err := client.DocAgg(ServerIndexTag, optJson)
-	fmt.Println("resp:", resp)
-	fmt.Println("err:", err)
+	if err != nil {
+		log.Println("testClientAggDoc failed, err:", err)
+	}else{
+		log.Println("testClientAggDoc resp:", resp)
+	}
 }
 
 
@@ -122,7 +128,7 @@ func testClientGetDoc(client *tinySearch.Client)  {
 	}
 	jsonByteSlice, err := client.DocGet(ServerIndexTag, docIds...)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
@@ -130,9 +136,9 @@ func testClientGetDoc(client *tinySearch.Client)  {
 		testDocJson := json.NewTestDocJson()
 		err = testDocJson.Decode(jsonByte)
 		if err != nil {
-			fmt.Println(err)
+			log.Printf("testClientGetDoc failed, err:%v", err)
 		}else{
-			fmt.Println(testDocJson)
+			log.Printf("testClientGetDoc result:%v", testDocJson)
 		}
 	}
 }
@@ -163,11 +169,11 @@ func testClientQueryDoc(client *tinySearch.Client) {
 	optJson.AddFilter(filterPrice)
 	resp, err := client.DocQuery(ServerIndexTag, optJson)
 	if err != nil {
-		fmt.Println("err:", err)
+		log.Println("testClientQueryDoc failed, err:", err)
 		return
 	}
 	if resp == nil {
-		fmt.Println("no any record")
+		log.Println("testClientQueryDoc no any record")
 		return
 	}
 
@@ -180,7 +186,7 @@ func testClientQueryDoc(client *tinySearch.Client) {
 			//fmt.Println(err.Error())
 			continue
 		}
-		fmt.Println(testJson)
+		log.Println("testClientQueryDoc rec:", testJson)
 	}
 }
 
@@ -189,9 +195,9 @@ func testClientRemoveDoc(client *tinySearch.Client) {
 	docId := "4"
 	err := client.DocRemove(ServerIndexTag, docId)
 	if err != nil {
-		fmt.Println("remove doc failed, err:", err.Error())
+		log.Println("remove doc failed, err:", err.Error())
 	}else{
-		fmt.Println("remove doc succeed.")
+		log.Println("remove doc succeed.")
 	}
 }
 
@@ -240,8 +246,8 @@ func addOneDoc(docId int64, client *tinySearch.Client)  {
 
 	err = client.DocSync(ServerIndexTag, docIdStr, jsonByte)
 	if err != nil {
-		fmt.Printf("sync doc %d failed, err:%v\n", docId, err.Error())
+		log.Printf("sync doc %d failed, err:%v\n", docId, err.Error())
 	}else{
-		fmt.Printf("sync doc %d succeed.\n", docId)
+		log.Printf("sync doc %d succeed.\n", docId)
 	}
 }
