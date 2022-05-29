@@ -1,6 +1,7 @@
 package tinySearch
 
 import (
+	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/face"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/rpc"
@@ -29,6 +30,9 @@ func NewService(
 			rpcPort int,
 			dictFile ...string,
 		) *Service {
+	if dataPath == "" {
+		dataPath = define.DataPathDefault
+	}
 	//self init
 	this := &Service{
 		manager: face.NewManager(dataPath, dictFile...),

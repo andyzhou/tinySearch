@@ -3,7 +3,7 @@ package face
 import (
 	"errors"
 	"fmt"
-	_ "github.com/andyzhou/jiebago/tokenizers" //for init tokenizers
+	_ "github.com/andyzhou/tinySearch/jiebago/tokenizers" //for init tokenizers
 	"github.com/blevesearch/bleve/v2"
 	_ "github.com/blevesearch/bleve/v2/analysis/analyzer/custom" //for init 'custom'
 	"github.com/blevesearch/bleve/v2/mapping"

@@ -32,7 +32,7 @@ type Suggest struct {
 	dataPath string
 	index iface.IIndex
 	syncReqChan chan json.SuggestJson
-	closeChan chan bool
+	closeChan chan struct{}
 	Base
 }
 
@@ -42,7 +42,7 @@ func NewSuggest(dataPath, dictFile string) *Suggest {
 	this := &Suggest{
 		dataPath:dataPath,
 		syncReqChan:make(chan json.SuggestJson, interSuggestChanSize),
-		closeChan:make(chan bool, 1),
+		closeChan:make(chan struct{}, 1),
 	}
 	this.interInit(dictFile)
 	go this.runMainProcess()
@@ -56,7 +56,7 @@ func (f *Suggest) Quit() {
 			log.Println("Suggest:Quit panic, err:", err)
 		}
 	}()
-	f.closeChan <- true
+	f.closeChan <- struct{}{}
 }
 
 //get suggest

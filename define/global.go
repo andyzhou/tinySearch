@@ -4,6 +4,7 @@ const (
 	RecPerPage = 10
 	ClientCheckTicker = 3
 	ReqChanSize = 1024
+	DataPathDefault = "."
 )
 
 //query opt kind

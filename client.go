@@ -46,7 +46,7 @@ type Client struct {
 	rpcClients map[string]iface.IRpcClient //address -> rpcClient
 	syncChan chan syncDocReq //sync doc
 	removeChan chan removeDocReq //remove batch docs
-	closeChan chan bool
+	closeChan chan struct{}
 	sync.RWMutex
 }
 
@@ -57,7 +57,7 @@ func NewClient() *Client {
 		rpcClients:make(map[string]iface.IRpcClient),
 		syncChan: make(chan syncDocReq, SyncChanSize),
 		removeChan:make(chan removeDocReq, RemoveChanSize),
-		closeChan:make(chan bool, 1),
+		closeChan:make(chan struct{}, 1),
 	}
 	go self.runMainProcess()
 	return self
@@ -75,7 +75,7 @@ func (f *Client) Quit() {
 			client.Quit()
 		}
 	}
-	f.closeChan <- true
+	f.closeChan <- struct{}{}
 }
 
 //suggest doc

@@ -25,23 +25,23 @@ type DocSyncReq struct {
 }
 
 //face info
-type RpcClient struct {
+type Client struct {
 	addr string
 	isActive bool
 	conn *grpc.ClientConn //rpc client connect
 	client *search.SearchServiceClient //rpc client
 	docSyncChan chan DocSyncReq
-	closeChan chan bool
+	closeChan chan struct{}
 	sync.RWMutex
 }
 
 //construct
-func NewRpcClient(addr string) *RpcClient {
+func NewRpcClient(addr string) *Client {
 	//self init
-	this := &RpcClient{
+	this := &Client{
 		addr:addr,
 		docSyncChan:make(chan DocSyncReq, define.ReqChanSize),
-		closeChan:make(chan bool, 1),
+		closeChan:make(chan struct{}, 1),
 	}
 
 	//try connect server
@@ -53,12 +53,12 @@ func NewRpcClient(addr string) *RpcClient {
 }
 
 //quit
-func (f *RpcClient) Quit() {
-	f.closeChan <- true
+func (f *Client) Quit() {
+	f.closeChan <- struct{}{}
 }
 
 //call api
-func (f *RpcClient) DocQuery(
+func (f *Client) DocQuery(
 				optKind int,
 				tag string,
 				optJson []byte,
@@ -86,7 +86,7 @@ func (f *RpcClient) DocQuery(
 	return resp.JsonByte, nil
 }
 
-func (f *RpcClient) DocRemove(
+func (f *Client) DocRemove(
 					tag string,
 					docIds ...string,
 				) (bRet bool) {
@@ -120,7 +120,7 @@ func (f *RpcClient) DocRemove(
 	return
 }
 
-func (f *RpcClient) DocGet(
+func (f *Client) DocGet(
 				tag string,
 				docIds ...string,
 			) ([][]byte, error) {
@@ -146,7 +146,7 @@ func (f *RpcClient) DocGet(
 	return resp.JsonByte, nil
 }
 
-func (f *RpcClient) DocSync(
+func (f *Client) DocSync(
 					tag string,
 					docId string,
 					jsonByte []byte,
@@ -182,7 +182,7 @@ func (f *RpcClient) DocSync(
 }
 
 //check client is active or not
-func (f *RpcClient) IsActive() bool {
+func (f *Client) IsActive() bool {
 	return f.isActive
 }
 
@@ -191,7 +191,7 @@ func (f *RpcClient) IsActive() bool {
 ///////////////
 
 //run main process
-func (f *RpcClient) runMainProcess() {
+func (f *Client) runMainProcess() {
 	var (
 		ticker         = time.NewTicker(time.Second * define.ClientCheckTicker)
 		req            DocSyncReq
@@ -230,7 +230,7 @@ func (f *RpcClient) runMainProcess() {
 }
 
 //doc sync into rpc server
-func (f *RpcClient) docSyncProcess(
+func (f *Client) docSyncProcess(
 					req *DocSyncReq,
 				) bool {
 	var (
@@ -280,7 +280,7 @@ func (f *RpcClient) docSyncProcess(
 }
 
 //ping server
-func (f *RpcClient) ping() bool {
+func (f *Client) ping() bool {
 	//check status
 	isOk := f.checkStatus()
 	if isOk {
@@ -293,7 +293,7 @@ func (f *RpcClient) ping() bool {
 }
 
 //check server status
-func (f *RpcClient) checkStatus() bool {
+func (f *Client) checkStatus() bool {
 	//check connect
 	if f.conn == nil {
 		return false
@@ -307,7 +307,7 @@ func (f *RpcClient) checkStatus() bool {
 }
 
 //connect rpc server
-func (f *RpcClient) connServer() bool {
+func (f *Client) connServer() bool {
 	//try connect
 	f.isActive = false
 	conn, err := grpc.Dial(f.addr, grpc.WithInsecure())

@@ -1,9 +1,10 @@
 package jiebago
 
 import (
-	"github.com/andyzhou/jiebago/dictionary"
 	"math"
 	"sync"
+
+	"github.com/andyzhou/tinySearch/jiebago/dictionary"
 )
 
 // A Dictionary represents a thread-safe dictionary used for word segmentation.

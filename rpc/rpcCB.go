@@ -15,7 +15,7 @@ import (
  */
 
 //face info
-type RpcCB struct {
+type CB struct {
 	manager iface.IManager //manager reference
 	json.BaseJson
 }
@@ -23,9 +23,9 @@ type RpcCB struct {
 //construct
 func NewRpcCB(
 			manager iface.IManager,
-		) *RpcCB {
+		) *CB {
 	//self init
-	this := &RpcCB{
+	this := &CB{
 		manager:manager,
 	}
 	return this
@@ -36,7 +36,7 @@ func NewRpcCB(
 /////////////////////////////
 
 //doc query
-func (f *RpcCB) DocQuery(
+func (f *CB) DocQuery(
 					ctx context.Context,
 					in *search.DocQueryReq,
 				) (*search.DocQueryResp, error) {
@@ -102,7 +102,7 @@ func (f *RpcCB) DocQuery(
 }
 
 //doc remove
-func (f *RpcCB) DocRemove(
+func (f *CB) DocRemove(
 					ctx context.Context,
 					in *search.DocRemoveReq,
 				) (*search.DocSyncResp, error) {
@@ -138,7 +138,7 @@ func (f *RpcCB) DocRemove(
 }
 
 //doc get
-func (f *RpcCB) DocGet(
+func (f *CB) DocGet(
 				ctx context.Context,
 				in *search.DocGetReq,
 			) (*search.DocGetResp, error) {
@@ -181,7 +181,7 @@ func (f *RpcCB) DocGet(
 }
 
 //doc sync
-func (f *RpcCB) DocSync(
+func (f *CB) DocSync(
 					ctx context.Context,
 					in *search.DocSyncReq,
 				) (*search.DocSyncResp, error) {
@@ -227,7 +227,7 @@ func (f *RpcCB) DocSync(
 /////////////////
 
 //suggest query
-func (f *RpcCB) suggestDocQuery(
+func (f *CB) suggestDocQuery(
 					index iface.IIndex,
 					queryOptJson *json.QueryOptJson,
 				) ([]byte, error) {
@@ -247,7 +247,7 @@ func (f *RpcCB) suggestDocQuery(
 }
 
 //agg query
-func (f *RpcCB) aggDocQuery(
+func (f *CB) aggDocQuery(
 					index iface.IIndex,
 					queryOptJson *json.QueryOptJson,
 				) ([]byte, error) {
@@ -264,7 +264,7 @@ func (f *RpcCB) aggDocQuery(
 }
 
 //general query
-func (f *RpcCB) genDocQuery(
+func (f *CB) genDocQuery(
 					index iface.IIndex,
 					queryOptJson *json.QueryOptJson,
 				 ) ([]byte, error) {

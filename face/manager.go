@@ -28,7 +28,8 @@ func NewManager(dataPath string, dictFile ...string) *Manager{
 	var (
 		dictFilePath string
 	)
-	if dictFile != nil && dictFile[0] != "" {
+	//get dict file
+	if dictFile != nil && len(dictFile) > 0 {
 		dictFilePath = dictFile[0]
 	}
 	//self init
@@ -80,7 +81,6 @@ func (f *Manager) RemoveIndex(
 
 	//remove index
 	f.indexes.Delete(tag)
-
 	return true
 }
 
@@ -102,7 +102,6 @@ func (f *Manager) GetIndex(
 	if !ok {
 		return nil
 	}
-
 	return index
 }
 
