@@ -75,7 +75,7 @@ func main() {
 //testing
 func testing(client *tinySearch.Client) {
 	//suggest doc
-	testClientSuggestDoc(client)
+	//testClientSuggestDoc(client)
 
 	//agg doc
 	testClientAggDoc(client)
@@ -87,7 +87,7 @@ func testing(client *tinySearch.Client) {
 	//testClientRemoveDoc(client)
 
 	//get doc
-	testClientGetDoc(client)
+	//testClientGetDoc(client)
 
 	//testClientSyncDoc(client)
 }
@@ -116,7 +116,10 @@ func testClientAggDoc(client *tinySearch.Client) {
 	if err != nil {
 		log.Println("testClientAggDoc failed, err:", err)
 	}else{
-		log.Println("testClientAggDoc resp:", resp)
+		log.Println("testClientAggDoc")
+		for _, v := range resp.List {
+			log.Printf("name:%v, count:%v\n", v.Name, v.Count)
+		}
 	}
 }
 
@@ -165,8 +168,9 @@ func testClientQueryDoc(client *tinySearch.Client) {
 	filterPrice.Val = "10.2"
 
 	optJson := json.NewQueryOptJson()
+	optJson.Key = "安装"
 	optJson.HighLight = true
-	optJson.AddFilter(filterPrice)
+	//optJson.AddFilter(filterPrice)
 	resp, err := client.DocQuery(ServerIndexTag, optJson)
 	if err != nil {
 		log.Println("testClientQueryDoc failed, err:", err)
@@ -206,8 +210,8 @@ func testClientSyncDoc(client *tinySearch.Client) {
 	var (
 		docIdBegin, docIdEnd int64
 	)
-	docIdBegin = 1445641905684619264
-	docIdEnd = 1445641905684619265
+	docIdBegin = 1
+	docIdEnd = 2
 	for id := docIdBegin; id <= docIdEnd; id++ {
 		addOneDoc(id, client)
 	}
@@ -228,8 +232,8 @@ func addOneDoc(docId int64, client *tinySearch.Client)  {
 	testDocJson.Introduce = "The second one 你 中文re interesting! 吃水果"
 	testDocJson.CreateAt = time.Now().Unix()
 
-	tagA := "teat"
-	tagB := "aaa"
+	tagA := "car"
+	tagB := "job"
 
 	testDocJson.Tags[tagA] = 1
 	testDocJson.Tags[tagB] = 1
@@ -239,10 +243,6 @@ func addOneDoc(docId int64, client *tinySearch.Client)  {
 		fmt.Println(err.Error())
 		return
 	}
-
-	//kv := make(map[string]interface{})
-	//vv := json.NewBaseJson()
-	//vv.DecodeSimple(jsonByte, kv)
 
 	err = client.DocSync(ServerIndexTag, docIdStr, jsonByte)
 	if err != nil {
