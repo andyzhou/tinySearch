@@ -57,7 +57,31 @@ func (f *Client) Quit() {
 	f.closeChan <- struct{}{}
 }
 
+////////////////
 //call api
+////////////////
+
+//create index
+func (f *Client) IndexCreate(tag string) error {
+	//check
+	if tag == "" {
+		return errors.New("invalid parameter")
+	}
+
+	//init real request
+	realReq := &search.IndexCreateReq{
+		Tag:tag,
+	}
+
+	//call doc query api
+	_, err := (*f.client).IndexCreate(
+		context.Background(),
+		realReq,
+	)
+	return err
+}
+
+//query doc
 func (f *Client) DocQuery(
 				optKind int,
 				tag string,
@@ -86,6 +110,7 @@ func (f *Client) DocQuery(
 	return resp.JsonByte, nil
 }
 
+//remove one or batch doc
 func (f *Client) DocRemove(
 					tag string,
 					docIds ...string,
@@ -120,6 +145,7 @@ func (f *Client) DocRemove(
 	return
 }
 
+//get one or batch doc
 func (f *Client) DocGet(
 				tag string,
 				docIds ...string,
@@ -146,6 +172,7 @@ func (f *Client) DocGet(
 	return resp.JsonByte, nil
 }
 
+//sync doc
 func (f *Client) DocSync(
 					tag string,
 					docId string,

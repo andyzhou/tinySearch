@@ -307,11 +307,26 @@ func (f *Client) DocSync(
 	return
 }
 
+//create index
+func (f *Client) CreateIndex(indexTag string) error {
+	//check
+	if indexTag == "" {
+		return errors.New("invalid parameter")
+	}
+	//get rpc client
+	client := f.getClient()
+	if client == nil {
+		return errors.New("can't get active rpc client")
+	}
+	//call rpc api
+	client.DocGet()
+}
+
 //add search service nodes
-func (f *Client) AddNodes(nodes ... string) bool {
+func (f *Client) AddNodes(nodes ... string) error {
 	//check
 	if nodes == nil || len(nodes) <= 0 {
-		return false
+		return errors.New("invalid parameter")
 	}
 	//check and init new rpc client
 	for _, node := range nodes {
@@ -324,7 +339,7 @@ func (f *Client) AddNodes(nodes ... string) bool {
 		rpcClient := rpc.NewRpcClient(node)
 		f.rpcClients[node] = rpcClient
 	}
-	return true
+	return nil
 }
 
 //////////////

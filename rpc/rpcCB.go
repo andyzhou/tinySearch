@@ -35,6 +35,34 @@ func NewRpcCB(
 //call backs for rpc service
 /////////////////////////////
 
+//index create
+func (f *CB) IndexCreate(
+					ctx context.Context,
+					in *search.IndexCreateReq,
+				) (*search.IndexCreateResp, error) {
+	//check input
+	if in == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//check index
+	index := f.manager.GetIndex(in.Tag)
+	if index != nil {
+		return nil, errors.New("index tag has exists")
+	}
+
+	//create new index
+	err := f.manager.AddIndex(in.Tag)
+	if err != nil {
+		return nil, err
+	}
+
+	//format response
+	resp := &search.IndexCreateResp{}
+	resp.Success = true
+	return resp, nil
+}
+
 //doc query
 func (f *CB) DocQuery(
 					ctx context.Context,

@@ -8,10 +8,7 @@ import (
 	"github.com/andyzhou/tinySearch/json"
 	"log"
 	"math/rand"
-	"os"
-	"os/signal"
 	"sync"
-	"syscall"
 	"time"
 )
 
@@ -29,31 +26,8 @@ func main() {
 		wg sync.WaitGroup
 	)
 
-	//try catch signal
-	c := make(chan os.Signal, 1)
-	signal.Notify(
-		c,
-		os.Kill,
-		os.Interrupt,
-		syscall.SIGTERM,
-		syscall.SIGABRT,
-	)
-
-	///signal snatch
-	go func(wg *sync.WaitGroup) {
-		var needQuit bool
-		for {
-			if needQuit {
-				break
-			}
-			select {
-			case s := <- c:
-				log.Println("Get signal of ", s.String())
-				wg.Done()
-				needQuit = true
-			}
-		}
-	}(&wg)
+	//watch signal
+	tinySearch.WatchSignal(&wg)
 
 	//init client
 	client := tinySearch.NewClient()
@@ -90,6 +64,8 @@ func testing(client *tinySearch.Client) {
 	//testClientGetDoc(client)
 
 	//testClientSyncDoc(client)
+
+	//create index
 }
 
 //test suggest doc
@@ -122,7 +98,6 @@ func testClientAggDoc(client *tinySearch.Client) {
 		}
 	}
 }
-
 
 //get doc
 func testClientGetDoc(client *tinySearch.Client)  {
@@ -251,3 +226,4 @@ func addOneDoc(docId int64, client *tinySearch.Client)  {
 		log.Printf("sync doc %d succeed.\n", docId)
 	}
 }
+

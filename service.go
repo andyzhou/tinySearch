@@ -12,11 +12,6 @@ import (
  * service api
  */
 
-//inter macro define
-const (
-	DefaultDictFile = "./private/dict.txt"
-)
-
 //face info
 type Service struct {
 	manager iface.IManager
@@ -25,7 +20,20 @@ type Service struct {
 
 //construct
 //if rpc port > 0, will start rpc service
-func NewService(
+func NewService(rpcPort ...int) *Service {
+	rpcPortInt := 0
+	if rpcPort != nil && len(rpcPort) > 0 {
+		rpcPortInt = rpcPort[0]
+	}
+	return NewServiceWithPara(
+				define.DataPathDefault,
+				rpcPortInt,
+				define.SearchDictFileDefault,
+			)
+}
+
+//construct with parameter
+func NewServiceWithPara(
 			dataPath string,
 			rpcPort int,
 			dictFile ...string,

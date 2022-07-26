@@ -10,6 +10,7 @@ type IRpcClient interface {
 	DocRemove(tag string, docIds ...string) bool
 	DocGet(tag string, docIds ...string) ([][]byte, error)
 	DocSync(tag, docId string, jsonByte []byte) bool
+	IndexCreate(tag string) error
 	IsActive() bool
 }
 
