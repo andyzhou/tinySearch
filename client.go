@@ -319,7 +319,8 @@ func (f *Client) CreateIndex(indexTag string) error {
 		return errors.New("can't get active rpc client")
 	}
 	//call rpc api
-	client.DocGet()
+	err := client.IndexCreate(indexTag)
+	return err
 }
 
 //add search service nodes
