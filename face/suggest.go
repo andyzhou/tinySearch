@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/andyzhou/tinySearch/define"
 	"github.com/andyzhou/tinySearch/iface"
 	"github.com/andyzhou/tinySearch/json"
@@ -21,30 +22,30 @@ const (
 	SuggestFieldCount = "count"
 )
 
-//inter macro define
-const (
-	interSuggestIndexTag = "__suggester__"
-	interSuggestChanSize = 1024
+//inter data
+type (
+	suggestDocSync struct {
+		indexTag string
+		doc json.SuggestJson
+	}
 )
 
 //face info
 type Suggest struct {
-	dataPath string
-	index iface.IIndex
-	syncReqChan chan json.SuggestJson
+	manager iface.IManager //parent reference
+	syncReqChan chan suggestDocSync
 	closeChan chan struct{}
 	Base
 }
 
 //construct
-func NewSuggest(dataPath, dictFile string) *Suggest {
+func NewSuggest(manager iface.IManager) *Suggest {
 	//self init
 	this := &Suggest{
-		dataPath:dataPath,
-		syncReqChan:make(chan json.SuggestJson, interSuggestChanSize),
+		manager: manager,
+		syncReqChan:make(chan suggestDocSync, define.InterSuggestChanSize),
 		closeChan:make(chan struct{}, 1),
 	}
-	this.interInit(dictFile)
 	go this.runMainProcess()
 	return this
 }
@@ -64,14 +65,14 @@ func (f *Suggest) GetSuggest(
 					opt *json.SuggestOptJson,
 				) (*json.SuggestsJson, error) {
 	//basic check
-	if opt == nil {
+	if opt == nil || opt.IndexTag == "" || opt.Key == "" {
 		return nil, errors.New("invalid parameter")
 	}
 
 	//get index
-	indexer := f.index.GetIndex()
+	indexer := f.getIndex(opt.IndexTag)
 	if indexer == nil {
-		return nil, errors.New("can't get indexer")
+		return nil, errors.New("invalid index tag")
 	}
 
 	//init query
@@ -96,7 +97,7 @@ func (f *Suggest) GetSuggest(
 	searchRequest.Explain = true
 
 	//begin search
-	searchResult, err := indexer.Search(searchRequest)
+	searchResult, err := indexer.GetIndex().Search(searchRequest)
 	if err != nil {
 		log.Println("Suggest::GetSuggest failed, err:", err.Error())
 		return nil, err
@@ -115,7 +116,7 @@ func (f *Suggest) GetSuggest(
 	//format records
 	for _, hit := range searchResult.Hits {
 		//get original doc by id
-		doc, err := indexer.Document(hit.ID)
+		doc, err := indexer.GetIndex().Document(hit.ID)
 		if err != nil {
 			continue
 		}
@@ -146,17 +147,22 @@ func (f *Suggest) GetSuggest(
 		//add into slice
 		result.AddObj(suggestJson)
 	}
-
 	return result, nil
 }
 
-
 //add new suggest
 func (f *Suggest) AddSuggest(
+					indexTag string,
 					doc *json.SuggestJson,
 				) (bRet bool) {
 	//basic check
-	if doc == nil {
+	if indexTag == "" || doc == nil {
+		bRet = false
+		return
+	}
+
+	//check index tag is register or not
+	if f.getIndex(indexTag) == nil {
 		bRet = false
 		return
 	}
@@ -168,12 +174,30 @@ func (f *Suggest) AddSuggest(
 		}
 	}()
 
+	//init sync doc
+	syncDoc := suggestDocSync{
+		indexTag: indexTag,
+		doc: *doc,
+	}
+
 	//send to chan
 	select {
-	case f.syncReqChan <- *doc:
+	case f.syncReqChan <- syncDoc:
 	}
 	bRet = true
 	return
+}
+
+//register suggest index
+func (f *Suggest) RegisterSuggest(tag string) error {
+	//check
+	if tag == "" {
+		return errors.New("invalid parameter")
+	}
+	//add suggest index name
+	indexName := f.getIndexName(tag)
+	err := f.manager.AddIndex(indexName)
+	return err
 }
 
 //////////////
@@ -183,7 +207,7 @@ func (f *Suggest) AddSuggest(
 //main process
 func (f *Suggest) runMainProcess() {
 	var (
-		req json.SuggestJson
+		req suggestDocSync
 		isOk bool
 	)
 
@@ -210,22 +234,22 @@ func (f *Suggest) runMainProcess() {
 
 //process add suggest request
 func (f *Suggest) addSuggestProcess(
-					doc *json.SuggestJson,
+					req *suggestDocSync,
 				) bool {
 	//basic check
-	if doc == nil {
+	if req == nil {
 		return false
 	}
 
 	//get index
-	indexer := f.index.GetIndex()
+	indexer := f.getIndex(req.indexTag)
 	if indexer == nil {
 		return false
 	}
 
 	//add or update doc
-	keyMd5 := f.genMd5(doc.Key)
-	oldRec, err := indexer.Document(keyMd5)
+	keyMd5 := f.genMd5(req.doc.Key)
+	oldRec, err := indexer.GetIndex().Document(keyMd5)
 	if err != nil {
 		return false
 	}
@@ -241,7 +265,7 @@ func (f *Suggest) addSuggestProcess(
 			err = oldDocJson.Decode(oldDocByte)
 			if err == nil {
 				//check doc count
-				if oldDocJson.Count >= doc.Count {
+				if oldDocJson.Count >= req.doc.Count {
 					//same data, not need sync
 					return false
 				}
@@ -250,12 +274,20 @@ func (f *Suggest) addSuggestProcess(
 	}
 
 	//sync into index
-	err = indexer.Index(keyMd5, doc)
+	err = indexer.GetIndex().Index(keyMd5, req.doc)
 	if err != nil {
 		log.Println("Suggest::AddSuggest failed, err:", err.Error())
 		return false
 	}
 	return true
+}
+
+//get index by tag
+func (f *Suggest) getIndex(tag string) iface.IIndex {
+	//add suggest index name
+	indexName := f.getIndexName(tag)
+	index := f.manager.GetIndex(indexName)
+	return index
 }
 
 //generate md5 value
@@ -270,11 +302,7 @@ func (f *Suggest) genMd5(
 	return hex.EncodeToString(m.Sum(nil))
 }
 
-//inter init
-func (f *Suggest) interInit(dictFile string) {
-	//init inter suggest index
-	f.index = NewIndex(f.dataPath, interSuggestIndexTag, dictFile)
-
-	//create index
-	f.index.CreateIndex()
+//get suggest index name
+func (f *Suggest) getIndexName(tag string) string {
+	return fmt.Sprintf(define.InterSuggestIndexPara, tag)
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/blevesearch/bleve/v2/document"
 	"github.com/blevesearch/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
+	"io/ioutil"
 )
 
 /*
@@ -15,6 +16,25 @@ import (
 
 //face info
 type Base struct {
+}
+
+//get sub dirs for data path
+func (f *Base) GetSubDirs(dataPath string) ([]string, error) {
+	filesInfo, err := ioutil.ReadDir(dataPath)
+	if err != nil {
+		return nil, err
+	}
+	if filesInfo == nil || len(filesInfo) <= 0 {
+		return nil, nil
+	}
+	//format result
+	result := make([]string, 0)
+	for _, v := range filesInfo {
+		if v.IsDir() {
+			result = append(result, v.Name())
+		}
+	}
+	return result, nil
 }
 
 //analyze doc with hit

@@ -6,6 +6,9 @@ const (
 	ClientCheckTicker = 3
 	ReqChanSize = 1024
 	DataPathDefault = "."
+	InterIndexTagPrefix = "__suggester_"
+	InterSuggestIndexPara = "__suggester_%v"
+	InterSuggestChanSize = 1024
 )
 
 //default value

@@ -13,6 +13,7 @@ import (
 
 //face info
 type Manager struct {
+	//inter data
 	dataPath string
 	dictFile string
 	indexes *sync.Map
@@ -21,6 +22,7 @@ type Manager struct {
 	query iface.IQuery
 	agg iface.IAgg
 	suggest iface.ISuggest
+	Base
 }
 
 //construct
@@ -38,10 +40,14 @@ func NewManager(dataPath string, dictFile ...string) *Manager{
 		dictFile: dictFilePath,
 		indexes:new(sync.Map),
 		doc:NewDoc(),
-		suggest:NewSuggest(dataPath, dictFilePath),
 	}
+	//sub face init
+	this.suggest = NewSuggest(this)
 	this.query = NewQuery(this.suggest)
 	this.agg = NewAgg(this.query)
+
+	//inter init
+	this.interInit()
 	return this
 }
 
@@ -112,8 +118,9 @@ func (f *Manager) AddIndex(
 	var (
 		err error
 	)
+
 	//basic check
-	if tag == "" || f.indexes == nil {
+	if tag == "" {
 		return errors.New("invalid parameter")
 	}
 
@@ -133,4 +140,18 @@ func (f *Manager) AddIndex(
 	//sync into map
 	f.indexes.Store(tag, index)
 	return nil
+}
+
+/////////////////
+//private func
+/////////////////
+
+//inter init
+func (f *Manager) interInit() {
+	subIndexTags, _ := f.GetSubDirs(f.dataPath)
+	if subIndexTags != nil && len(subIndexTags) > 0 {
+		for _, indexTag := range subIndexTags {
+			f.AddIndex(indexTag)
+		}
+	}
 }
