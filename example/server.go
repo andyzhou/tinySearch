@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/andyzhou/tinySearch"
+	"github.com/andyzhou/tinysearch"
 	"log"
 	"sync"
 )
@@ -22,10 +22,10 @@ func main() {
 	)
 
 	//watch signal
-	tinySearch.WatchSignal(&wg)
+	tinysearch.WatchSignal(&wg)
 
 	//init service
-	service := tinySearch.NewServiceWithPara(IndexPath, RpcPort)
+	service := tinysearch.NewServiceWithPara(IndexPath, RpcPort)
 
 	//add index
 	service.AddIndex(IndexTag)

@@ -1,6 +1,6 @@
 package iface
 
-import "github.com/andyzhou/tinySearch/json"
+import "github.com/andyzhou/tinysearch/json"
 
 /*
  * interface for suggest
@@ -9,6 +9,6 @@ import "github.com/andyzhou/tinySearch/json"
 type ISuggest interface {
 	Quit()
 	GetSuggest(opt *json.SuggestOptJson) (*json.SuggestsJson, error)
-	AddSuggest(doc *json.SuggestJson) bool
+	AddSuggest(tag string, doc *json.SuggestJson) error
 	RegisterSuggest(tag string) error
 }

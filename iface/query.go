@@ -1,7 +1,7 @@
 package iface
 
 import (
-	"github.com/andyzhou/tinySearch/json"
+	"github.com/andyzhou/tinysearch/json"
 	"github.com/blevesearch/bleve/v2"
 )
 

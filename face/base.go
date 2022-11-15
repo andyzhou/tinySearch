@@ -3,7 +3,7 @@ package face
 import (
 	"bytes"
 	"errors"
-	"github.com/andyzhou/tinySearch/json"
+	"github.com/andyzhou/tinysearch/json"
 	"github.com/blevesearch/bleve/v2/document"
 	"github.com/blevesearch/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"

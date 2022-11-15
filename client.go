@@ -1,17 +1,18 @@
-package tinySearch
+package tinysearch
 
 import (
 	"errors"
 	"fmt"
-	"github.com/andyzhou/tinySearch/iface"
-	"github.com/andyzhou/tinySearch/json"
-	"github.com/andyzhou/tinySearch/rpc"
+	"github.com/andyzhou/tinysearch/iface"
+	"github.com/andyzhou/tinysearch/json"
+	"github.com/andyzhou/tinysearch/rpc"
 	"log"
 	"sync"
 )
 
 /*
  * client api
+ * - used for rpc mode
  */
 
 //query opt kind
@@ -23,8 +24,8 @@ const (
 
 //others
 const (
-	SyncChanSize = 1024 * 5
-	RemoveChanSize = 1024 * 3
+	SyncChanSize = 1024
+	RemoveChanSize = 1024
 )
 
 //inter struct
@@ -67,7 +68,7 @@ func NewClient() *Client {
 func (f *Client) Quit() {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("Client:Quit panic, err:", err)
+			log.Printf("tinysearch.Client:Quit panic, err:%v", err)
 		}
 	}()
 	if f.rpcClients != nil {
@@ -75,7 +76,9 @@ func (f *Client) Quit() {
 			client.Quit()
 		}
 	}
-	f.closeChan <- struct{}{}
+	if f.closeChan != nil {
+		close(f.closeChan)
+	}
 }
 
 //suggest doc

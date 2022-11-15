@@ -4,11 +4,10 @@ import (
 	genJson "encoding/json"
 	"errors"
 	"fmt"
-	"github.com/andyzhou/tinySearch/define"
-	"github.com/andyzhou/tinySearch/iface"
-	"github.com/andyzhou/tinySearch/json"
+	"github.com/andyzhou/tinysearch/define"
+	"github.com/andyzhou/tinysearch/iface"
+	"github.com/andyzhou/tinysearch/json"
 	"github.com/blevesearch/bleve/v2"
-	"log"
 )
 
 /*
@@ -75,7 +74,6 @@ func (f *Agg) GetAggList(
 	//begin search
 	searchResult, err := indexer.Search(searchRequest)
 	if err != nil {
-		log.Println("Agg::GetAggList failed, err:", err.Error())
 		return nil, err
 	}
 
@@ -113,6 +111,5 @@ func (f *Agg) GetAggList(
 			result.AddObj(aggJson)
 		}
 	}
-
 	return result, nil
 }

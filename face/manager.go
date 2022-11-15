@@ -2,7 +2,7 @@ package face
 
 import (
 	"errors"
-	"github.com/andyzhou/tinySearch/iface"
+	"github.com/andyzhou/tinysearch/iface"
 	"sync"
 )
 
@@ -77,17 +77,14 @@ func (f *Manager) GetSuggest() iface.ISuggest {
 ////////////////
 
 //remove index
-func (f *Manager) RemoveIndex(
-					tag string,
-				) bool {
+func (f *Manager) RemoveIndex(tag string) error {
 	//basic check
 	if tag == "" || f.indexes == nil {
-		return false
+		return errors.New("invalid tag or index is nil")
 	}
-
 	//remove index
 	f.indexes.Delete(tag)
-	return true
+	return nil
 }
 
 //get search index

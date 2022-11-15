@@ -1,6 +1,6 @@
 package iface
 
-import "github.com/andyzhou/tinySearch/json"
+import "github.com/andyzhou/tinysearch/json"
 
 /*
  * interface for agg

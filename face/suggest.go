@@ -5,9 +5,9 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/andyzhou/tinySearch/define"
-	"github.com/andyzhou/tinySearch/iface"
-	"github.com/andyzhou/tinySearch/json"
+	"github.com/andyzhou/tinysearch/define"
+	"github.com/andyzhou/tinysearch/iface"
+	"github.com/andyzhou/tinysearch/json"
 	"github.com/blevesearch/bleve/v2"
 	"log"
 )
@@ -54,7 +54,7 @@ func NewSuggest(manager iface.IManager) *Suggest {
 func (f *Suggest) Quit() {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("Suggest:Quit panic, err:", err)
+			log.Printf("tinysearch.Suggest:Quit panic, err:%v", err)
 		}
 	}()
 	f.closeChan <- struct{}{}
@@ -73,6 +73,9 @@ func (f *Suggest) GetSuggest(
 	indexer := f.getIndex(opt.IndexTag)
 	if indexer == nil {
 		return nil, errors.New("invalid index tag")
+	}
+	if opt.Size <= 0 {
+		opt.Size = define.RecPerPage
 	}
 
 	//init query
@@ -93,13 +96,12 @@ func (f *Suggest) GetSuggest(
 
 	//set others
 	searchRequest.From = 0
-	searchRequest.Size = define.RecPerPage
+	searchRequest.Size = opt.Size
 	searchRequest.Explain = true
 
 	//begin search
 	searchResult, err := indexer.GetIndex().Search(searchRequest)
 	if err != nil {
-		log.Println("Suggest::GetSuggest failed, err:", err.Error())
 		return nil, err
 	}
 
@@ -154,23 +156,20 @@ func (f *Suggest) GetSuggest(
 func (f *Suggest) AddSuggest(
 					indexTag string,
 					doc *json.SuggestJson,
-				) (bRet bool) {
+				) error {
 	//basic check
 	if indexTag == "" || doc == nil {
-		bRet = false
-		return
+		return errors.New("invalid parameter")
 	}
 
 	//check index tag is register or not
 	if f.getIndex(indexTag) == nil {
-		bRet = false
-		return
+		return errors.New("can't get indexer by tag")
 	}
 
 	defer func() {
 		if err := recover(); err != nil {
-			bRet = false
-			log.Println("Suggest:AddSuggest panic, err:", err)
+			log.Printf("tinysearch.Suggest:AddSuggest panic, err:%v", err)
 		}
 	}()
 
@@ -184,8 +183,7 @@ func (f *Suggest) AddSuggest(
 	select {
 	case f.syncReqChan <- syncDoc:
 	}
-	bRet = true
-	return
+	return nil
 }
 
 //register suggest index
@@ -213,7 +211,7 @@ func (f *Suggest) runMainProcess() {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("Suggest:runMainProcess panic, err:", err)
+			log.Printf("tinysearch.Suggest:runMainProcess panic, err:%v", err)
 		}
 		close(f.syncReqChan)
 		close(f.closeChan)
@@ -235,23 +233,23 @@ func (f *Suggest) runMainProcess() {
 //process add suggest request
 func (f *Suggest) addSuggestProcess(
 					req *suggestDocSync,
-				) bool {
+				) error {
 	//basic check
 	if req == nil {
-		return false
+		return errors.New("invalid parameter")
 	}
 
 	//get index
 	indexer := f.getIndex(req.indexTag)
 	if indexer == nil {
-		return false
+		return errors.New("can't get indexer by tag")
 	}
 
 	//add or update doc
 	keyMd5 := f.genMd5(req.doc.Key)
 	oldRec, err := indexer.GetIndex().Document(keyMd5)
 	if err != nil {
-		return false
+		return err
 	}
 	if oldRec != nil {
 		//analyze doc
@@ -260,14 +258,14 @@ func (f *Suggest) addSuggestProcess(
 			oldDocJson := json.NewSuggestJson()
 			oldDocByte, err := oldDocJson.EncodeSimple(genMap)
 			if err != nil {
-				return false
+				return err
 			}
 			err = oldDocJson.Decode(oldDocByte)
 			if err == nil {
 				//check doc count
 				if oldDocJson.Count >= req.doc.Count {
 					//same data, not need sync
-					return false
+					return errors.New("same data, not need sync")
 				}
 			}
 		}
@@ -275,11 +273,7 @@ func (f *Suggest) addSuggestProcess(
 
 	//sync into index
 	err = indexer.GetIndex().Index(keyMd5, req.doc)
-	if err != nil {
-		log.Println("Suggest::AddSuggest failed, err:", err.Error())
-		return false
-	}
-	return true
+	return err
 }
 
 //get index by tag

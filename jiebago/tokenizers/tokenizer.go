@@ -2,7 +2,7 @@ package tokenizers
 
 import (
 	"fmt"
-	"github.com/andyzhou/tinySearch/jiebago"
+	"github.com/andyzhou/tinysearch/jiebago"
 	"github.com/blevesearch/bleve/v2/analysis"
 	"github.com/blevesearch/bleve/v2/registry"
 	"regexp"

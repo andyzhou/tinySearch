@@ -1,4 +1,4 @@
-module github.com/andyzhou/tinySearch
+module github.com/andyzhou/tinysearch
 
 go 1.13
 

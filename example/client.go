@@ -3,9 +3,9 @@ package main
 import (
 	genJson "encoding/json"
 	"fmt"
-	"github.com/andyzhou/tinySearch"
-	"github.com/andyzhou/tinySearch/define"
-	"github.com/andyzhou/tinySearch/json"
+	"github.com/andyzhou/tinysearch"
+	"github.com/andyzhou/tinysearch/define"
+	"github.com/andyzhou/tinysearch/json"
 	"log"
 	"math/rand"
 	"sync"
@@ -27,10 +27,10 @@ func main() {
 	)
 
 	//watch signal
-	tinySearch.WatchSignal(&wg)
+	tinysearch.WatchSignal(&wg)
 
 	//init client
-	client := tinySearch.NewClient()
+	client := tinysearch.NewClient()
 
 	//add node
 	node := fmt.Sprintf(":%d", ServerRpcPort)
@@ -47,15 +47,15 @@ func main() {
 }
 
 //testing
-func testing(client *tinySearch.Client) {
+func testing(client *tinysearch.Client) {
 	//suggest doc
 	//testClientSuggestDoc(client)
 
 	//agg doc
-	testClientAggDoc(client)
+	//testClientAggDoc(client)
 
 	//query doc
-	testClientQueryDoc(client)
+	//testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
@@ -66,10 +66,11 @@ func testing(client *tinySearch.Client) {
 	//testClientSyncDoc(client)
 
 	//create index
+	//testClientCreateIndex(client)
 }
 
 //test suggest doc
-func testClientSuggestDoc(client *tinySearch.Client) {
+func testClientSuggestDoc(client *tinysearch.Client) {
 	optJson := json.NewQueryOptJson()
 	optJson.Key = "te"
 	resp, err := client.DocSuggest(ServerIndexTag, optJson)
@@ -81,7 +82,7 @@ func testClientSuggestDoc(client *tinySearch.Client) {
 }
 
 //test agg doc
-func testClientAggDoc(client *tinySearch.Client) {
+func testClientAggDoc(client *tinysearch.Client) {
 	optJson := json.NewQueryOptJson()
 	optJson.Key = "工作"
 	optJson.AggField = &json.AggField{
@@ -100,9 +101,10 @@ func testClientAggDoc(client *tinySearch.Client) {
 }
 
 //get doc
-func testClientGetDoc(client *tinySearch.Client)  {
+func testClientGetDoc(client *tinysearch.Client)  {
 	docIds := []string{
-		fmt.Sprintf("%v", 1445641905684619264),
+		fmt.Sprintf("%v", 1),
+		fmt.Sprintf("%v", 2),
 	}
 	jsonByteSlice, err := client.DocGet(ServerIndexTag, docIds...)
 	if err != nil {
@@ -122,7 +124,7 @@ func testClientGetDoc(client *tinySearch.Client)  {
 }
 
 //test query doc
-func testClientQueryDoc(client *tinySearch.Client) {
+func testClientQueryDoc(client *tinysearch.Client) {
 	//filter for age property
 	//filterAge := json.NewFilterField()
 	//filterAge.Field = "prop.age"
@@ -170,7 +172,7 @@ func testClientQueryDoc(client *tinySearch.Client) {
 }
 
 //test remove doc
-func testClientRemoveDoc(client *tinySearch.Client) {
+func testClientRemoveDoc(client *tinysearch.Client) {
 	docId := "4"
 	err := client.DocRemove(ServerIndexTag, docId)
 	if err != nil {
@@ -181,7 +183,7 @@ func testClientRemoveDoc(client *tinySearch.Client) {
 }
 
 //test sync doc
-func testClientSyncDoc(client *tinySearch.Client) {
+func testClientSyncDoc(client *tinysearch.Client) {
 	var (
 		docIdBegin, docIdEnd int64
 	)
@@ -192,8 +194,14 @@ func testClientSyncDoc(client *tinySearch.Client) {
 	}
 }
 
+//test create index
+func testClientCreateIndex(client *tinysearch.Client) {
+	err := client.CreateIndex(ServerIndexTag)
+	log.Printf("create index %v err:%v", ServerIndexTag, err)
+}
+
 //add one doc
-func addOneDoc(docId int64, client *tinySearch.Client)  {
+func addOneDoc(docId int64, client *tinysearch.Client) {
 	//init test doc json
 	docIdStr := fmt.Sprintf("%v", docId)
 	testDocJson := json.NewTestDocJson()
@@ -226,4 +234,3 @@ func addOneDoc(docId int64, client *tinySearch.Client)  {
 		log.Printf("sync doc %d succeed.\n", docId)
 	}
 }
-

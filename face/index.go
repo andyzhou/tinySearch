@@ -3,11 +3,11 @@ package face
 import (
 	"errors"
 	"fmt"
-	_ "github.com/andyzhou/tinySearch/jiebago/tokenizers" //for init tokenizers
+	"github.com/andyzhou/tinysearch/define"
+	_ "github.com/andyzhou/tinysearch/jiebago/tokenizers" //for init tokenizers
 	"github.com/blevesearch/bleve/v2"
 	_ "github.com/blevesearch/bleve/v2/analysis/analyzer/custom" //for init 'custom'
 	"github.com/blevesearch/bleve/v2/mapping"
-	"log"
 	"os"
 	"sync"
 )
@@ -16,11 +16,6 @@ import (
  * face for index
  * - chinese token base on 'github.com/wangbin/jiebago'
  */
-
-//inter macro define
-const (
-	CustomTokenizerOfJieBa = "jieba"
-)
 
 //face info
 type Index struct {
@@ -49,17 +44,13 @@ func NewIndex(indexDir, tag string, dictFile ...string) *Index {
 }
 
 //remove index
-func (f *Index) RemoveIndex() bool {
+func (f *Index) RemoveIndex() error {
 	//basic check
 	if f.tag == "" {
-		return false
+		return errors.New("invalid tag")
 	}
 	err := os.RemoveAll(f.indexDir)
-	if err != nil {
-		log.Println("Index::RemoveIndex failed, err:", err.Error())
-		return false
-	}
-	return true
+	return err
 }
 
 //get index
@@ -105,7 +96,6 @@ func (f *Index) CreateIndex() error {
 			index, err = bleve.Open(subDir)
 		}
 		if err != nil {
-			log.Println("Index::CreateIndex failed, err:", err.Error())
 			return err
 		}
 	}
@@ -129,10 +119,10 @@ func (f *Index) CreateChineseMap(dictPath string) (*mapping.IndexMappingImpl, er
 
 	//set tokenizer
 	err := indexMapping.AddCustomTokenizer(
-		CustomTokenizerOfJieBa,
+		define.CustomTokenizerOfJieBa,
 		map[string]interface{}{
 			"file": dictPath,
-			"type": CustomTokenizerOfJieBa,
+			"type": define.CustomTokenizerOfJieBa,
 		})
 	if err != nil {
 		return nil, err
@@ -140,10 +130,10 @@ func (f *Index) CreateChineseMap(dictPath string) (*mapping.IndexMappingImpl, er
 
 	// create a custom analyzer
 	err = indexMapping.AddCustomAnalyzer(
-		CustomTokenizerOfJieBa,
+		define.CustomTokenizerOfJieBa,
 		map[string]interface{}{
 			"type":      "custom",
-			"tokenizer": CustomTokenizerOfJieBa,
+			"tokenizer": define.CustomTokenizerOfJieBa,
 			"token_filters": []string{
 				"possessive_en",
 				"to_lower",
@@ -156,7 +146,7 @@ func (f *Index) CreateChineseMap(dictPath string) (*mapping.IndexMappingImpl, er
 	}
 
 	//set default analyzer
-	indexMapping.DefaultAnalyzer = CustomTokenizerOfJieBa
+	indexMapping.DefaultAnalyzer = define.CustomTokenizerOfJieBa
 	return indexMapping, nil
 }
 

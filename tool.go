@@ -1,4 +1,4 @@
-package tinySearch
+package tinysearch
 
 import (
 	"log"

@@ -2,9 +2,9 @@
 package jiebago
 
 import (
-	"github.com/andyzhou/tinySearch/jiebago/dictionary"
-	"github.com/andyzhou/tinySearch/jiebago/finalseg"
-	"github.com/andyzhou/tinySearch/jiebago/util"
+	"github.com/andyzhou/tinysearch/jiebago/dictionary"
+	"github.com/andyzhou/tinysearch/jiebago/finalseg"
+	"github.com/andyzhou/tinysearch/jiebago/util"
 	"math"
 	"regexp"
 	"strings"

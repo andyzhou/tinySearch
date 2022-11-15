@@ -48,6 +48,7 @@ type QueryOptJson struct {
 	QueryKind int `json:"queryKind"`
 	TermPara TermQueryPara `json:"termPara"`
 	Tag string `json:"tag"`
+	SuggestTag string `json:"suggestTag"`
 	Key string `json:"key"`
 	Fields []string `json:"fields"`
 	Filters []*FilterField `json:"filters"`

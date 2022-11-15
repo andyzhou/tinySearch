@@ -3,13 +3,12 @@ package face
 import (
 	"errors"
 	"fmt"
-	"github.com/andyzhou/tinySearch/define"
-	"github.com/andyzhou/tinySearch/iface"
-	"github.com/andyzhou/tinySearch/json"
+	"github.com/andyzhou/tinysearch/define"
+	"github.com/andyzhou/tinysearch/iface"
+	"github.com/andyzhou/tinysearch/json"
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/search"
 	"github.com/blevesearch/bleve/v2/search/query"
-	"log"
 )
 
 /*
@@ -54,7 +53,6 @@ func (f *Query) QueryAll(
 	//begin search
 	searchResult, err := indexer.Search(searchRequest)
 	if err != nil {
-		log.Println("Query::QueryAll failed, err:", err.Error())
 		return nil, err
 	}
 
@@ -130,7 +128,6 @@ func (f *Query) Query(
 	//begin search
 	searchResult, err := indexer.Search(searchRequest)
 	if err != nil {
-		log.Println("Query::Query failed, err:", err.Error())
 		return nil, err
 	}
 
@@ -145,11 +142,11 @@ func (f *Query) Query(
 
 	//sync into suggester
 	if f.suggester != nil && opt.Key != "" {
-		if searchResult.Total > 0 {
+		if searchResult.Total > 0 && opt.SuggestTag != "" {
 			suggestJson := json.NewSuggestJson()
 			suggestJson.Key = opt.Key
 			suggestJson.Count = int64(searchResult.Total)
-			f.suggester.AddSuggest(suggestJson)
+			f.suggester.AddSuggest(opt.SuggestTag, suggestJson)
 		}
 	}
 
@@ -393,6 +390,5 @@ func (f *Query) formatResult(
 		//add into slice
 		result = append(result, hitDocJson)
 	}
-
 	return result
 }

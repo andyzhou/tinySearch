@@ -9,6 +9,7 @@ const (
 	InterIndexTagPrefix = "__suggester_"
 	InterSuggestIndexPara = "__suggester_%v"
 	InterSuggestChanSize = 1024
+	CustomTokenizerOfJieBa = "jieba"
 )
 
 //default value

@@ -2,9 +2,8 @@ package face
 
 import (
 	"errors"
-	"github.com/andyzhou/tinySearch/iface"
-	"github.com/andyzhou/tinySearch/json"
-	"log"
+	"github.com/andyzhou/tinysearch/iface"
+	"github.com/andyzhou/tinysearch/json"
 )
 
 /*
@@ -46,7 +45,6 @@ func (f *Doc) GetCount(
 	//get doc count
 	v, err := indexer.DocCount()
 	if err != nil {
-		log.Println("Doc::GetCount failed, err:", err.Error())
 		return count, err
 	}
 	return int64(v), nil
@@ -98,7 +96,6 @@ func (f *Doc) RemoveDoc(
 	//remove doc
 	err := indexer.Delete(docId)
 	if err != nil {
-		log.Println("Doc::RemoveDoc failed, err:", err.Error())
 		return err
 	}
 	return nil
@@ -185,10 +182,5 @@ func (f *Doc) AddDoc(
 
 	//add or update doc
 	err := indexer.Index(docId, jsonObj)
-	if err != nil {
-		log.Println("Doc::AddDoc failed, err:", err.Error())
-		return err
-	}
-
-	return nil
+	return err
 }

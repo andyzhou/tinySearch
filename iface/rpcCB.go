@@ -2,7 +2,7 @@ package iface
 
 import (
 	"context"
-	search "github.com/andyzhou/tinySearch/pb"
+	search "github.com/andyzhou/tinysearch/pb"
 )
 
 /*

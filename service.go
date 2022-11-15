@@ -1,16 +1,23 @@
-package tinySearch
+package tinysearch
 
 import (
-	"github.com/andyzhou/tinySearch/define"
-	"github.com/andyzhou/tinySearch/face"
-	"github.com/andyzhou/tinySearch/iface"
-	"github.com/andyzhou/tinySearch/rpc"
+	"github.com/andyzhou/tinysearch/define"
+	"github.com/andyzhou/tinysearch/face"
+	"github.com/andyzhou/tinysearch/iface"
+	"github.com/andyzhou/tinysearch/rpc"
 	"log"
+	"sync"
 )
 
 /*
  * service api
+ * - if none rpc mode, just opt base on service sub face
  */
+
+var (
+	_service *Service
+	_serviceOnce sync.Once
+)
 
 //face info
 type Service struct {
@@ -18,9 +25,18 @@ type Service struct {
 	rpcService iface.IRpcService
 }
 
+//get single instance
+func GetService(rpcPort ...int) *Service {
+	_serviceOnce.Do(func() {
+		_service = NewService(rpcPort...)
+	})
+	return _service
+}
+
 //construct
-//if rpc port > 0, will start rpc service
 func NewService(rpcPort ...int) *Service {
+	//check and set rpc port
+	//if rpc port > 0, will start rpc service
 	rpcPortInt := 0
 	if rpcPort != nil && len(rpcPort) > 0 {
 		rpcPortInt = rpcPort[0]
@@ -56,7 +72,7 @@ func NewServiceWithPara(
 func (f *Service) Quit() {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("Service:Quit panic, err:", err)
+			log.Printf("tinySearch.Service:Quit panic, err:%v", err)
 		}
 	}()
 	f.manager.Quit()

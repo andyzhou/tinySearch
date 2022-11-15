@@ -3,8 +3,8 @@ package rpc
 import (
 	"context"
 	"errors"
-	"github.com/andyzhou/tinySearch/define"
-	search "github.com/andyzhou/tinySearch/pb"
+	"github.com/andyzhou/tinysearch/define"
+	search "github.com/andyzhou/tinysearch/pb"
 	"google.golang.org/grpc"
 	"log"
 	"sync"

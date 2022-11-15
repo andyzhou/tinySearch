@@ -8,7 +8,7 @@ type IManager interface {
 	Quit()
 
 	//for index
-	RemoveIndex(tag string) bool
+	RemoveIndex(tag string) error
 	GetIndex(tag string) IIndex
 	AddIndex(tag string) error
 

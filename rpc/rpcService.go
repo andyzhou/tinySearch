@@ -2,8 +2,8 @@ package rpc
 
 import (
 	"fmt"
-	"github.com/andyzhou/tinySearch/iface"
-	search "github.com/andyzhou/tinySearch/pb"
+	"github.com/andyzhou/tinysearch/iface"
+	search "github.com/andyzhou/tinysearch/pb"
 	"google.golang.org/grpc"
 	"log"
 	"net"
