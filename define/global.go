@@ -6,7 +6,6 @@ const (
 	ClientCheckTicker = 3
 	ReqChanSize = 1024
 	DataPathDefault = "."
-	InterIndexTagPrefix = "__suggester_"
 	InterSuggestIndexPara = "__suggester_%v"
 	InterSuggestChanSize = 1024
 	CustomTokenizerOfJieBa = "jieba"
@@ -14,7 +13,6 @@ const (
 
 //default value
 const (
-	SearchDirDefault = "./private"
 	SearchRpcPortDefault = 6060
 	SearchDictFileDefault = "./private/dict.txt"
 )
