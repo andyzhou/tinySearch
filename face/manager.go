@@ -16,7 +16,7 @@ type Manager struct {
 	//inter data
 	dataPath string
 	dictFile string
-	indexes *sync.Map
+	indexes *sync.Map //tag -> IIndex
 	//sub face
 	doc iface.IDoc
 	query iface.IQuery
