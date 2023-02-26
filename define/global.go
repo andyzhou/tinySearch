@@ -30,7 +30,6 @@ const (
 	QueryKindOfMatchQuery
 	QueryKindOfPhrase
 	QueryKindOfPrefix
-	QueryKindOfNumericRange
 	QueryKindOfMatchAll
 )
 

@@ -51,7 +51,7 @@ type QueryOptJson struct {
 	SuggestTag string `json:"suggestTag"`
 	Key string `json:"key"`
 	Fields []string `json:"fields"`
-	Filters []*FilterField `json:"filters"`
+	Filters []*FilterField `json:"filters"` //sub filters
 	AggField *AggField `json:"aggField"` //only for agg
 	Sort []*SortField `json:"sort"`
 	HighLight bool `json:"highLight"`
