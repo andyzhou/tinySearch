@@ -27,6 +27,10 @@ func main() {
 	//init service
 	service := tinysearch.NewServiceWithPara(IndexPath, RpcPort)
 
+	//set relate path
+	service.SetDataPath(IndexPath)
+	service.SetDictFile("")
+
 	//add index
 	service.AddIndex(IndexTag)
 

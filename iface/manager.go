@@ -6,6 +6,8 @@ package iface
 
 type IManager interface {
 	Quit()
+	SetDataPath(path string)
+	SetDictFile(filePath string)
 
 	//for index
 	RemoveIndex(tag string) error

@@ -81,6 +81,22 @@ func (f *Service) Quit() {
 	}
 }
 
+//set data path
+func (f *Service) SetDataPath(path string) {
+	if path == "" {
+		path = define.DataPathDefault
+	}
+	f.manager.SetDataPath(path)
+}
+
+//set dict file path
+func (f *Service) SetDictFile(filePath string) {
+	if filePath == "" {
+		filePath = define.SearchDictFileDefault
+	}
+	f.manager.SetDictFile(filePath)
+}
+
 //get suggest face
 func (f *Service) GetSuggest() iface.ISuggest {
 	return f.manager.GetSuggest()

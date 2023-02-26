@@ -55,6 +55,22 @@ func NewManager(dataPath string, dictFile ...string) *Manager{
 func (f *Manager) Quit() {
 }
 
+//set index data path
+func (f *Manager) SetDataPath(path string) {
+	if path == "" {
+		return
+	}
+	f.dataPath = path
+}
+
+//set dict file path
+func (f *Manager) SetDictFile(filePath string) {
+	if filePath == "" {
+		return
+	}
+	f.dictFile = filePath
+}
+
 //get sub face
 func (f *Manager) GetDoc() iface.IDoc {
 	return f.doc
