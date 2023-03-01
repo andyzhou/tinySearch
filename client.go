@@ -24,8 +24,8 @@ const (
 
 //others
 const (
-	SyncChanSize = 1024
-	RemoveChanSize = 1024
+	SyncChanSize = 1024 * 5
+	RemoveChanSize = 1024 * 5
 )
 
 //inter struct
@@ -335,8 +335,8 @@ func (f *Client) AddNodes(nodes ... string) error {
 	//check and init new rpc client
 	for _, node := range nodes {
 		//check
-		_, ok := f.rpcClients[node]
-		if ok {
+		v, ok := f.rpcClients[node]
+		if ok && v != nil {
 			continue
 		}
 		//create new rpc client
