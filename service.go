@@ -82,9 +82,6 @@ func (f *Service) Quit() {
 
 //set data path
 func (f *Service) SetDataPath(path string) {
-	if path == "" {
-		path = define.DataPathDefault
-	}
 	f.manager.SetDataPath(path)
 }
 

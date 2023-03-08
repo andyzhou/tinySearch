@@ -57,9 +57,6 @@ func (f *Manager) Quit() {
 
 //set index data path
 func (f *Manager) SetDataPath(path string) {
-	if path == "" {
-		return
-	}
 	f.dataPath = path
 }
 
