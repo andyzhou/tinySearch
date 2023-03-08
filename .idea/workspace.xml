@@ -4,7 +4,6 @@
     <list default="true" id="10ef696f-3f68-4233-8dfd-12c3249ef77e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/face/manager.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/manager.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/service.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,38 +73,38 @@
     <integration-enabled>true</integration-enabled>
   </component>
   <component name="WindowStateProjectService">
-    <state width="970" height="324" key="GridCell.Tab.0.bottom" timestamp="1678280312277">
+    <state width="970" height="324" key="GridCell.Tab.0.bottom" timestamp="1678281583227">
       <screen x="0" y="23" width="1920" height="1138" />
     </state>
-    <state width="970" height="324" key="GridCell.Tab.0.bottom/0.23.1920.1138@0.23.1920.1138" timestamp="1678280312277" />
-    <state width="970" height="324" key="GridCell.Tab.0.center" timestamp="1678280312276">
+    <state width="970" height="324" key="GridCell.Tab.0.bottom/0.23.1920.1138@0.23.1920.1138" timestamp="1678281583227" />
+    <state width="970" height="324" key="GridCell.Tab.0.center" timestamp="1678281583227">
       <screen x="0" y="23" width="1920" height="1138" />
     </state>
-    <state width="970" height="324" key="GridCell.Tab.0.center/0.23.1920.1138@0.23.1920.1138" timestamp="1678280312276" />
-    <state width="970" height="324" key="GridCell.Tab.0.left" timestamp="1678280312276">
+    <state width="970" height="324" key="GridCell.Tab.0.center/0.23.1920.1138@0.23.1920.1138" timestamp="1678281583227" />
+    <state width="970" height="324" key="GridCell.Tab.0.left" timestamp="1678281583226">
       <screen x="0" y="23" width="1920" height="1138" />
     </state>
-    <state width="970" height="324" key="GridCell.Tab.0.left/0.23.1920.1138@0.23.1920.1138" timestamp="1678280312276" />
-    <state width="970" height="324" key="GridCell.Tab.0.right" timestamp="1678280312277">
+    <state width="970" height="324" key="GridCell.Tab.0.left/0.23.1920.1138@0.23.1920.1138" timestamp="1678281583226" />
+    <state width="970" height="324" key="GridCell.Tab.0.right" timestamp="1678281583227">
       <screen x="0" y="23" width="1920" height="1138" />
     </state>
-    <state width="970" height="324" key="GridCell.Tab.0.right/0.23.1920.1138@0.23.1920.1138" timestamp="1678280312277" />
-    <state width="970" height="324" key="GridCell.Tab.1.bottom" timestamp="1678280312278">
+    <state width="970" height="324" key="GridCell.Tab.0.right/0.23.1920.1138@0.23.1920.1138" timestamp="1678281583227" />
+    <state width="970" height="324" key="GridCell.Tab.1.bottom" timestamp="1678281583228">
       <screen x="0" y="23" width="1920" height="1138" />
     </state>
-    <state width="970" height="324" key="GridCell.Tab.1.bottom/0.23.1920.1138@0.23.1920.1138" timestamp="1678280312278" />
-    <state width="970" height="324" key="GridCell.Tab.1.center" timestamp="1678280312277">
+    <state width="970" height="324" key="GridCell.Tab.1.bottom/0.23.1920.1138@0.23.1920.1138" timestamp="1678281583228" />
+    <state width="970" height="324" key="GridCell.Tab.1.center" timestamp="1678281583228">
       <screen x="0" y="23" width="1920" height="1138" />
     </state>
-    <state width="970" height="324" key="GridCell.Tab.1.center/0.23.1920.1138@0.23.1920.1138" timestamp="1678280312277" />
-    <state width="970" height="324" key="GridCell.Tab.1.left" timestamp="1678280312277">
+    <state width="970" height="324" key="GridCell.Tab.1.center/0.23.1920.1138@0.23.1920.1138" timestamp="1678281583228" />
+    <state width="970" height="324" key="GridCell.Tab.1.left" timestamp="1678281583227">
       <screen x="0" y="23" width="1920" height="1138" />
     </state>
-    <state width="970" height="324" key="GridCell.Tab.1.left/0.23.1920.1138@0.23.1920.1138" timestamp="1678280312277" />
-    <state width="970" height="324" key="GridCell.Tab.1.right" timestamp="1678280312278">
+    <state width="970" height="324" key="GridCell.Tab.1.left/0.23.1920.1138@0.23.1920.1138" timestamp="1678281583227" />
+    <state width="970" height="324" key="GridCell.Tab.1.right" timestamp="1678281583228">
       <screen x="0" y="23" width="1920" height="1138" />
     </state>
-    <state width="970" height="324" key="GridCell.Tab.1.right/0.23.1920.1138@0.23.1920.1138" timestamp="1678280312278" />
+    <state width="970" height="324" key="GridCell.Tab.1.right/0.23.1920.1138@0.23.1920.1138" timestamp="1678281583228" />
     <state x="706" y="231" key="SettingsEditor" timestamp="1678240136234">
       <screen x="0" y="23" width="1920" height="1138" />
     </state>
@@ -114,21 +113,5 @@
       <screen x="0" y="23" width="1920" height="1138" />
     </state>
     <state x="962" y="345" width="598" height="490" key="find.popup/0.23.1920.1138@0.23.1920.1138" timestamp="1678278988304" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/../../../../pkg/mod/github.com/andyzhou/tinysearch@v0.0.0-20230301080356-ca36bdd402cd/face/manager.go</url>
-          <line>147</line>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/../../../../pkg/mod/github.com/andyzhou/tinysearch@v0.0.0-20230301080356-ca36bdd402cd/face/index.go</url>
-          <line>76</line>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
