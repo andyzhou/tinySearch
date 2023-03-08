@@ -5,7 +5,7 @@ const (
 	RecPerPage = 10
 	ClientCheckTicker = 3
 	ReqChanSize = 1024
-	DataPathDefault = "."
+	DataPathDefault = "./private"
 	InterSuggestIndexPara = "__suggester_%v"
 	InterSuggestChanSize = 1024
 	CustomTokenizerOfJieBa = "jieba"
