@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/andyzhou/tinysearch"
 	"log"
+	"os"
 	"sync"
 )
 
@@ -29,10 +30,14 @@ func main() {
 
 	//set relate path
 	service.SetDataPath(IndexPath)
-	service.SetDictFile("")
+	//service.SetDictFile("")
 
 	//add index
-	service.AddIndex(IndexTag)
+	err := service.AddIndex(IndexTag)
+	if err != nil {
+		log.Println(err.Error())
+		os.Exit(1)
+	}
 
 	//start wait group
 	log.Printf("start server on port %v\n", RpcPort)

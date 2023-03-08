@@ -44,7 +44,6 @@ func NewService(rpcPort ...int) *Service {
 	return NewServiceWithPara(
 				define.DataPathDefault,
 				rpcPortInt,
-				define.SearchDictFileDefault,
 			)
 }
 

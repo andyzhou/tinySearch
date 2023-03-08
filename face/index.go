@@ -108,6 +108,19 @@ func (f *Index) CreateIndex() error {
 	return nil
 }
 
+//create index mapping
+func (f *Index) CreateIndexMap(dictFile ...string) *mapping.IndexMappingImpl {
+	if dictFile != nil {
+		indexMapping, err := f.CreateChineseMap(dictFile[0])
+		if err != nil {
+			return nil
+		}
+		return indexMapping
+	}
+	indexMapping := mapping.NewIndexMapping()
+	return indexMapping
+}
+
 //create chinese index mapping
 func (f *Index) CreateChineseMap(dictPath string) (*mapping.IndexMappingImpl, error) {
 	if dictPath == "" {

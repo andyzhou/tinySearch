@@ -55,7 +55,7 @@ func testing(client *tinysearch.Client) {
 	//testClientAggDoc(client)
 
 	//query doc
-	//testClientQueryDoc(client)
+	testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
@@ -145,7 +145,7 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	filterPrice.Val = "10.2"
 
 	optJson := json.NewQueryOptJson()
-	optJson.Key = "安装"
+	optJson.Key = "女干事"
 	optJson.HighLight = true
 	//optJson.AddFilter(filterPrice)
 	resp, err := client.DocQuery(ServerIndexTag, optJson)
