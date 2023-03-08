@@ -1,6 +1,7 @@
 # github.com/RoaringBitmap/roaring v0.4.23
 github.com/RoaringBitmap/roaring
 # github.com/blevesearch/bleve/v2 v2.0.3
+## explicit
 github.com/blevesearch/bleve/v2
 github.com/blevesearch/bleve/v2/analysis
 github.com/blevesearch/bleve/v2/analysis/analyzer/custom
@@ -35,6 +36,7 @@ github.com/blevesearch/bleve/v2/search/scorer
 github.com/blevesearch/bleve/v2/search/searcher
 github.com/blevesearch/bleve/v2/size
 # github.com/blevesearch/bleve_index_api v1.0.0
+## explicit
 github.com/blevesearch/bleve_index_api
 # github.com/blevesearch/go-porterstemmer v1.0.3
 github.com/blevesearch/go-porterstemmer
@@ -67,19 +69,25 @@ github.com/blevesearch/zapx/v15
 # github.com/glycerine/go-unsnap-stream v0.0.0-20181221182339-f9677308dec2
 github.com/glycerine/go-unsnap-stream
 # github.com/golang/protobuf v1.5.2
+## explicit
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
 github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
 # github.com/golang/snappy v0.0.2
+## explicit
 github.com/golang/snappy
+# github.com/kr/text v0.2.0
+## explicit
 # github.com/mschoch/smat v0.2.0
 github.com/mschoch/smat
 # github.com/philhofer/fwd v1.0.0
 github.com/philhofer/fwd
 # github.com/steveyen/gtreap v0.1.0
 github.com/steveyen/gtreap
+# github.com/stretchr/testify v1.7.0
+## explicit
 # github.com/tinylib/msgp v1.1.0
 github.com/tinylib/msgp/msgp
 # github.com/willf/bitset v1.1.10
@@ -104,6 +112,7 @@ golang.org/x/text/unicode/norm
 # google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 google.golang.org/genproto/googleapis/rpc/status
 # google.golang.org/grpc v1.36.1
+## explicit
 google.golang.org/grpc
 google.golang.org/grpc/attributes
 google.golang.org/grpc/backoff
@@ -149,6 +158,7 @@ google.golang.org/grpc/stats
 google.golang.org/grpc/status
 google.golang.org/grpc/tap
 # google.golang.org/protobuf v1.26.0
+## explicit
 google.golang.org/protobuf/encoding/prototext
 google.golang.org/protobuf/encoding/protowire
 google.golang.org/protobuf/internal/descfmt
@@ -179,3 +189,7 @@ google.golang.org/protobuf/types/descriptorpb
 google.golang.org/protobuf/types/known/anypb
 google.golang.org/protobuf/types/known/durationpb
 google.golang.org/protobuf/types/known/timestamppb
+# gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c
+## explicit
+# gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+## explicit
