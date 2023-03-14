@@ -225,6 +225,18 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 	for _, filter := range opt.Filters {
 		//do sub query by kind
 		switch filter.Kind {
+		case define.FilterKindBoolean:
+			{
+				//match by boolean
+				boolVal, _ := filter.Val.(bool)
+				pg := bleve.NewBoolFieldQuery(boolVal)
+				pg.SetField(filter.Field)
+				if filter.IsMust {
+					boolQuery.AddMust(pg)
+				}else{
+					boolQuery.AddShould(pg)
+				}
+			}
 		case define.FilterKindMatch:
 			{
 				//match by condition

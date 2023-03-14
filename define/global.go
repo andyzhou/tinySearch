@@ -43,4 +43,5 @@ const (
 	FilterKindSubDocIds
 	FilterKindExcludePhraseQuery
 	FilterKindPrefix
+	FilterKindBoolean
 )

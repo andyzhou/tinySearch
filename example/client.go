@@ -145,9 +145,8 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	filterPrice.Val = "10.2"
 
 	optJson := json.NewQueryOptJson()
-	optJson.Key = "女干事"
+	optJson.Key = "second"
 	optJson.HighLight = true
-	//optJson.AddFilter(filterPrice)
 	resp, err := client.DocQuery(ServerIndexTag, optJson)
 	if err != nil {
 		log.Println("testClientQueryDoc failed, err:", err)
