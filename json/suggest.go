@@ -8,7 +8,8 @@ package json
 type SuggestOptJson struct {
 	IndexTag string `json:"indexTag"`
 	Key string `json:"key"`
-	Size int `json:"size"`
+	Page int `json:"page"`
+	PageSize int `json:"pageSize"`
 	BaseJson
 }
 

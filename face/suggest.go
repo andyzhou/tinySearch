@@ -9,6 +9,7 @@ import (
 	"github.com/andyzhou/tinysearch/iface"
 	"github.com/andyzhou/tinysearch/json"
 	"github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/search"
 	"log"
 )
 
@@ -54,13 +55,16 @@ func NewSuggest(manager iface.IManager) *Suggest {
 func (f *Suggest) Quit() {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Printf("tinysearch.Suggest:Quit panic, err:%v", err)
+			log.Printf("tinysearch.Suggest:Quit panic, err:%v\n", err)
 		}
 	}()
-	f.closeChan <- struct{}{}
+	if f.closeChan != nil {
+		close(f.closeChan)
+	}
 }
 
-//get suggest
+//get suggest, sort by count desc
+//include get top hot keys, set `key` field as empty
 func (f *Suggest) GetSuggest(
 					opt *json.SuggestOptJson,
 				) (*json.SuggestsJson, error) {
@@ -74,8 +78,11 @@ func (f *Suggest) GetSuggest(
 	if indexer == nil {
 		return nil, errors.New("invalid index tag")
 	}
-	if opt.Size <= 0 {
-		opt.Size = define.RecPerPage
+	if opt.Page <= 0 {
+		opt.Page = 1
+	}
+	if opt.PageSize <= 0 {
+		opt.PageSize = define.RecPerPage
 	}
 
 	//init query
@@ -94,9 +101,18 @@ func (f *Suggest) GetSuggest(
 	//init multi condition search request
 	searchRequest := bleve.NewSearchRequest(boolQuery)
 
+	//set sort by count desc
+	customSort := make([]search.SearchSort, 0)
+	cs := search.SortField{
+		Field: "count",
+		Desc: true,
+	}
+	customSort = append(customSort, &cs)
+	searchRequest.SortByCustom(customSort)
+
 	//set others
-	searchRequest.From = 0
-	searchRequest.Size = opt.Size
+	searchRequest.From = (opt.Page - 1) * opt.PageSize
+	searchRequest.Size = opt.PageSize
 	searchRequest.Explain = true
 
 	//begin search
@@ -187,14 +203,20 @@ func (f *Suggest) AddSuggest(
 }
 
 //register suggest index
-func (f *Suggest) RegisterSuggest(tag string) error {
+func (f *Suggest) RegisterSuggest(tags ...string) error {
+	var (
+		indexName string
+		err error
+	)
 	//check
-	if tag == "" {
+	if tags == nil || len(tags) <= 0 {
 		return errors.New("invalid parameter")
 	}
-	//add suggest index name
-	indexName := f.getIndexName(tag)
-	err := f.manager.AddIndex(indexName)
+	//add suggest index names
+	for _, tag := range tags {
+		indexName = f.getIndexName(tag)
+		err = f.manager.AddIndex(indexName)
+	}
 	return err
 }
 
@@ -285,9 +307,7 @@ func (f *Suggest) getIndex(tag string) iface.IIndex {
 }
 
 //generate md5 value
-func (f *Suggest) genMd5(
-					orgString string,
-				) string {
+func (f *Suggest) genMd5(orgString string) string {
 	if len(orgString) <= 0 {
 		return ""
 	}

@@ -2,6 +2,8 @@ package define
 
 //internal define
 const (
+	SuggestTopMin = 50
+	SuggestTopMax = 200
 	RecPerPage = 10
 	ClientCheckTicker = 3
 	ReqChanSize = 1024

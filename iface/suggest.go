@@ -10,5 +10,5 @@ type ISuggest interface {
 	Quit()
 	GetSuggest(opt *json.SuggestOptJson) (*json.SuggestsJson, error)
 	AddSuggest(tag string, doc *json.SuggestJson) error
-	RegisterSuggest(tag string) error
+	RegisterSuggest(tags ...string) error
 }
