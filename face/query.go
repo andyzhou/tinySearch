@@ -270,8 +270,7 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 					boolQuery.AddShould(pg)
 				}
 			}
-		case define.FilterKindPhraseQuery:
-		case define.FilterKindExcludePhraseQuery:
+		case define.FilterKindPhraseQuery, define.FilterKindExcludePhraseQuery:
 			{
 				//sub terms phrase query
 				termSlice := make([]string, 0)

@@ -126,11 +126,11 @@ func testClientGetDoc(client *tinysearch.Client)  {
 //test query doc
 func testClientQueryDoc(client *tinysearch.Client) {
 	//filter for age property
-	//filterAge := json.NewFilterField()
-	//filterAge.Field = "prop.age"
-	//filterAge.Kind = define.FilterKindNumericRange
-	//filterAge.MinFloatVal = float64(5)
-	//filterAge.MaxFloatVal = float64(100)
+	filterAge := json.NewFilterField()
+	filterAge.Field = "prop.age"
+	filterAge.Kind = define.FilterKindNumericRange
+	filterAge.MinFloatVal = genJson.Number(5)
+	filterAge.MaxFloatVal = genJson.Number(100)
 
 	//filter for city property
 	filterCity := json.NewFilterField()
