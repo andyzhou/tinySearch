@@ -52,10 +52,10 @@ func testing(client *tinysearch.Client) {
 	//testClientSuggestDoc(client)
 
 	//agg doc
-	//testClientAggDoc(client)
+	testClientAggDoc(client)
 
 	//query doc
-	testClientQueryDoc(client)
+	//testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
@@ -86,17 +86,34 @@ func testClientSuggestDoc(client *tinysearch.Client) {
 func testClientAggDoc(client *tinysearch.Client) {
 	optJson := json.NewQueryOptJson()
 	optJson.Key = "工作"
-	optJson.AggField = &json.AggField{
-		Field:"cat",
-		Size:10,
-	}
+
+	//one agg field on single field
+	oneAggField := optJson.GenAggField()
+	oneAggField.Field = "cat"
+	oneAggField.Size = 10
+	//add one agg field
+	optJson.AddAggField(oneAggField)
+
+	//one agg field on hashed field
+	secondAggField := optJson.GenAggField()
+	secondAggField.Field = "prop.city"
+	secondAggField.Size = 10
+
+	//add one agg field
+	optJson.AddAggField(secondAggField)
+
 	resp, err := client.DocAgg(ServerIndexTag, optJson)
 	if err != nil {
 		log.Println("testClientAggDoc failed, err:", err)
 	}else{
 		log.Println("testClientAggDoc")
-		for _, v := range resp.List {
-			log.Printf("name:%v, count:%v\n", v.Name, v.Count)
+		for facetName, facetSlice := range resp.MapList {
+			if facetSlice == nil {
+				continue
+			}
+			for _, aggList := range facetSlice {
+				log.Printf("facetName:%v, aggList:%v\n", facetName, aggList)
+			}
 		}
 	}
 }

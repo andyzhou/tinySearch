@@ -26,7 +26,7 @@ type AggregateJson struct {
 //one kind agg record
 type AggregatesJson struct {
 	Field string `json:"field"`
-	List []*AggregateJson `json:"list"`
+	MapList map[string][]*AggregateJson `json:"list"`
 	BaseJson
 }
 
@@ -36,17 +36,22 @@ type AggregatesJson struct {
 
 func NewAggregatesJson() *AggregatesJson {
 	this := &AggregatesJson{
-		List: make([]*AggregateJson, 0),
+		MapList: make(map[string][]*AggregateJson, 0),
 	}
 	return this
 }
 
 //add obj
-func (j *AggregatesJson) AddObj(obj *AggregateJson) bool {
-	if obj == nil {
+func (j *AggregatesJson) AddObj(aggName string, obj *AggregateJson) bool {
+	if aggName == "" || obj == nil {
 		return false
 	}
-	j.List = append(j.List, obj)
+	v, ok := j.MapList[aggName]
+	if !ok || v == nil {
+		v = make([]*AggregateJson, 0)
+	}
+	v = append(v, obj)
+	j.MapList[aggName] = v
 	return true
 }
 

@@ -53,7 +53,7 @@ type QueryOptJson struct {
 	Key string `json:"key"`
 	Fields []string `json:"fields"`
 	Filters []*FilterField `json:"filters"` //sub filters
-	AggField *AggField `json:"aggField"` //only for agg
+	AggFields []*AggField `json:"aggFields"` //only for agg
 	Sort []*SortField `json:"sort"`
 	HighLight bool `json:"highLight"`
 	Page int `json:"page"`
@@ -83,12 +83,26 @@ func NewQueryOptJson() *QueryOptJson {
 	this := &QueryOptJson{
 		Fields: make([]string, 0),
 		Filters: make([]*FilterField, 0),
-		AggField: &AggField{
-			NumericRanges: make([]*RangeVal, 0),
-		},
+		AggFields:make([]*AggField, 0),
 		Sort:make([]*SortField, 0),
 	}
 	return this
+}
+
+//gen one agg field
+func (j *QueryOptJson) GenAggField() *AggField{
+	return &AggField{
+		NumericRanges: []*RangeVal{},
+	}
+}
+
+//add agg field
+func (j *QueryOptJson) AddAggField(agg ... *AggField) bool {
+	if agg == nil || len(agg) <= 0 {
+		return false
+	}
+	j.AggFields = append(j.AggFields, agg...)
+	return true
 }
 
 //add field

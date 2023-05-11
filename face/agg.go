@@ -38,7 +38,7 @@ func (f *Agg) GetAggList(
 		return nil, errors.New("invalid parameter")
 	}
 
-	if opt.Key == "" || opt.AggField == nil {
+	if opt.Key == "" || opt.AggFields == nil {
 		return nil, errors.New("invalid parameter")
 	}
 
@@ -56,59 +56,71 @@ func (f *Agg) GetAggList(
 	//build search request
 	searchRequest := f.query.BuildSearchReq(opt)
 
-	//set aggregating facet
-	aggField := opt.AggField
-	facetName := aggField.Field
-	facet := bleve.NewFacetRequest(aggField.Field, aggField.Size)
-	if aggField.IsNumeric {
-		//numeric
-		for _, numeric := range aggField.NumericRanges {
-			name := fmt.Sprintf("%s-%d", facetName, int(numeric.From))
-			facet.AddNumericRange(name, &numeric.From, &numeric.To)
+	//add batch aggregating facet
+	tempAggFieldMap := map[string]*json.AggField{}
+	for _, aggField := range opt.AggFields {
+		facetName := aggField.Field
+		facet := bleve.NewFacetRequest(aggField.Field, aggField.Size)
+		if aggField.IsNumeric {
+			//numeric
+			for _, numeric := range aggField.NumericRanges {
+				name := fmt.Sprintf("%s-%d", facetName, int(numeric.From))
+				facet.AddNumericRange(name, &numeric.From, &numeric.To)
+			}
 		}
+		//add sub facet into search request
+		searchRequest.AddFacet(facetName, facet)
+		tempAggFieldMap[facetName] = aggField
 	}
-
-	//add sub facet into search request
-	searchRequest.AddFacet(facetName, facet)
 
 	//begin search
 	searchResult, err := indexer.Search(searchRequest)
 	if err != nil {
 		return nil, err
 	}
-
-	//format facet result
-	facetResult, ok := searchResult.Facets[facetName]
-	if !ok || facetResult == nil {
+	if searchResult.Facets == nil || len(searchResult.Facets) <= 0 {
 		return nil, nil
 	}
 
 	//init final result
 	result := json.NewAggregatesJson()
 
-	if aggField.IsNumeric {
-		//numeric
-		for _, v := range facetResult.NumericRanges {
-			//format final query for agg
-			aggJson := json.NewAggregateJson()
-			aggJson.Name = v.Name
-			aggJson.Min = genJson.Number(fmt.Sprintf("%v", *v.Min))
-			aggJson.Max = genJson.Number(fmt.Sprintf("%v", *v.Max))
-			aggJson.Count = v.Count
-
-			//add into slice
-			result.AddObj(aggJson)
+	//format facet result
+	for facetName, facetResult := range searchResult.Facets {
+		//check
+		if facetName == "" || facetResult == nil {
+			continue
 		}
-	}else{
-		//term
-		for _, v := range facetResult.Terms {
-			//format final query for agg
-			aggJson := json.NewAggregateJson()
-			aggJson.Name = v.Term
-			aggJson.Count = v.Count
+		aggField, ok := tempAggFieldMap[facetName]
+		if !ok || aggField == nil {
+			continue
+		}
 
-			//add into slice
-			result.AddObj(aggJson)
+		//analyze one agg facet result
+		if aggField.IsNumeric {
+			//numeric
+			for _, v := range facetResult.NumericRanges {
+				//format final query for agg
+				aggJson := json.NewAggregateJson()
+				aggJson.Name = v.Name
+				aggJson.Min = genJson.Number(fmt.Sprintf("%v", *v.Min))
+				aggJson.Max = genJson.Number(fmt.Sprintf("%v", *v.Max))
+				aggJson.Count = v.Count
+
+				//add into slice
+				result.AddObj(facetName, aggJson)
+			}
+		}else{
+			//term
+			for _, v := range facetResult.Terms {
+				//format final query for agg
+				aggJson := json.NewAggregateJson()
+				aggJson.Name = v.Term
+				aggJson.Count = v.Count
+
+				//add into slice
+				result.AddObj(facetName, aggJson)
+			}
 		}
 	}
 	return result, nil
