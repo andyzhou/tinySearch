@@ -63,6 +63,7 @@ func testing(client *tinysearch.Client) {
 	//get doc
 	//testClientGetDoc(client)
 
+	//add doc
 	//testClientSyncDoc(client)
 
 	//create index
@@ -125,28 +126,34 @@ func testClientGetDoc(client *tinysearch.Client)  {
 
 //test query doc
 func testClientQueryDoc(client *tinysearch.Client) {
-	//filter for age property
-	filterAge := json.NewFilterField()
-	filterAge.Field = "prop.age"
-	filterAge.Kind = define.FilterKindNumericRange
-	filterAge.MinFloatVal = genJson.Number(5)
-	filterAge.MaxFloatVal = genJson.Number(100)
-
 	//filter for city property
-	filterCity := json.NewFilterField()
-	filterCity.Kind = define.FilterKindMatch
-	filterCity.Field = "cat"//"prop.city"
-	filterCity.Val = "job"
-
-	//filter for price
-	filterPrice := json.NewFilterField()
-	filterPrice.Kind = define.FilterKindMatch
-	filterPrice.Field = "price"//"prop.city"
-	filterPrice.Val = "10.2"
+	//used for match multi term value, at least one match.
+	filterAge := json.NewFilterField()
+	filterAge.Field = "prop.city"
+	filterAge.Kind = define.FilterKindTermsQuery
+	filterAge.Terms = []string{
+		"beijing", //matched
+		"liaoning", //not matched
+	}
+	filterAge.IsMust = true
+	////filter for city property
+	//filterCity := json.NewFilterField()
+	//filterCity.Kind = define.FilterKindMatch
+	//filterCity.Field = "cat"//"prop.city"
+	//filterCity.Val = "job"
+	//
+	////filter for price
+	//filterPrice := json.NewFilterField()
+	//filterPrice.Kind = define.FilterKindMatch
+	//filterPrice.Field = "price"//"prop.city"
+	//filterPrice.Val = "10.2"
 
 	optJson := json.NewQueryOptJson()
-	optJson.Key = "second"
+	//optJson.Key = "chinese"
 	optJson.HighLight = true
+	optJson.Filters = []*json.FilterField{
+		filterAge,
+	}
 	resp, err := client.DocQuery(ServerIndexTag, optJson)
 	if err != nil {
 		log.Println("testClientQueryDoc failed, err:", err)
@@ -159,14 +166,15 @@ func testClientQueryDoc(client *tinysearch.Client) {
 
 	//analyze result
 	for _, jsonObj := range resp.Records {
-		testJson := json.NewTestDocJson()
-		err = testJson.Decode(jsonObj.OrgJson)
-		if err != nil {
-			//fmt.Println(string(jsonObj.OrgJson))
-			//fmt.Println(err.Error())
-			continue
-		}
-		log.Println("testClientQueryDoc rec:", testJson)
+		log.Println("jsonObj:", string(jsonObj.OrgJson))
+		//testJson := json.NewTestDocJson()
+		//err = testJson.Decode(jsonObj.OrgJson)
+		//if err != nil {
+		//	//fmt.Println(string(jsonObj.OrgJson))
+		//	//fmt.Println(err.Error())
+		//	continue
+		//}
+		//log.Println("testClientQueryDoc rec:", testJson)
 	}
 }
 
@@ -186,7 +194,7 @@ func testClientSyncDoc(client *tinysearch.Client) {
 	var (
 		docIdBegin, docIdEnd int64
 	)
-	docIdBegin = 1
+	docIdBegin = 2
 	docIdEnd = 2
 	for id := docIdBegin; id <= docIdEnd; id++ {
 		addOneDoc(id, client)

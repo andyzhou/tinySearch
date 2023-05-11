@@ -209,10 +209,6 @@ func (f *Query) BuildSearchReq(opt *json.QueryOptJson) *bleve.SearchRequest {
 ////////////////////////////
 
 func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
-	var (
-		tempStr string
-	)
-
 	//check
 	if opt.Filters == nil || len(opt.Filters) <= 0 {
 		return nil
@@ -240,9 +236,19 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 		case define.FilterKindMatch:
 			{
 				//match by condition
-				tempStr = fmt.Sprintf("%v", filter.Val)
-				pg := bleve.NewTermQuery(tempStr)
-				pg.SetField(filter.Field)
+				if filter.Terms == nil || len(filter.Terms) <= 0 {
+					filter.Terms = []string{
+						fmt.Sprintf("%v", filter.Val),
+					}
+				}
+				subQueries := make([]query.Query, 0)
+				for _, v := range filter.Terms {
+					//multi terms
+					subPg := bleve.NewMatchQuery(v)
+					subPg.SetField(filter.Field)
+					subQueries = append(subQueries, subPg)
+				}
+				pg := bleve.NewDisjunctionQuery(subQueries...)
 				if filter.IsMust {
 					boolQuery.AddMust(pg)
 				}else{
@@ -326,17 +332,23 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 			}
 		case define.FilterKindTermsQuery:
 			{
+				//multi terms
+				subQueries := make([]query.Query, 0)
 				for _, v := range filter.Terms {
 					if v == "" {
 						continue
 					}
-					pg := bleve.NewTermQuery(v)
-					pg.SetField(filter.Field)
-					if filter.IsMust {
-						boolQuery.AddMust(pg)
-					}else{
-						boolQuery.AddShould(pg)
-					}
+					subPg := bleve.NewTermQuery(v)
+					subPg.SetField(filter.Field)
+					subQueries = append(subQueries, subPg)
+				}
+				//create disjunction query
+				//used for match batch terms match
+				pg := bleve.NewDisjunctionQuery(subQueries...)
+				if filter.IsMust {
+					boolQuery.AddMust(pg)
+				}else{
+					boolQuery.AddShould(pg)
 				}
 			}
 		}
