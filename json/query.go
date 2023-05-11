@@ -27,6 +27,7 @@ type FilterField struct {
 	MaxFloatVal json.Number `json:"maxFloatVal,string,omitempty"` //for numeric range
 	StartTime time.Time `json:"startTime"` //for date range
 	EndTime time.Time `json:"endTime"` //for date range
+	Terms []string `json:"terms"` //for terms query
 	IsMust bool `json:"isMust"`
 	IsExclude bool `json:"isExclude"`
 }
@@ -69,6 +70,7 @@ type QueryOptJson struct {
 func NewFilterField() *FilterField {
 	this := &FilterField{
 		DocIds:make([]string, 0),
+		Terms: []string{},
 	}
 	return this
 }

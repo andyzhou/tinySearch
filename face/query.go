@@ -324,6 +324,21 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 					boolQuery.AddShould(pg)
 				}
 			}
+		case define.FilterKindTermsQuery:
+			{
+				for _, v := range filter.Terms {
+					if v == "" {
+						continue
+					}
+					pg := bleve.NewTermQuery(v)
+					pg.SetField(filter.Field)
+					if filter.IsMust {
+						boolQuery.AddMust(pg)
+					}else{
+						boolQuery.AddShould(pg)
+					}
+				}
+			}
 		}
 	}
 	return boolQuery

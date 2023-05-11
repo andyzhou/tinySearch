@@ -46,4 +46,5 @@ const (
 	FilterKindExcludePhraseQuery
 	FilterKindPrefix
 	FilterKindBoolean
+	FilterKindTermsQuery
 )
