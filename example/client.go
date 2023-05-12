@@ -52,10 +52,10 @@ func testing(client *tinysearch.Client) {
 	//testClientSuggestDoc(client)
 
 	//agg doc
-	testClientAggDoc(client)
+	//testClientAggDoc(client)
 
 	//query doc
-	//testClientQueryDoc(client)
+	testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
@@ -145,20 +145,22 @@ func testClientGetDoc(client *tinysearch.Client)  {
 func testClientQueryDoc(client *tinysearch.Client) {
 	//filter for city property
 	//used for match multi term value, at least one match.
-	filterAge := json.NewFilterField()
-	filterAge.Field = "prop.city"
-	filterAge.Kind = define.FilterKindTermsQuery
-	filterAge.Terms = []string{
+	filterProp := json.NewFilterField()
+	filterProp.Field = "prop.city"
+	filterProp.Kind = define.FilterKindTermsQuery
+	filterProp.Terms = []string{
 		"beijing", //matched
 		"liaoning", //not matched
 	}
-	filterAge.IsMust = true
-	////filter for city property
-	//filterCity := json.NewFilterField()
-	//filterCity.Kind = define.FilterKindMatch
-	//filterCity.Field = "cat"//"prop.city"
-	//filterCity.Val = "job"
-	//
+	filterProp.IsMust = true
+
+	//filter for tag
+	filterTag := json.NewFilterField()
+	filterTag.Kind = define.FilterKindMatch
+	filterTag.Field = "tags"
+	filterTag.Val = "car"
+	filterTag.IsMust = true
+
 	////filter for price
 	//filterPrice := json.NewFilterField()
 	//filterPrice.Kind = define.FilterKindMatch
@@ -169,7 +171,7 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	//optJson.Key = "chinese"
 	optJson.HighLight = true
 	optJson.Filters = []*json.FilterField{
-		filterAge,
+		filterTag,
 	}
 	resp, err := client.DocQuery(ServerIndexTag, optJson)
 	if err != nil {
@@ -211,7 +213,7 @@ func testClientSyncDoc(client *tinysearch.Client) {
 	var (
 		docIdBegin, docIdEnd int64
 	)
-	docIdBegin = 2
+	docIdBegin = 1
 	docIdEnd = 2
 	for id := docIdBegin; id <= docIdEnd; id++ {
 		addOneDoc(id, client)
@@ -238,13 +240,9 @@ func addOneDoc(docId int64, client *tinysearch.Client) {
 	testDocJson.Num = int64(rand.Intn(100))
 	testDocJson.Introduce = "The second one 你 中文re interesting! 吃水果"
 	testDocJson.CreateAt = time.Now().Unix()
-
-	tagA := "car"
-	tagB := "job"
-
-	testDocJson.Tags[tagA] = 1
-	testDocJson.Tags[tagB] = 1
-
+	testDocJson.Tags = []string{
+		"car", "job",
+	}
 	jsonByte, err := testDocJson.Encode()
 	if err != nil {
 		fmt.Println(err.Error())
