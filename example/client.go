@@ -17,8 +17,9 @@ import (
  */
 
 const (
-	ServerRpcPort = 6060
-	ServerIndexTag = "test"
+	ServiceRpcPort = 6060
+	ServiceIndexTag = "test"
+	DocSuggesterTag = "test"
 )
 
 func main() {
@@ -33,7 +34,7 @@ func main() {
 	client := tinysearch.NewClient()
 
 	//add node
-	node := fmt.Sprintf(":%d", ServerRpcPort)
+	node := fmt.Sprintf(":%d", ServiceRpcPort)
 	client.AddNodes(node)
 
 	wg.Add(1)
@@ -49,13 +50,13 @@ func main() {
 //testing
 func testing(client *tinysearch.Client) {
 	//suggest doc
-	//testClientSuggestDoc(client)
+	testClientSuggestDoc(client)
 
 	//agg doc
 	//testClientAggDoc(client)
 
 	//query doc
-	testClientQueryDoc(client)
+	//testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
@@ -73,12 +74,16 @@ func testing(client *tinysearch.Client) {
 //test suggest doc
 func testClientSuggestDoc(client *tinysearch.Client) {
 	optJson := json.NewQueryOptJson()
-	optJson.Key = "te"
-	resp, err := client.DocSuggest(ServerIndexTag, optJson)
+	optJson.Key = "seco"
+	optJson.SuggestTag = DocSuggesterTag
+	resp, err := client.DocSuggest(ServiceIndexTag, optJson)
 	if err != nil {
 		log.Println("testClientSuggestDoc failed, err:", err)
 	}else{
 		log.Println("testClientSuggestDoc resp:", resp)
+		for _, v := range resp.List {
+			log.Printf("key:%v, count:%v\n", v.Key, v.Count)
+		}
 	}
 }
 
@@ -102,7 +107,7 @@ func testClientAggDoc(client *tinysearch.Client) {
 	//add one agg field
 	optJson.AddAggField(secondAggField)
 
-	resp, err := client.DocAgg(ServerIndexTag, optJson)
+	resp, err := client.DocAgg(ServiceIndexTag, optJson)
 	if err != nil {
 		log.Println("testClientAggDoc failed, err:", err)
 	}else{
@@ -124,7 +129,7 @@ func testClientGetDoc(client *tinysearch.Client)  {
 		fmt.Sprintf("%v", 1),
 		fmt.Sprintf("%v", 2),
 	}
-	jsonByteSlice, err := client.DocGet(ServerIndexTag, docIds...)
+	jsonByteSlice, err := client.DocGet(ServiceIndexTag, docIds...)
 	if err != nil {
 		log.Println(err)
 		return
@@ -168,12 +173,13 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	//filterPrice.Val = "10.2"
 
 	optJson := json.NewQueryOptJson()
-	//optJson.Key = "chinese"
+	optJson.SuggestTag = DocSuggesterTag
+	optJson.Key = "second"
 	optJson.HighLight = true
-	optJson.Filters = []*json.FilterField{
-		filterTag,
-	}
-	resp, err := client.DocQuery(ServerIndexTag, optJson)
+	//optJson.Filters = []*json.FilterField{
+	//	filterTag,
+	//}
+	resp, err := client.DocQuery(ServiceIndexTag, optJson)
 	if err != nil {
 		log.Println("testClientQueryDoc failed, err:", err)
 		return
@@ -200,7 +206,7 @@ func testClientQueryDoc(client *tinysearch.Client) {
 //test remove doc
 func testClientRemoveDoc(client *tinysearch.Client) {
 	docId := "4"
-	err := client.DocRemove(ServerIndexTag, docId)
+	err := client.DocRemove(ServiceIndexTag, docId)
 	if err != nil {
 		log.Println("remove doc failed, err:", err.Error())
 	}else{
@@ -222,8 +228,8 @@ func testClientSyncDoc(client *tinysearch.Client) {
 
 //test create index
 func testClientCreateIndex(client *tinysearch.Client) {
-	err := client.CreateIndex(ServerIndexTag)
-	log.Printf("create index %v err:%v", ServerIndexTag, err)
+	err := client.CreateIndex(ServiceIndexTag)
+	log.Printf("create index %v err:%v", ServiceIndexTag, err)
 }
 
 //add one doc
@@ -249,7 +255,7 @@ func addOneDoc(docId int64, client *tinysearch.Client) {
 		return
 	}
 
-	err = client.DocSync(ServerIndexTag, docIdStr, jsonByte)
+	err = client.DocSync(ServiceIndexTag, docIdStr, jsonByte)
 	if err != nil {
 		log.Printf("sync doc %d failed, err:%v\n", docId, err.Error())
 	}else{

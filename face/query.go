@@ -141,7 +141,11 @@ func (f *Query) Query(
 	}
 
 	//sync into suggester
-	if f.suggester != nil && opt.Key != "" {
+	//should be only key, no any filter opt
+	if f.suggester != nil &&
+		opt.Key != "" &&
+		(opt.Filters == nil || len(opt.Filters) <= 0) &&
+		opt.Page == 1 {
 		if searchResult.Total > 0 && opt.SuggestTag != "" {
 			suggestJson := json.NewSuggestJson()
 			suggestJson.Key = opt.Key

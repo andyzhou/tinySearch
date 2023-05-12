@@ -15,6 +15,7 @@ const (
 	RpcPort = 6060
 	IndexPath = "./search_data"
 	IndexTag = "test"
+	SuggesterTag = "test"
 )
 
 func main() {
@@ -38,6 +39,9 @@ func main() {
 		log.Println(err.Error())
 		os.Exit(1)
 	}
+
+	//register suggester tag
+	service.GetSuggest().RegisterSuggest(SuggesterTag)
 
 	//start wait group
 	log.Printf("start server on port %v\n", RpcPort)
