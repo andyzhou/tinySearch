@@ -49,14 +49,14 @@ func main() {
 
 //testing
 func testing(client *tinysearch.Client) {
-	//suggest doc
-	//testClientSuggestDoc(client)
+	//suggest key words
+	testClientSuggestKeywords(client)
 
 	//agg doc
 	//testClientAggDoc(client)
 
 	//query doc
-	testClientQueryDoc(client)
+	//testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
@@ -71,18 +71,29 @@ func testing(client *tinysearch.Client) {
 	//testClientCreateIndex(client)
 }
 
-//test suggest doc
-func testClientSuggestDoc(client *tinysearch.Client) {
+//test suggest key words
+func testClientSuggestKeywords(client *tinysearch.Client) {
+	//query kind support:
+	//QueryKindOfMatchQuery
+	//QueryKindOfPhrase
+	//QueryKindOfPrefix
+	//QueryKindOfMatchAll
+
+	//if set key and query kind empty
+	//will get top N suggest words
 	optJson := json.NewQueryOptJson()
-	optJson.Key = "seco"
+	//optJson.Key = "seco"
+	//optJson.QueryKind = define.QueryKindOfPrefix //define.QueryKindOfPhrase //or QueryKindOfPrefix
 	optJson.SuggestTag = DocSuggesterTag
 	resp, err := client.DocSuggest(ServiceIndexTag, optJson)
 	if err != nil {
 		log.Println("testClientSuggestDoc failed, err:", err)
 	}else{
 		log.Println("testClientSuggestDoc resp:", resp)
-		for _, v := range resp.List {
-			log.Printf("key:%v, count:%v\n", v.Key, v.Count)
+		if resp != nil {
+			for _, v := range resp.List {
+				log.Printf("key:%v, count:%v\n", v.Key, v.Count)
+			}
 		}
 	}
 }

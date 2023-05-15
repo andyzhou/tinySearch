@@ -262,6 +262,7 @@ func (f *CB) suggestDocQuery(
 	//suggest doc
 	suggest := f.manager.GetSuggest()
 	suggestOptJson := json.NewSuggestOptJson()
+	suggestOptJson.QueryKind = queryOptJson.QueryKind
 	suggestOptJson.Key = queryOptJson.Key
 	suggestOptJson.IndexTag = queryOptJson.SuggestTag
 	suggestOptJson.Page = queryOptJson.Page

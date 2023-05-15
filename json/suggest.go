@@ -6,6 +6,7 @@ package json
 
 //suggest opt json
 type SuggestOptJson struct {
+	QueryKind int `json:"queryKind"`
 	IndexTag string `json:"indexTag"`
 	Key string `json:"key"`
 	Page int `json:"page"`

@@ -10,6 +10,7 @@ import (
 	"github.com/andyzhou/tinysearch/json"
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/search"
+	"github.com/blevesearch/bleve/v2/search/query"
 	"log"
 )
 
@@ -68,8 +69,11 @@ func (f *Suggest) Quit() {
 func (f *Suggest) GetSuggest(
 					opt *json.SuggestOptJson,
 				) (*json.SuggestsJson, error) {
+	var (
+		docQuery query.Query
+	)
 	//basic check
-	if opt == nil || opt.IndexTag == "" || opt.Key == "" {
+	if opt == nil || opt.IndexTag == "" {
 		return nil, errors.New("invalid parameter")
 	}
 
@@ -85,11 +89,20 @@ func (f *Suggest) GetSuggest(
 		opt.PageSize = define.RecPerPage
 	}
 
-	//init query
-	docQuery := bleve.NewPrefixQuery(opt.Key)
+	//init query by kind
+	switch opt.QueryKind {
+	case define.QueryKindOfPhrase:
+		docQuery = bleve.NewMatchPhraseQuery(opt.Key)
+	case define.QueryKindOfPrefix:
+		docQuery = bleve.NewPrefixQuery(opt.Key)
+	case define.QueryKindOfMatchQuery:
+		docQuery = bleve.NewMatchQuery(opt.Key)
+	default:
+		docQuery = bleve.NewMatchAllQuery()
+	}
 
 	//set query field
-	docQuery.SetField("key")
+	//docQuery.SetField("key")
 
 	//set filter field
 	//init bool query
@@ -101,10 +114,15 @@ func (f *Suggest) GetSuggest(
 	//init multi condition search request
 	searchRequest := bleve.NewSearchRequest(boolQuery)
 
+	//check and set query field
+	if opt.Key != "" {
+		searchRequest.Fields = []string{SuggestFieldKey}
+	}
+
 	//set sort by count desc
 	customSort := make([]search.SearchSort, 0)
 	cs := search.SortField{
-		Field: "count",
+		Field: SuggestFieldCount,
 		Desc: true,
 	}
 	customSort = append(customSort, &cs)
