@@ -50,13 +50,13 @@ func main() {
 //testing
 func testing(client *tinysearch.Client) {
 	//suggest doc
-	testClientSuggestDoc(client)
+	//testClientSuggestDoc(client)
 
 	//agg doc
 	//testClientAggDoc(client)
 
 	//query doc
-	//testClientQueryDoc(client)
+	testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
@@ -163,7 +163,7 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	filterTag := json.NewFilterField()
 	filterTag.Kind = define.FilterKindMatch
 	filterTag.Field = "tags"
-	filterTag.Val = "car"
+	filterTag.Terms = []string{"job"}
 	filterTag.IsMust = true
 
 	////filter for price
@@ -173,12 +173,12 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	//filterPrice.Val = "10.2"
 
 	optJson := json.NewQueryOptJson()
-	optJson.SuggestTag = DocSuggesterTag
-	optJson.Key = "second"
+	//optJson.SuggestTag = DocSuggesterTag
+	//optJson.Key = "second"
 	optJson.HighLight = true
-	//optJson.Filters = []*json.FilterField{
-	//	filterTag,
-	//}
+	optJson.Filters = []*json.FilterField{
+		filterTag,
+	}
 	resp, err := client.DocQuery(ServiceIndexTag, optJson)
 	if err != nil {
 		log.Println("testClientQueryDoc failed, err:", err)
