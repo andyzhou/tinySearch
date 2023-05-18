@@ -50,13 +50,13 @@ func main() {
 //testing
 func testing(client *tinysearch.Client) {
 	//suggest key words
-	testClientSuggestKeywords(client)
+	//testClientSuggestKeywords(client)
 
 	//agg doc
 	//testClientAggDoc(client)
 
 	//query doc
-	//testClientQueryDoc(client)
+	testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
@@ -177,6 +177,13 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	filterTag.Terms = []string{"job"}
 	filterTag.IsMust = true
 
+	//filter for poster
+	filterPoster := json.NewFilterField()
+	filterPoster.Kind = define.FilterKindMatch
+	filterPoster.Field = "poster"
+	filterPoster.Val = fmt.Sprintf("%v", 2)
+	filterPoster.IsMust = true
+
 	////filter for price
 	//filterPrice := json.NewFilterField()
 	//filterPrice.Kind = define.FilterKindMatch
@@ -188,7 +195,7 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	//optJson.Key = "second"
 	optJson.HighLight = true
 	optJson.Filters = []*json.FilterField{
-		filterTag,
+		filterPoster,
 	}
 	resp, err := client.DocQuery(ServiceIndexTag, optJson)
 	if err != nil {
@@ -260,6 +267,7 @@ func addOneDoc(docId int64, client *tinysearch.Client) {
 	testDocJson.Tags = []string{
 		"car", "job",
 	}
+	testDocJson.Poster = fmt.Sprintf("%v", docId)
 	jsonByte, err := testDocJson.Encode()
 	if err != nil {
 		fmt.Println(err.Error())
