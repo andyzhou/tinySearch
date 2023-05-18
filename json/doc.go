@@ -28,7 +28,7 @@ type TestDocJson struct {
 	Cat string `json:"cat"`
 	Price json.Number `json:"price,string,omitempty"` //need use match
 	Num int64 `json:"num"`
-	Poster string `json:"poster"`
+	PosterId string `json:"posterId"`
 	Prop map[string]interface{} `json:"prop"`
 	Tags []string `json:"tags"`
 	Introduce string `json:"introduce"`

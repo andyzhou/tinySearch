@@ -180,7 +180,7 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	//filter for poster
 	filterPoster := json.NewFilterField()
 	filterPoster.Kind = define.FilterKindMatch
-	filterPoster.Field = "poster"
+	filterPoster.Field = "posterId"
 	filterPoster.Val = fmt.Sprintf("%v", 2)
 	filterPoster.IsMust = true
 
@@ -267,7 +267,7 @@ func addOneDoc(docId int64, client *tinysearch.Client) {
 	testDocJson.Tags = []string{
 		"car", "job",
 	}
-	testDocJson.Poster = fmt.Sprintf("%v", docId)
+	testDocJson.PosterId = fmt.Sprintf("%v", docId)
 	jsonByte, err := testDocJson.Encode()
 	if err != nil {
 		fmt.Println(err.Error())
