@@ -106,25 +106,25 @@ func (im *IndexMappingImpl) AddCustomTokenFilter(name string, config map[string]
 // available only if their package is imported by client code. To achieve this,
 // use their metadata to fill configuration entries:
 //
-//   import (
-//       "github.com/blevesearch/bleve/v2/analysis/analyzer/custom"
-//       "github.com/blevesearch/bleve/v2/analysis/char/html"
-//       "github.com/blevesearch/bleve/v2/analysis/token/lowercase"
-//       "github.com/blevesearch/bleve/v2/analysis/tokenizer/unicode"
-//   )
+//	import (
+//	    "github.com/blevesearch/bleve/v2/analysis/analyzer/custom"
+//	    "github.com/blevesearch/bleve/v2/analysis/char/html"
+//	    "github.com/blevesearch/bleve/v2/analysis/token/lowercase"
+//	    "github.com/blevesearch/bleve/v2/analysis/tokenizer/unicode"
+//	)
 //
-//   m := bleve.NewIndexMapping()
-//   err := m.AddCustomAnalyzer("html", map[string]interface{}{
-//       "type": custom.Name,
-//       "char_filters": []string{
-//           html.Name,
-//       },
-//       "tokenizer":     unicode.Name,
-//       "token_filters": []string{
-//           lowercase.Name,
-//           ...
-//       },
-//   })
+//	m := bleve.NewIndexMapping()
+//	err := m.AddCustomAnalyzer("html", map[string]interface{}{
+//	    "type": custom.Name,
+//	    "char_filters": []string{
+//	        html.Name,
+//	    },
+//	    "tokenizer":     unicode.Name,
+//	    "token_filters": []string{
+//	        lowercase.Name,
+//	        ...
+//	    },
+//	})
 func (im *IndexMappingImpl) AddCustomAnalyzer(name string, config map[string]interface{}) error {
 	_, err := im.cache.DefineAnalyzer(name, config)
 	if err != nil {
@@ -364,6 +364,7 @@ func (im *IndexMappingImpl) AnalyzerNameForPath(path string) string {
 			return analyzerName
 		}
 	}
+
 	// now try the default mapping
 	pathMapping := im.DefaultMapping.documentMappingForPath(path)
 	if pathMapping != nil {
@@ -377,7 +378,16 @@ func (im *IndexMappingImpl) AnalyzerNameForPath(path string) string {
 	// next we will try default analyzers for the path
 	pathDecoded := decodePath(path)
 	for _, docMapping := range im.TypeMapping {
-		rv := docMapping.defaultAnalyzerName(pathDecoded)
+		if docMapping.Enabled {
+			rv := docMapping.defaultAnalyzerName(pathDecoded)
+			if rv != "" {
+				return rv
+			}
+		}
+	}
+	// now the default analyzer for the default mapping
+	if im.DefaultMapping.Enabled {
+		rv := im.DefaultMapping.defaultAnalyzerName(pathDecoded)
 		if rv != "" {
 			return rv
 		}
@@ -386,7 +396,7 @@ func (im *IndexMappingImpl) AnalyzerNameForPath(path string) string {
 	return im.DefaultAnalyzer
 }
 
-func (im *IndexMappingImpl) AnalyzerNamed(name string) *analysis.Analyzer {
+func (im *IndexMappingImpl) AnalyzerNamed(name string) analysis.Analyzer {
 	analyzer, err := im.cache.AnalyzerNamed(name)
 	if err != nil {
 		logger.Printf("error using analyzer named: %s", name)

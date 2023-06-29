@@ -39,6 +39,31 @@ type docNumTermsVisitor func(docNum uint64, terms []byte) error
 type docVisitState struct {
 	dvrs    map[uint16]*docValueReader
 	segment *SegmentBase
+
+	bytesRead uint64
+}
+
+// Implements the segment.DiskStatsReporter interface
+// The purpose of this implementation is to get
+// the bytes read from the disk (pertaining to the
+// docvalues) while querying.
+// the loadDvChunk retrieves the next chunk of docvalues
+// and the bytes retrieved off the disk pertaining to that
+// is accounted as well.
+func (d *docVisitState) incrementBytesRead(val uint64) {
+	d.bytesRead += val
+}
+
+func (d *docVisitState) BytesRead() uint64 {
+	return d.bytesRead
+}
+
+func (d *docVisitState) BytesWritten() uint64 {
+	return 0
+}
+
+func (d *docVisitState) ResetBytesRead(val uint64) {
+	d.bytesRead = val
 }
 
 type docValueReader struct {
@@ -49,6 +74,9 @@ type docValueReader struct {
 	curChunkHeader []MetaData
 	curChunkData   []byte // compressed data cache
 	uncompressed   []byte // temp buf for snappy decompression
+
+	// atomic access to this variable
+	bytesRead uint64
 }
 
 func (di *docValueReader) size() int {
@@ -96,6 +124,10 @@ func (s *SegmentBase) loadFieldDocValueReader(field string,
 		chunkOffsetsLen := binary.BigEndian.Uint64(s.mem[fieldDvLocEnd-16 : fieldDvLocEnd-8])
 		// acquire position of chunk offsets
 		chunkOffsetsPosition = (fieldDvLocEnd - 16) - chunkOffsetsLen
+
+		// 16 bytes since it corresponds to the length
+		// of chunk offsets and the position of the offsets
+		s.incrementBytesRead(16)
 	} else {
 		return nil, fmt.Errorf("loadFieldDocValueReader: fieldDvLoc too small: %d-%d", fieldDvLocEnd, fieldDvLocStart)
 	}
@@ -116,11 +148,19 @@ func (s *SegmentBase) loadFieldDocValueReader(field string,
 		fdvIter.chunkOffsets[i] = loc
 		offset += uint64(read)
 	}
-
+	s.incrementBytesRead(offset)
 	// set the data offset
 	fdvIter.dvDataLoc = fieldDvLocStart
 
 	return fdvIter, nil
+}
+
+func (d *docValueReader) getBytesRead() uint64 {
+	return d.bytesRead
+}
+
+func (d *docValueReader) incrementBytesRead(val uint64) {
+	d.bytesRead += val
 }
 
 func (di *docValueReader) loadDvChunk(chunkNumber uint64, s *SegmentBase) error {
@@ -145,7 +185,7 @@ func (di *docValueReader) loadDvChunk(chunkNumber uint64, s *SegmentBase) error 
 		return fmt.Errorf("failed to read the chunk")
 	}
 	chunkMetaLoc := destChunkDataLoc + uint64(read)
-
+	di.incrementBytesRead(uint64(read))
 	offset := uint64(0)
 	if cap(di.curChunkHeader) < int(numDocs) {
 		di.curChunkHeader = make([]MetaData, int(numDocs))
@@ -161,6 +201,7 @@ func (di *docValueReader) loadDvChunk(chunkNumber uint64, s *SegmentBase) error 
 
 	compressedDataLoc := chunkMetaLoc + offset
 	dataLength := curChunkEnd - compressedDataLoc
+	di.incrementBytesRead(uint64(dataLength + offset))
 	di.curChunkData = s.mem[compressedDataLoc : compressedDataLoc+dataLength]
 	di.curChunkNum = chunkNumber
 	di.uncompressed = di.uncompressed[:0]
@@ -257,6 +298,7 @@ func (s *SegmentBase) VisitDocValues(localDocNum uint64, fields []string,
 		if dvs.segment != s {
 			dvs.segment = s
 			dvs.dvrs = nil
+			dvs.bytesRead = 0
 		}
 	}
 
@@ -295,6 +337,9 @@ func (s *SegmentBase) VisitDocValues(localDocNum uint64, fields []string,
 				if err != nil {
 					return dvs, err
 				}
+				dvs.ResetBytesRead(dvr.getBytesRead())
+			} else {
+				dvs.ResetBytesRead(0)
 			}
 
 			_ = dvr.visitDocValues(localDocNum, visitor)

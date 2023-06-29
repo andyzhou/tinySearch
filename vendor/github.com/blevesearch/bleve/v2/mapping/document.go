@@ -18,6 +18,7 @@ import (
 	"encoding"
 	"encoding/json"
 	"fmt"
+	"net"
 	"reflect"
 	"time"
 
@@ -76,7 +77,7 @@ func (dm *DocumentMapping) Validate(cache *registry.Cache) error {
 			}
 		}
 		switch field.Type {
-		case "text", "datetime", "number", "boolean", "geopoint":
+		case "text", "datetime", "number", "boolean", "geopoint", "geoshape", "IP":
 		default:
 			return fmt.Errorf("unknown field type: '%s'", field.Type)
 		}
@@ -226,9 +227,10 @@ func (dm *DocumentMapping) AddSubDocumentMapping(property string, sdm *DocumentM
 // This is a convenience function to make most common
 // mappings more concise.
 // Otherwise, you would:
-//     subMapping := NewDocumentMapping()
-//     subMapping.AddFieldMapping(fieldMapping)
-//     parentMapping.AddSubDocumentMapping(property, subMapping)
+//
+//	subMapping := NewDocumentMapping()
+//	subMapping.AddFieldMapping(fieldMapping)
+//	parentMapping.AddSubDocumentMapping(property, subMapping)
 func (dm *DocumentMapping) AddFieldMappingsAt(property string, fms ...*FieldMapping) {
 	if dm.Properties == nil {
 		dm.Properties = make(map[string]*DocumentMapping)
@@ -426,7 +428,9 @@ func (dm *DocumentMapping) processProperty(property interface{}, path []string, 
 		if subDocMapping != nil {
 			// index by explicit mapping
 			for _, fieldMapping := range subDocMapping.Fields {
-				if fieldMapping.Type == "geopoint" {
+				if fieldMapping.Type == "geoshape" {
+					fieldMapping.processGeoShape(property, pathString, path, indexes, context)
+				} else if fieldMapping.Type == "geopoint" {
 					fieldMapping.processGeoPoint(property, pathString, path, indexes, context)
 				} else {
 					fieldMapping.processString(propertyValueString, pathString, path, indexes, context)
@@ -509,6 +513,8 @@ func (dm *DocumentMapping) processProperty(property interface{}, path []string, 
 				for _, fieldMapping := range subDocMapping.Fields {
 					if fieldMapping.Type == "geopoint" {
 						fieldMapping.processGeoPoint(property, pathString, path, indexes, context)
+					} else if fieldMapping.Type == "geoshape" {
+						fieldMapping.processGeoShape(property, pathString, path, indexes, context)
 					}
 				}
 			}
@@ -517,8 +523,16 @@ func (dm *DocumentMapping) processProperty(property interface{}, path []string, 
 	case reflect.Map, reflect.Slice:
 		if subDocMapping != nil {
 			for _, fieldMapping := range subDocMapping.Fields {
-				if fieldMapping.Type == "geopoint" {
+				switch fieldMapping.Type {
+				case "geopoint":
 					fieldMapping.processGeoPoint(property, pathString, path, indexes, context)
+				case "IP":
+					ip, ok := property.(net.IP)
+					if ok {
+						fieldMapping.processIP(ip, pathString, path, indexes, context)
+					}
+				case "geoshape":
+					fieldMapping.processGeoShape(property, pathString, path, indexes, context)
 				}
 			}
 		}
@@ -528,7 +542,7 @@ func (dm *DocumentMapping) processProperty(property interface{}, path []string, 
 			switch property := property.(type) {
 			case encoding.TextMarshaler:
 				// ONLY process TextMarshaler if there is an explicit mapping
-				// AND all of the fiels are of type text
+				// AND all of the fields are of type text
 				// OTHERWISE process field without TextMarshaler
 				if subDocMapping != nil {
 					allFieldsText := true

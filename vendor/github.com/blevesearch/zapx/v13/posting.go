@@ -111,6 +111,22 @@ type PostingsList struct {
 // represents an immutable, empty postings list
 var emptyPostingsList = &PostingsList{}
 
+// Following methods are dummy implementations for the interface
+// DiskStatsReporter (for backward compatibility).
+// The working implementations are supported only in zap v15.x
+// and not in the earlier versions of zap.
+func (i *PostingsList) ResetBytesRead(uint64) {}
+
+func (i *PostingsList) BytesRead() uint64 {
+	return 0
+}
+
+func (i *PostingsList) incrementBytesRead(uint64) {}
+
+func (i *PostingsList) BytesWritten() uint64 {
+	return 0
+}
+
 func (p *PostingsList) Size() int {
 	sizeInBytes := reflectStaticSizePostingsList + SizeOfPtr
 
@@ -311,6 +327,22 @@ type PostingsIterator struct {
 }
 
 var emptyPostingsIterator = &PostingsIterator{}
+
+// Following methods are dummy implementations for the interface
+// DiskStatsReporter (for backward compatibility).
+// The working implementations are supported only in zap v15.x
+// and not in the earlier versions of zap.
+func (i *PostingsIterator) ResetBytesRead(uint64) {}
+
+func (i *PostingsIterator) BytesRead() uint64 {
+	return 0
+}
+
+func (i *PostingsIterator) incrementBytesRead(uint64) {}
+
+func (i *PostingsIterator) BytesWritten() uint64 {
+	return 0
+}
 
 func (i *PostingsIterator) Size() int {
 	sizeInBytes := reflectStaticSizePostingsIterator + SizeOfPtr +
@@ -536,13 +568,18 @@ func (i *PostingsIterator) nextDocNumAtOrAfter(atOrAfter uint64) (uint64, bool, 
 		return 0, false, nil
 	}
 
-	if i.postings == nil || i.postings.postings == i.ActualBM {
+	if i.postings == nil || i.postings == emptyPostingsList {
+		// couldn't find anything
+		return 0, false, nil
+	}
+
+	if i.postings.postings == i.ActualBM {
 		return i.nextDocNumAtOrAfterClean(atOrAfter)
 	}
 
 	i.Actual.AdvanceIfNeeded(uint32(atOrAfter))
 
-	if !i.Actual.HasNext() {
+	if !i.Actual.HasNext() || !i.all.HasNext() {
 		// couldn't find anything
 		return 0, false, nil
 	}
@@ -569,6 +606,10 @@ func (i *PostingsIterator) nextDocNumAtOrAfter(atOrAfter uint64) (uint64, bool, 
 			if err != nil {
 				return 0, false, err
 			}
+		}
+
+		if !i.all.HasNext() {
+			return 0, false, nil
 		}
 
 		allN = i.all.Next()

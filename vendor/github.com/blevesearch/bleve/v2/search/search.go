@@ -27,6 +27,10 @@ var reflectStaticSizeDocumentMatch int
 var reflectStaticSizeSearchContext int
 var reflectStaticSizeLocation int
 
+const SearchIOStatsCallbackKey = "_search_io_stats_callback_key"
+
+type SearchIOStatsCallbackFunc func(uint64)
+
 func init() {
 	var dm DocumentMatch
 	reflectStaticSizeDocumentMatch = int(reflect.TypeOf(dm).Size())
@@ -270,7 +274,7 @@ func (dm *DocumentMatch) Complete(prealloc []Location) []Location {
 		var needsDedupe bool
 
 		for i, ftl := range dm.FieldTermLocations {
-			if lastField != ftl.Field {
+			if i == 0 || lastField != ftl.Field {
 				lastField = ftl.Field
 
 				if dm.Locations == nil {

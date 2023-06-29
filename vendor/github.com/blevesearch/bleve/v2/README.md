@@ -16,22 +16,20 @@ modern text indexing in go - [blevesearch.com](http://www.blevesearch.com/)
 * Index any go data structure (including JSON)
 * Intelligent defaults backed up by powerful configuration
 * Supported field types:
-    * Text, Numeric, Date
+    * Text, Numeric, Datetime, Boolean
 * Supported query types:
-    * Term, Phrase, Match, Match Phrase, Prefix
-    * Conjunction, Disjunction, Boolean
-    * Numeric Range, Date Range
-    * Simple query [syntax](http://www.blevesearch.com/docs/Query-String-Query/) for human entry
-* tf-idf Scoring
+    * Term, Phrase, Match, Match Phrase, Prefix, Fuzzy
+    * Conjunction, Disjunction, Boolean (must/should/must_not)
+    * Term Range, Numeric Range, Date Range
+    * [Geo Spatial](https://github.com/blevesearch/bleve/blob/master/geo/README.md)
+    * Simple [query string syntax](http://www.blevesearch.com/docs/Query-String-Query/) for human entry
+* [tf-idf](https://en.wikipedia.org/wiki/Tf-idf) Scoring
+* Boosting
 * Search result match highlighting
-* Supports Aggregating Facets:
+* Aggregations/faceting support:
     * Terms Facet
     * Numeric Range Facet
     * Date Range Facet
-
-## Discussion
-
-Discuss usage and development of bleve in the [google group](https://groups.google.com/forum/#!forum/bleve).
 
 ## Indexing
 
@@ -62,6 +60,52 @@ query := bleve.NewQueryStringQuery("bleve")
 searchRequest := bleve.NewSearchRequest(query)
 searchResult, _ := index.Search(searchRequest)
 ```
+
+## Command Line Interface
+
+To install the CLI for the latest release of bleve, run:
+
+```bash
+$ go install github.com/blevesearch/bleve/v2/cmd/bleve@latest
+```
+
+```
+$ bleve --help
+Bleve is a command-line tool to interact with a bleve index.
+
+Usage:
+  bleve [command]
+
+Available Commands:
+  bulk        bulk loads from newline delimited JSON files
+  check       checks the contents of the index
+  count       counts the number documents in the index
+  create      creates a new index
+  dictionary  prints the term dictionary for the specified field in the index
+  dump        dumps the contents of the index
+  fields      lists the fields in this index
+  help        Help about any command
+  index       adds the files to the index
+  mapping     prints the mapping used for this index
+  query       queries the index
+  registry    registry lists the bleve components compiled into this executable
+  scorch      command-line tool to interact with a scorch index
+
+Flags:
+  -h, --help   help for bleve
+
+Use "bleve [command] --help" for more information about a command.
+```
+
+## Text Analysis Wizard
+
+[bleveanalysis.couchbase.com](https://bleveanalysis.couchbase.com)
+
+## Discussion/Issues
+
+Discuss usage/development of bleve and/or report issues here:
+* [Github issues](https://github.com/blevesearch/bleve/issues)
+* [Google group](https://groups.google.com/forum/#!forum/bleve)
 
 ## License
 

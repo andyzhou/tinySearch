@@ -29,6 +29,8 @@ var ErrClosed = fmt.Errorf("index closed")
 type StoredFieldValueVisitor func(field string, typ byte, value []byte, pos []uint64) bool
 
 type Segment interface {
+	DiskStatsReporter
+
 	Dictionary(field string) (TermDictionary, error)
 
 	VisitStoredFields(num uint64, visitor StoredFieldValueVisitor) error
@@ -73,6 +75,8 @@ type DictionaryIterator interface {
 }
 
 type PostingsList interface {
+	DiskStatsReporter
+
 	Iterator(includeFreq, includeNorm, includeLocations bool, prealloc PostingsIterator) PostingsIterator
 
 	Size() int
@@ -86,6 +90,8 @@ type PostingsList interface {
 }
 
 type PostingsIterator interface {
+	DiskStatsReporter
+
 	// The caller is responsible for copying whatever it needs from
 	// the returned Posting instance before calling Next(), as some
 	// implementations may return a shared instance to reduce memory
@@ -99,6 +105,21 @@ type PostingsIterator interface {
 	Advance(docNum uint64) (Posting, error)
 
 	Size() int
+}
+
+type DiskStatsReporter interface {
+	// BytesRead returns the bytes read from the disk as
+	// part of the current running query.
+	BytesRead() uint64
+
+	// ResetBytesRead is used by the parent layer
+	// to reset the bytes read value to a consistent
+	// value during operations such as merging of segments.
+	ResetBytesRead(uint64)
+
+	// BytesWritten returns the bytes written to disk while
+	// building an index
+	BytesWritten() uint64
 }
 
 type OptimizablePostingsIterator interface {
@@ -141,6 +162,7 @@ type DocValueVisitable interface {
 }
 
 type DocVisitState interface {
+	DiskStatsReporter
 }
 
 type StatsReporter interface {

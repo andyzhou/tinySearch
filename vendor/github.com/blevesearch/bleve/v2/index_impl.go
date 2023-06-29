@@ -18,12 +18,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
+	"path/filepath"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/blevesearch/bleve/v2/document"
+	"github.com/blevesearch/bleve/v2/index/scorch"
 	"github.com/blevesearch/bleve/v2/index/upsidedown"
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/registry"
@@ -466,7 +469,20 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 		}
 	}()
 
-	searcher, err := req.Query.Searcher(indexReader, i.m, search.SearcherOptions{
+	// This callback and variable handles the tracking of bytes read
+	//  1. as part of creation of tfr and its Next() calls which is
+	//     accounted by invoking this callback when the TFR is closed.
+	//  2. the docvalues portion (accounted in collector) and the retrieval
+	//     of stored fields bytes (by LoadAndHighlightFields)
+	var totalBytesRead uint64
+	sendBytesRead := func(bytesRead uint64) {
+		totalBytesRead += bytesRead
+	}
+
+	ctx = context.WithValue(ctx, search.SearchIOStatsCallbackKey,
+		search.SearchIOStatsCallbackFunc(sendBytesRead))
+
+	searcher, err := req.Query.Searcher(ctx, indexReader, i.m, search.SearcherOptions{
 		Explain:            req.Explain,
 		IncludeTermVectors: req.IncludeLocations || req.Highlight != nil,
 		Score:              req.Score,
@@ -477,6 +493,12 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 	defer func() {
 		if serr := searcher.Close(); err == nil && serr != nil {
 			err = serr
+		}
+		if sr != nil {
+			sr.BytesRead = totalBytesRead
+		}
+		if sr, ok := indexReader.(*scorch.IndexSnapshot); ok {
+			sr.UpdateIOStats(totalBytesRead)
 		}
 	}()
 
@@ -556,10 +578,11 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 		if i.name != "" {
 			hit.Index = i.name
 		}
-		err = LoadAndHighlightFields(hit, req, i.name, indexReader, highlighter)
+		err, storedFieldsBytes := LoadAndHighlightFields(hit, req, i.name, indexReader, highlighter)
 		if err != nil {
 			return nil, err
 		}
+		totalBytesRead += storedFieldsBytes
 	}
 
 	atomic.AddUint64(&i.stats.searches, 1)
@@ -598,9 +621,11 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 
 func LoadAndHighlightFields(hit *search.DocumentMatch, req *SearchRequest,
 	indexName string, r index.IndexReader,
-	highlighter highlight.Highlighter) error {
+	highlighter highlight.Highlighter) (error, uint64) {
+	var totalStoredFieldsBytes uint64
 	if len(req.Fields) > 0 || highlighter != nil {
 		doc, err := r.Document(hit.ID)
+		totalStoredFieldsBytes = doc.StoredFieldsBytes()
 		if err == nil && doc != nil {
 			if len(req.Fields) > 0 {
 				fieldsToLoad := deDuplicate(req.Fields)
@@ -634,7 +659,13 @@ func LoadAndHighlightFields(hit *search.DocumentMatch, req *SearchRequest,
 										value = []float64{lon, lat}
 									}
 								}
+							case index.GeoShapeField:
+								v, err := docF.GeoShape()
+								if err == nil {
+									value = v
+								}
 							}
+
 							if value != nil {
 								hit.AddFieldValue(docF.Name(), value)
 							}
@@ -658,11 +689,11 @@ func LoadAndHighlightFields(hit *search.DocumentMatch, req *SearchRequest,
 		} else if doc == nil {
 			// unexpected case, a doc ID that was found as a search hit
 			// was unable to be found during document lookup
-			return ErrorIndexReadInconsistency
+			return ErrorIndexReadInconsistency, 0
 		}
 	}
 
-	return nil
+	return nil, totalStoredFieldsBytes
 }
 
 // Fields returns the name of all the fields this
@@ -862,6 +893,10 @@ type indexImplFieldDict struct {
 	fieldDict   index.FieldDict
 }
 
+func (f *indexImplFieldDict) BytesRead() uint64 {
+	return f.fieldDict.BytesRead()
+}
+
 func (f *indexImplFieldDict) Next() (*index.DictEntry, error) {
 	return f.fieldDict.Next()
 }
@@ -909,4 +944,50 @@ func (m *searchHitSorter) Swap(i, j int) { m.hits[i], m.hits[j] = m.hits[j], m.h
 func (m *searchHitSorter) Less(i, j int) bool {
 	c := m.sort.Compare(m.cachedScoring, m.cachedDesc, m.hits[i], m.hits[j])
 	return c < 0
+}
+
+func (i *indexImpl) CopyTo(d index.Directory) (err error) {
+	i.mutex.RLock()
+	defer i.mutex.RUnlock()
+
+	if !i.open {
+		return ErrorIndexClosed
+	}
+
+	indexReader, err := i.i.Reader()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if cerr := indexReader.Close(); err == nil && cerr != nil {
+			err = cerr
+		}
+	}()
+
+	irc, ok := indexReader.(IndexCopyable)
+	if !ok {
+		return fmt.Errorf("index implementation does not support copy")
+	}
+
+	err = irc.CopyTo(d)
+	if err != nil {
+		return fmt.Errorf("error copying index metadata: %v", err)
+	}
+
+	// copy the metadata
+	return i.meta.CopyTo(d)
+}
+
+func (f FileSystemDirectory) GetWriter(filePath string) (io.WriteCloser,
+	error) {
+	dir, file := filepath.Split(filePath)
+	if dir != "" {
+		err := os.MkdirAll(filepath.Join(string(f), dir), os.ModePerm)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return os.OpenFile(filepath.Join(string(f), dir, file),
+		os.O_RDWR|os.O_CREATE, 0600)
 }

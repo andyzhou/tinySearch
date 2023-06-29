@@ -16,11 +16,12 @@ package bleve
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/blevesearch/bleve/v2/index/upsidedown"
+	index "github.com/blevesearch/bleve_index_api"
 )
 
 const metaFilename = "index_meta.json"
@@ -44,7 +45,7 @@ func openIndexMeta(path string) (*indexMeta, error) {
 		return nil, ErrorIndexPathDoesNotExist
 	}
 	indexMetaPath := indexMetaPath(path)
-	metaBytes, err := ioutil.ReadFile(indexMetaPath)
+	metaBytes, err := os.ReadFile(indexMetaPath)
 	if err != nil {
 		return nil, ErrorIndexMetaMissing
 	}
@@ -90,6 +91,23 @@ func (i *indexMeta) Save(path string) (err error) {
 		return err
 	}
 	return nil
+}
+
+func (i *indexMeta) CopyTo(d index.Directory) (err error) {
+	metaBytes, err := json.Marshal(i)
+	if err != nil {
+		return err
+	}
+
+	w, err := d.GetWriter(metaFilename)
+	if w == nil || err != nil {
+		return fmt.Errorf("invalid writer for file: %s, err: %v",
+			metaFilename, err)
+	}
+	defer w.Close()
+
+	_, err = w.Write(metaBytes)
+	return err
 }
 
 func indexMetaPath(path string) string {

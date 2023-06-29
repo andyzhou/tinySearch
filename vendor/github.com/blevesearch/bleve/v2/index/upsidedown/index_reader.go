@@ -15,6 +15,7 @@
 package upsidedown
 
 import (
+	"context"
 	"reflect"
 
 	"github.com/blevesearch/bleve/v2/document"
@@ -35,7 +36,7 @@ type IndexReader struct {
 	docCount uint64
 }
 
-func (i *IndexReader) TermFieldReader(term []byte, fieldName string, includeFreq, includeNorm, includeTermVectors bool) (index.TermFieldReader, error) {
+func (i *IndexReader) TermFieldReader(ctx context.Context, term []byte, fieldName string, includeFreq, includeNorm, includeTermVectors bool) (index.TermFieldReader, error) {
 	fieldIndex, fieldExists := i.index.fieldCache.FieldNamed(fieldName, false)
 	if fieldExists {
 		return newUpsideDownCouchTermFieldReader(i, term, uint16(fieldIndex), includeFreq, includeNorm, includeTermVectors)
@@ -123,16 +124,16 @@ func (i *IndexReader) documentVisitFieldTerms(id index.IndexInternalID, fields [
 	}
 
 	keyBuf := GetRowBuffer()
-	if tempRow.KeySize() > len(keyBuf) {
-		keyBuf = make([]byte, 2*tempRow.KeySize())
+	if tempRow.KeySize() > len(keyBuf.buf) {
+		keyBuf.buf = make([]byte, 2*tempRow.KeySize())
 	}
 	defer PutRowBuffer(keyBuf)
-	keySize, err := tempRow.KeyTo(keyBuf)
+	keySize, err := tempRow.KeyTo(keyBuf.buf)
 	if err != nil {
 		return err
 	}
 
-	value, err := i.kvreader.Get(keyBuf[:keySize])
+	value, err := i.kvreader.Get(keyBuf.buf[:keySize])
 	if err != nil {
 		return err
 	}
@@ -223,3 +224,5 @@ func (dvr *DocValueReader) VisitDocValues(id index.IndexInternalID,
 	visitor index.DocValueVisitor) error {
 	return dvr.i.documentVisitFieldTerms(id, dvr.fields, visitor)
 }
+
+func (dvr *DocValueReader) BytesRead() uint64 { return 0 }

@@ -16,10 +16,12 @@ package scorch
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"reflect"
 	"sync/atomic"
 
+	"github.com/blevesearch/bleve/v2/search"
 	"github.com/blevesearch/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 	segment "github.com/blevesearch/scorch_segment_api/v2"
@@ -46,6 +48,12 @@ type IndexSnapshotTermFieldReader struct {
 	currPosting        segment.Posting
 	currID             index.IndexInternalID
 	recycle            bool
+	bytesRead          uint64
+	ctx                context.Context
+}
+
+func (i *IndexSnapshotTermFieldReader) incrementBytesRead(val uint64) {
+	i.bytesRead += val
 }
 
 func (i *IndexSnapshotTermFieldReader) Size() int {
@@ -76,6 +84,7 @@ func (i *IndexSnapshotTermFieldReader) Next(preAlloced *index.TermFieldDoc) (*in
 	}
 	// find the next hit
 	for i.segmentOffset < len(i.iterators) {
+		prevBytesRead := i.iterators[i.segmentOffset].BytesRead()
 		next, err := i.iterators[i.segmentOffset].Next()
 		if err != nil {
 			return nil, err
@@ -89,6 +98,14 @@ func (i *IndexSnapshotTermFieldReader) Next(preAlloced *index.TermFieldDoc) (*in
 
 			i.currID = rv.ID
 			i.currPosting = next
+			// postingsIterators is maintain the bytesRead stat in a cumulative fashion.
+			// this is because there are chances of having a series of loadChunk calls,
+			// and they have to be added together before sending the bytesRead at this point
+			// upstream.
+			if delta := i.iterators[i.segmentOffset].BytesRead() - prevBytesRead; delta > 0 {
+				i.incrementBytesRead(delta)
+			}
+
 			return rv, nil
 		}
 		i.segmentOffset++
@@ -129,7 +146,7 @@ func (i *IndexSnapshotTermFieldReader) Advance(ID index.IndexInternalID, preAllo
 	// FIXME do something better
 	// for now, if we need to seek backwards, then restart from the beginning
 	if i.currPosting != nil && bytes.Compare(i.currID, ID) >= 0 {
-		i2, err := i.snapshot.TermFieldReader(i.term, i.field,
+		i2, err := i.snapshot.TermFieldReader(nil, i.term, i.field,
 			i.includeFreq, i.includeNorm, i.includeTermVectors)
 		if err != nil {
 			return nil, err
@@ -180,6 +197,15 @@ func (i *IndexSnapshotTermFieldReader) Count() uint64 {
 }
 
 func (i *IndexSnapshotTermFieldReader) Close() error {
+	if i.ctx != nil {
+		statsCallbackFn := i.ctx.Value(search.SearchIOStatsCallbackKey)
+		if statsCallbackFn != nil {
+			// essentially before you close the TFR, you must report this
+			// reader's bytesRead value
+			statsCallbackFn.(search.SearchIOStatsCallbackFunc)(i.bytesRead)
+		}
+	}
+
 	if i.snapshot != nil {
 		atomic.AddUint64(&i.snapshot.parent.stats.TotTermSearchersFinished, uint64(1))
 		i.snapshot.recycleTermFieldReader(i)

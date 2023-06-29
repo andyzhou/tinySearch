@@ -19,6 +19,7 @@ import (
 	"encoding/binary"
 	"io"
 	"reflect"
+	"sync/atomic"
 
 	"github.com/golang/snappy"
 )
@@ -30,24 +31,27 @@ func init() {
 	reflectStaticSizeMetaData = int(reflect.TypeOf(md).Size())
 }
 
-var termSeparator byte = 0xff
-var termSeparatorSplitSlice = []byte{termSeparator}
+var (
+	termSeparator           byte = 0xff
+	termSeparatorSplitSlice      = []byte{termSeparator}
+)
 
 type chunkedContentCoder struct {
+	bytesWritten uint64 // atomic access to this variable, moved to top to correct alignment issues on ARM, 386 and 32-bit MIPS.
+
 	final     []byte
 	chunkSize uint64
 	currChunk uint64
 	chunkLens []uint64
 
+	compressed []byte // temp buf for snappy compression
+
 	w                io.Writer
 	progressiveWrite bool
 
+	chunkMeta    []MetaData
 	chunkMetaBuf bytes.Buffer
 	chunkBuf     bytes.Buffer
-
-	chunkMeta []MetaData
-
-	compressed []byte // temp buf for snappy compression
 }
 
 // MetaData represents the data information inside a
@@ -60,7 +64,8 @@ type MetaData struct {
 // newChunkedContentCoder returns a new chunk content coder which
 // packs data into chunks based on the provided chunkSize
 func newChunkedContentCoder(chunkSize uint64, maxDocNum uint64,
-	w io.Writer, progressiveWrite bool) *chunkedContentCoder {
+	w io.Writer, progressiveWrite bool,
+) *chunkedContentCoder {
 	total := maxDocNum/chunkSize + 1
 	rv := &chunkedContentCoder{
 		chunkSize:        chunkSize,
@@ -77,6 +82,7 @@ func newChunkedContentCoder(chunkSize uint64, maxDocNum uint64,
 // and re used. You cannot change the chunk size.
 func (c *chunkedContentCoder) Reset() {
 	c.currChunk = 0
+	c.bytesWritten = 0
 	c.final = c.final[:0]
 	c.chunkBuf.Reset()
 	c.chunkMetaBuf.Reset()
@@ -105,6 +111,14 @@ func (c *chunkedContentCoder) Close() error {
 	return c.flushContents()
 }
 
+func (c *chunkedContentCoder) incrementBytesWritten(val uint64) {
+	atomic.AddUint64(&c.bytesWritten, val)
+}
+
+func (c *chunkedContentCoder) getBytesWritten() uint64 {
+	return atomic.LoadUint64(&c.bytesWritten)
+}
+
 func (c *chunkedContentCoder) flushContents() error {
 	// flush the contents, with meta information at first
 	buf := make([]byte, binary.MaxVarintLen64)
@@ -127,6 +141,7 @@ func (c *chunkedContentCoder) flushContents() error {
 	c.final = append(c.final, c.chunkMetaBuf.Bytes()...)
 	// write the compressed data to the final data
 	c.compressed = snappy.Encode(c.compressed[:cap(c.compressed)], c.chunkBuf.Bytes())
+	c.incrementBytesWritten(uint64(len(c.compressed)))
 	c.final = append(c.final, c.compressed...)
 
 	c.chunkLens[c.currChunk] = uint64(len(c.compressed) + len(metaData))
@@ -177,7 +192,6 @@ func (c *chunkedContentCoder) Add(docNum uint64, vals []byte) error {
 //
 // | ..... data ..... | chunk offsets (varints)
 // | position of chunk offsets (uint64) | number of offsets (uint64) |
-//
 func (c *chunkedContentCoder) Write() (int, error) {
 	var tw int
 

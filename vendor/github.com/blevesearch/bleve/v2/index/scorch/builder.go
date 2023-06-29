@@ -16,7 +16,6 @@ package scorch
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"sync"
 
@@ -49,7 +48,7 @@ func NewBuilder(config map[string]interface{}) (*Builder, error) {
 	}
 
 	buildPathPrefix, _ := config["buildPathPrefix"].(string)
-	buildPath, err := ioutil.TempDir(buildPathPrefix, "scorch-offline-build")
+	buildPath, err := os.MkdirTemp(buildPathPrefix, "scorch-offline-build")
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +139,7 @@ func (o *Builder) executeBatchLOCKED(batch *index.Batch) (err error) {
 			// insert _id field
 			doc.AddIDField()
 			// perform analysis directly
-			analyze(doc)
+			analyze(doc, nil)
 			analysisResults = append(analysisResults, doc)
 		}
 	}
@@ -304,7 +303,7 @@ func (o *Builder) Close() error {
 	}
 
 	// fill the root bolt with this fake index snapshot
-	_, _, err = prepareBoltSnapshot(is, tx, o.path, o.segPlugin)
+	_, _, err = prepareBoltSnapshot(is, tx, o.path, o.segPlugin, nil)
 	if err != nil {
 		_ = tx.Rollback()
 		_ = rootBolt.Close()

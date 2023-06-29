@@ -108,6 +108,8 @@ type PostingsList struct {
 	normBits1Hit uint64
 
 	chunkSize uint64
+
+	bytesRead uint64
 }
 
 // represents an immutable, empty postings list
@@ -208,11 +210,13 @@ func (p *PostingsList) iterator(includeFreq, includeNorm, includeLocs bool,
 	// initialize freq chunk reader
 	if rv.includeFreqNorm {
 		rv.freqNormReader = newChunkedIntDecoder(p.sb.mem, p.freqOffset, rv.freqNormReader)
+		rv.incrementBytesRead(rv.freqNormReader.getBytesRead())
 	}
 
 	// initialize the loc chunk reader
 	if rv.includeLocs {
 		rv.locReader = newChunkedIntDecoder(p.sb.mem, p.locOffset, rv.locReader)
+		rv.incrementBytesRead(rv.locReader.getBytesRead())
 	}
 
 	rv.all = p.postings.Iterator()
@@ -244,6 +248,26 @@ func (p *PostingsList) Count() uint64 {
 	return n - e
 }
 
+// Implements the segment.DiskStatsReporter interface
+// The purpose of this implementation is to get
+// the bytes read from the postings lists stored
+// on disk, while querying
+func (p *PostingsList) ResetBytesRead(val uint64) {
+	p.bytesRead = val
+}
+
+func (p *PostingsList) BytesRead() uint64 {
+	return p.bytesRead
+}
+
+func (p *PostingsList) incrementBytesRead(val uint64) {
+	p.bytesRead += val
+}
+
+func (p *PostingsList) BytesWritten() uint64 {
+	return 0
+}
+
 func (rv *PostingsList) read(postingsOffset uint64, d *Dictionary) error {
 	rv.postingsOffset = postingsOffset
 
@@ -268,6 +292,8 @@ func (rv *PostingsList) read(postingsOffset uint64, d *Dictionary) error {
 
 	roaringBytes := d.sb.mem[postingsOffset+n : postingsOffset+n+postingsLen]
 
+	rv.incrementBytesRead(n + postingsLen)
+
 	if rv.postings == nil {
 		rv.postings = roaring.NewBitmap()
 	}
@@ -276,11 +302,16 @@ func (rv *PostingsList) read(postingsOffset uint64, d *Dictionary) error {
 		return fmt.Errorf("error loading roaring bitmap: %v", err)
 	}
 
-	rv.chunkSize, err = getChunkSize(d.sb.chunkMode,
+	chunkSize, err := getChunkSize(d.sb.chunkMode,
 		rv.postings.GetCardinality(), d.sb.numDocs)
 	if err != nil {
 		return err
+	} else if chunkSize == 0 {
+		return fmt.Errorf("chunk size is zero, chunkMode: %v, numDocs: %v",
+			d.sb.chunkMode, d.sb.numDocs)
 	}
+
+	rv.chunkSize = chunkSize
 
 	return nil
 }
@@ -316,6 +347,8 @@ type PostingsIterator struct {
 
 	includeFreqNorm bool
 	includeLocs     bool
+
+	bytesRead uint64
 }
 
 var emptyPostingsIterator = &PostingsIterator{}
@@ -331,12 +364,39 @@ func (i *PostingsIterator) Size() int {
 	return sizeInBytes
 }
 
+// Implements the segment.DiskStatsReporter interface
+// The purpose of this implementation is to get
+// the bytes read from the disk which includes
+// the freqNorm and location specific information
+// of a hit
+func (i *PostingsIterator) ResetBytesRead(val uint64) {
+	i.bytesRead = val
+}
+
+func (i *PostingsIterator) BytesRead() uint64 {
+	return i.bytesRead
+}
+
+func (i *PostingsIterator) incrementBytesRead(val uint64) {
+	i.bytesRead += val
+}
+
+func (i *PostingsIterator) BytesWritten() uint64 {
+	return 0
+}
+
 func (i *PostingsIterator) loadChunk(chunk int) error {
 	if i.includeFreqNorm {
 		err := i.freqNormReader.loadChunk(chunk)
 		if err != nil {
 			return err
 		}
+
+		// assign the bytes read at this point, since
+		// the postingsIterator is tracking only the chunk loaded
+		// and the cumulation is tracked correctly in the downstream
+		// intDecoder
+		i.ResetBytesRead(i.freqNormReader.getBytesRead())
 	}
 
 	if i.includeLocs {
@@ -344,6 +404,7 @@ func (i *PostingsIterator) loadChunk(chunk int) error {
 		if err != nil {
 			return err
 		}
+		i.ResetBytesRead(i.locReader.getBytesRead())
 	}
 
 	i.currChunk = uint32(chunk)
@@ -562,13 +623,18 @@ func (i *PostingsIterator) nextDocNumAtOrAfter(atOrAfter uint64) (uint64, bool, 
 		return 0, false, nil
 	}
 
-	if i.postings == nil || i.postings.postings == i.ActualBM {
+	if i.postings == nil || i.postings == emptyPostingsList {
+		// couldn't find anything
+		return 0, false, nil
+	}
+
+	if i.postings.postings == i.ActualBM {
 		return i.nextDocNumAtOrAfterClean(atOrAfter)
 	}
 
 	i.Actual.AdvanceIfNeeded(uint32(atOrAfter))
 
-	if !i.Actual.HasNext() {
+	if !i.Actual.HasNext() || !i.all.HasNext() {
 		// couldn't find anything
 		return 0, false, nil
 	}
@@ -590,6 +656,10 @@ func (i *PostingsIterator) nextDocNumAtOrAfter(atOrAfter uint64) (uint64, bool, 
 			if err != nil {
 				return 0, false, err
 			}
+		}
+
+		if !i.all.HasNext() {
+			return 0, false, nil
 		}
 
 		allN = i.all.Next()

@@ -27,6 +27,8 @@ type Document interface {
 	NumPlainTextBytes() uint64
 
 	AddIDField()
+
+	StoredFieldsBytes() uint64
 }
 
 type FieldVisitor func(Field)
@@ -75,4 +77,17 @@ type BooleanField interface {
 type GeoPointField interface {
 	Lon() (float64, error)
 	Lat() (float64, error)
+}
+
+type GeoShapeField interface {
+	GeoShape() (GeoJSON, error)
+}
+
+// TokenizableSpatialField is an optional interface for fields that
+// supports pluggable custom hierarchial spatial token generation.
+type TokenizableSpatialField interface {
+	// SetSpatialAnalyzerPlugin lets the index implementations to
+	// initialise relevant spatial analyzer plugins for the field
+	// to override the spatial token generations during the analysis phase.
+	SetSpatialAnalyzerPlugin(SpatialAnalyzerPlugin)
 }

@@ -16,6 +16,7 @@ package index
 
 import (
 	"bytes"
+	"context"
 	"reflect"
 )
 
@@ -48,7 +49,7 @@ type Index interface {
 }
 
 type IndexReader interface {
-	TermFieldReader(term []byte, field string, includeFreq, includeNorm, includeTermVectors bool) (TermFieldReader, error)
+	TermFieldReader(ctx context.Context, term []byte, field string, includeFreq, includeNorm, includeTermVectors bool) (TermFieldReader, error)
 
 	// DocIDReader returns an iterator over all doc ids
 	// The caller must close returned instance to release associated resources.
@@ -88,6 +89,14 @@ type IndexReaderFuzzy interface {
 
 type IndexReaderContains interface {
 	FieldDictContains(field string) (FieldDictContains, error)
+}
+
+// SpatialIndexPlugin is an optional interface for exposing the
+// support for any custom analyzer plugins that are capable of
+// generating hierarchial spatial tokens for both indexing and
+// query purposes from the geo location data.
+type SpatialIndexPlugin interface {
+	GetSpatialAnalyzerPlugin(typ string) (SpatialAnalyzerPlugin, error)
 }
 
 type TermFieldVector struct {
@@ -174,10 +183,14 @@ type DictEntry struct {
 type FieldDict interface {
 	Next() (*DictEntry, error)
 	Close() error
+
+	BytesRead() uint64
 }
 
 type FieldDictContains interface {
 	Contains(key []byte) (bool, error)
+
+	BytesRead() uint64
 }
 
 // DocIDReader is the interface exposing enumeration of documents identifiers.
@@ -202,6 +215,8 @@ type DocValueVisitor func(field string, term []byte)
 
 type DocValueReader interface {
 	VisitDocValues(id IndexInternalID, visitor DocValueVisitor) error
+
+	BytesRead() uint64
 }
 
 // IndexBuilder is an interface supported by some index schemes

@@ -112,14 +112,15 @@ func (f *Agg) GetAggList(
 			}
 		}else{
 			//term
-			for _, v := range facetResult.Terms {
-				//format final query for agg
-				aggJson := json.NewAggregateJson()
-				aggJson.Name = v.Term
-				aggJson.Count = v.Count
-
-				//add into slice
-				result.AddObj(facetName, aggJson)
+			if facetResult.Terms != nil {
+				for _, v := range facetResult.Terms.Terms() {
+					//format final query for agg
+					aggJson := json.NewAggregateJson()
+					aggJson.Name = v.Term
+					aggJson.Count = v.Count
+					//add into slice
+					result.AddObj(facetName, aggJson)
+				}
 			}
 		}
 	}

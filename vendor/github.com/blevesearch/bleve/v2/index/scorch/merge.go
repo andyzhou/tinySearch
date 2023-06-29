@@ -29,12 +29,22 @@ import (
 )
 
 func (s *Scorch) mergerLoop() {
+	defer func() {
+		if r := recover(); r != nil {
+			s.fireAsyncError(&AsyncPanicError{
+				Source: "merger",
+				Path:   s.path,
+			})
+		}
+
+		s.asyncTasks.Done()
+	}()
+
 	var lastEpochMergePlanned uint64
 	var ctrlMsg *mergerCtrl
 	mergePlannerOptions, err := s.parseMergePlannerOptions()
 	if err != nil {
 		s.fireAsyncError(fmt.Errorf("mergePlannerOption json parsing err: %v", err))
-		s.asyncTasks.Done()
 		return
 	}
 	ctrlMsgDflt := &mergerCtrl{ctx: context.Background(),
@@ -130,8 +140,6 @@ OUTER:
 
 		atomic.AddUint64(&s.stats.TotFileMergeLoopEnd, 1)
 	}
-
-	s.asyncTasks.Done()
 }
 
 type mergerCtrl struct {
@@ -209,32 +217,32 @@ func (s *Scorch) parseMergePlannerOptions() (*mergeplan.MergePlanOptions,
 }
 
 type closeChWrapper struct {
-	ch1     chan struct{}
-	ctx     context.Context
-	closeCh chan struct{}
+	ch1      chan struct{}
+	ctx      context.Context
+	closeCh  chan struct{}
+	cancelCh chan struct{}
 }
 
 func newCloseChWrapper(ch1 chan struct{},
 	ctx context.Context) *closeChWrapper {
-	return &closeChWrapper{ch1: ch1,
-		ctx:     ctx,
-		closeCh: make(chan struct{})}
+	return &closeChWrapper{
+		ch1:      ch1,
+		ctx:      ctx,
+		closeCh:  make(chan struct{}),
+		cancelCh: make(chan struct{}),
+	}
 }
 
 func (w *closeChWrapper) close() {
-	select {
-	case <-w.closeCh:
-	default:
-		close(w.closeCh)
-	}
+	close(w.closeCh)
 }
 
 func (w *closeChWrapper) listen() {
 	select {
 	case <-w.ch1:
-		w.close()
+		close(w.cancelCh)
 	case <-w.ctx.Done():
-		w.close()
+		close(w.cancelCh)
 	case <-w.closeCh:
 	}
 }
@@ -319,8 +327,9 @@ func (s *Scorch) planMergeAtSnapshot(ctx context.Context,
 			fileMergeZapStartTime := time.Now()
 
 			atomic.AddUint64(&s.stats.TotFileMergeZapBeg, 1)
+			prevBytesReadTotal := cumulateBytesRead(segmentsToMerge)
 			newDocNums, _, err := s.segPlugin.Merge(segmentsToMerge, docsToDrop, path,
-				cw.closeCh, s)
+				cw.cancelCh, s)
 			atomic.AddUint64(&s.stats.TotFileMergeZapEnd, 1)
 
 			fileMergeZapTime := uint64(time.Since(fileMergeZapStartTime))
@@ -344,6 +353,10 @@ func (s *Scorch) planMergeAtSnapshot(ctx context.Context,
 				atomic.AddUint64(&s.stats.TotFileMergePlanTasksErr, 1)
 				return err
 			}
+
+			totalBytesRead := seg.BytesRead() + prevBytesReadTotal
+			seg.ResetBytesRead(totalBytesRead)
+
 			oldNewDocNums = make(map[uint64][]uint64)
 			for i, segNewDocNums := range newDocNums {
 				oldNewDocNums[task.Segments[i].Id()] = segNewDocNums
@@ -358,6 +371,7 @@ func (s *Scorch) planMergeAtSnapshot(ctx context.Context,
 			oldNewDocNums: oldNewDocNums,
 			new:           seg,
 			notifyCh:      make(chan *mergeTaskIntroStatus),
+			mmaped:        1,
 		}
 
 		s.fireEvent(EventKindMergeTaskIntroductionStart, 0)
@@ -416,6 +430,15 @@ type segmentMerge struct {
 	oldNewDocNums map[uint64][]uint64
 	new           segment.Segment
 	notifyCh      chan *mergeTaskIntroStatus
+	mmaped        uint32
+}
+
+func cumulateBytesRead(sbs []segment.Segment) uint64 {
+	var rv uint64
+	for _, seg := range sbs {
+		rv += seg.BytesRead()
+	}
+	return rv
 }
 
 // perform a merging of the given SegmentBase instances into a new,

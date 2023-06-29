@@ -17,8 +17,10 @@ package mapping
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"time"
 
+	"github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
 	index "github.com/blevesearch/bleve_index_api"
 
 	"github.com/blevesearch/bleve/v2/analysis"
@@ -89,6 +91,19 @@ func newTextFieldMappingDynamic(im *IndexMappingImpl) *FieldMapping {
 	return rv
 }
 
+// NewKeyworFieldMapping returns a default field mapping for text with analyzer "keyword".
+func NewKeywordFieldMapping() *FieldMapping {
+	return &FieldMapping{
+		Type:               "text",
+		Analyzer:           keyword.Name,
+		Store:              true,
+		Index:              true,
+		IncludeTermVectors: true,
+		IncludeInAll:       true,
+		DocValues:          true,
+	}
+}
+
 // NewNumericFieldMapping returns a default field mapping for numbers
 func NewNumericFieldMapping() *FieldMapping {
 	return &FieldMapping{
@@ -157,6 +172,28 @@ func NewGeoPointFieldMapping() *FieldMapping {
 	}
 }
 
+// NewGeoShapeFieldMapping returns a default field mapping
+// for geoshapes
+func NewGeoShapeFieldMapping() *FieldMapping {
+	return &FieldMapping{
+		Type:         "geoshape",
+		Store:        true,
+		Index:        true,
+		IncludeInAll: true,
+		DocValues:    true,
+	}
+}
+
+// NewIPFieldMapping returns a default field mapping for IP points
+func NewIPFieldMapping() *FieldMapping {
+	return &FieldMapping{
+		Type:         "IP",
+		Store:        true,
+		Index:        true,
+		IncludeInAll: true,
+	}
+}
+
 // Options returns the indexing options for this field.
 func (fm *FieldMapping) Options() index.FieldIndexingOptions {
 	var rv index.FieldIndexingOptions
@@ -200,6 +237,11 @@ func (fm *FieldMapping) processString(propertyValueString string, pathString str
 			if err == nil {
 				fm.processTime(parsedDateTime, pathString, path, indexes, context)
 			}
+		}
+	} else if fm.Type == "IP" {
+		ip := net.ParseIP(propertyValueString)
+		if ip != nil {
+			fm.processIP(ip, pathString, path, indexes, context)
 		}
 	}
 }
@@ -261,7 +303,67 @@ func (fm *FieldMapping) processGeoPoint(propertyMightBeGeoPoint interface{}, pat
 	}
 }
 
-func (fm *FieldMapping) analyzerForField(path []string, context *walkContext) *analysis.Analyzer {
+func (fm *FieldMapping) processIP(ip net.IP, pathString string, path []string, indexes []uint64, context *walkContext) {
+	fieldName := getFieldName(pathString, path, fm)
+	options := fm.Options()
+	field := document.NewIPFieldWithIndexingOptions(fieldName, indexes, ip, options)
+	context.doc.AddField(field)
+
+	if !fm.IncludeInAll {
+		context.excludedFromAll = append(context.excludedFromAll, fieldName)
+	}
+}
+
+func (fm *FieldMapping) processGeoShape(propertyMightBeGeoShape interface{},
+	pathString string, path []string, indexes []uint64, context *walkContext) {
+	coordValue, shape, err := geo.ParseGeoShapeField(propertyMightBeGeoShape)
+	if err != nil {
+		return
+	}
+
+	if shape == geo.CircleType {
+		center, radius, found := geo.ExtractCircle(propertyMightBeGeoShape)
+		if found {
+			fieldName := getFieldName(pathString, path, fm)
+			options := fm.Options()
+			field := document.NewGeoCircleFieldWithIndexingOptions(fieldName,
+				indexes, center, radius, options)
+			context.doc.AddField(field)
+
+			if !fm.IncludeInAll {
+				context.excludedFromAll = append(context.excludedFromAll, fieldName)
+			}
+		}
+	} else if shape == geo.GeometryCollectionType {
+		coordinates, shapes, found := geo.ExtractGeometryCollection(propertyMightBeGeoShape)
+		if found {
+			fieldName := getFieldName(pathString, path, fm)
+			options := fm.Options()
+			field := document.NewGeometryCollectionFieldWithIndexingOptions(fieldName,
+				indexes, coordinates, shapes, options)
+			context.doc.AddField(field)
+
+			if !fm.IncludeInAll {
+				context.excludedFromAll = append(context.excludedFromAll, fieldName)
+			}
+		}
+	} else {
+		coordinates, shape, found := geo.ExtractGeoShapeCoordinates(coordValue, shape)
+		if found {
+			fieldName := getFieldName(pathString, path, fm)
+			options := fm.Options()
+			field := document.NewGeoShapeFieldWithIndexingOptions(fieldName,
+				indexes, coordinates, shape, options)
+			context.doc.AddField(field)
+
+			if !fm.IncludeInAll {
+				context.excludedFromAll = append(context.excludedFromAll, fieldName)
+			}
+		}
+	}
+}
+
+func (fm *FieldMapping) analyzerForField(path []string, context *walkContext) analysis.Analyzer {
 	analyzerName := fm.Analyzer
 	if analyzerName == "" {
 		analyzerName = context.dm.defaultAnalyzerName(path)

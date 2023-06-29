@@ -17,7 +17,6 @@ package scorch
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"sync"
 	"sync/atomic"
@@ -57,22 +56,37 @@ type Scorch struct {
 	eligibleForRemoval   []uint64        // Index snapshot epochs that are safe to GC.
 	ineligibleForRemoval map[string]bool // Filenames that should not be GC'ed yet.
 
-	numSnapshotsToKeep int
-	closeCh            chan struct{}
-	introductions      chan *segmentIntroduction
-	persists           chan *persistIntroduction
-	merges             chan *segmentMerge
-	introducerNotifier chan *epochWatcher
-	persisterNotifier  chan *epochWatcher
-	rootBolt           *bolt.DB
-	asyncTasks         sync.WaitGroup
+	numSnapshotsToKeep       int
+	rollbackRetentionFactor  float64
+	checkPoints              []*snapshotMetaData
+	rollbackSamplingInterval time.Duration
+	closeCh                  chan struct{}
+	introductions            chan *segmentIntroduction
+	persists                 chan *persistIntroduction
+	merges                   chan *segmentMerge
+	introducerNotifier       chan *epochWatcher
+	persisterNotifier        chan *epochWatcher
+	rootBolt                 *bolt.DB
+	asyncTasks               sync.WaitGroup
 
 	onEvent      func(event Event)
-	onAsyncError func(err error)
+	onAsyncError func(err error, path string)
 
 	forceMergeRequestCh chan *mergerCtrl
 
 	segPlugin SegmentPlugin
+
+	spatialPlugin index.SpatialAnalyzerPlugin
+}
+
+// AsyncPanicError is passed to scorch asyncErrorHandler when panic occurs in scorch background process
+type AsyncPanicError struct {
+	Source string
+	Path   string
+}
+
+func (e *AsyncPanicError) Error() string {
+	return fmt.Sprintf("%s panic when processing %s", e.Source, e.Path)
 }
 
 type internalStats struct {
@@ -112,6 +126,11 @@ func NewScorch(storeName string,
 		}
 	}
 
+	typ, ok := config["spatialPlugin"].(string)
+	if ok {
+		rv.loadSpatialAnalyzerPlugin(typ)
+	}
+
 	rv.root = &IndexSnapshot{parent: rv, refs: 1, creator: "NewScorch"}
 	ro, ok := config["read_only"].(bool)
 	if ok {
@@ -129,6 +148,7 @@ func NewScorch(storeName string,
 	if ok {
 		rv.onAsyncError = RegistryAsyncErrorCallbacks[aecbName]
 	}
+
 	return rv, nil
 }
 
@@ -165,7 +185,7 @@ func (s *Scorch) fireEvent(kind EventKind, dur time.Duration) {
 
 func (s *Scorch) fireAsyncError(err error) {
 	if s.onAsyncError != nil {
-		s.onAsyncError(err)
+		s.onAsyncError(err, s.path)
 	}
 	atomic.AddUint64(&s.stats.TotOnErrors, 1)
 }
@@ -202,6 +222,15 @@ func (s *Scorch) openBolt() error {
 	var rootBoltOpt = *bolt.DefaultOptions
 	if s.readOnly {
 		rootBoltOpt.ReadOnly = true
+		rootBoltOpt.OpenFile = func(path string, flag int, mode os.FileMode) (*os.File, error) {
+			// Bolt appends an O_CREATE flag regardless.
+			// See - https://github.com/etcd-io/bbolt/blob/v1.3.5/db.go#L210
+			// Use os.O_RDONLY only if path exists (#1623)
+			if _, err := os.Stat(path); os.IsNotExist(err) {
+				return os.OpenFile(path, flag, mode)
+			}
+			return os.OpenFile(path, os.O_RDONLY, mode)
+		}
 	} else {
 		if s.path != "" {
 			err := os.MkdirAll(s.path, 0700)
@@ -263,6 +292,29 @@ func (s *Scorch) openBolt() error {
 		if t > 0 {
 			s.numSnapshotsToKeep = t
 		}
+	}
+
+	s.rollbackSamplingInterval = RollbackSamplingInterval
+	if v, ok := s.config["rollbackSamplingInterval"]; ok {
+		var t time.Duration
+		if t, err = parseToTimeDuration(v); err != nil {
+			return fmt.Errorf("rollbackSamplingInterval parse err: %v", err)
+		}
+		s.rollbackSamplingInterval = t
+	}
+
+	s.rollbackRetentionFactor = RollbackRetentionFactor
+	if v, ok := s.config["rollbackRetentionFactor"]; ok {
+		var r float64
+		if r, ok = v.(float64); ok {
+			return fmt.Errorf("rollbackRetentionFactor parse err: %v", err)
+		}
+		s.rollbackRetentionFactor = r
+	}
+
+	typ, ok := s.config["spatialPlugin"].(string)
+	if ok {
+		s.loadSpatialAnalyzerPlugin(typ)
 	}
 
 	return nil
@@ -344,7 +396,7 @@ func (s *Scorch) Batch(batch *index.Batch) (err error) {
 				if doc != nil {
 					// put the work on the queue
 					s.analysisQueue.Queue(func() {
-						analyze(doc)
+						analyze(doc, s.setSpatialAnalyzerPlugin)
 						resultChan <- doc
 					})
 				}
@@ -380,6 +432,10 @@ func (s *Scorch) Batch(batch *index.Batch) (err error) {
 		newSegment, bufBytes, err = s.segPlugin.New(analysisResults)
 		if err != nil {
 			return err
+		}
+		if segB, ok := newSegment.(segment.DiskStatsReporter); ok {
+			atomic.AddUint64(&s.stats.TotBytesWrittenAtIndexTime,
+				segB.BytesWritten())
 		}
 		atomic.AddUint64(&s.iStats.newSegBufBytesAdded, bufBytes)
 	} else {
@@ -494,20 +550,26 @@ func (s *Scorch) Stats() json.Marshaler {
 	return &s.stats
 }
 
+func (s *Scorch) BytesReadQueryTime() uint64 {
+	return s.stats.TotBytesReadAtQueryTime
+}
+
 func (s *Scorch) diskFileStats(rootSegmentPaths map[string]struct{}) (uint64,
 	uint64, uint64) {
 	var numFilesOnDisk, numBytesUsedDisk, numBytesOnDiskByRoot uint64
 	if s.path != "" {
-		finfos, err := ioutil.ReadDir(s.path)
+		files, err := os.ReadDir(s.path)
 		if err == nil {
-			for _, finfo := range finfos {
-				if !finfo.IsDir() {
-					numBytesUsedDisk += uint64(finfo.Size())
-					numFilesOnDisk++
-					if rootSegmentPaths != nil {
-						fname := s.path + string(os.PathSeparator) + finfo.Name()
-						if _, fileAtRoot := rootSegmentPaths[fname]; fileAtRoot {
-							numBytesOnDiskByRoot += uint64(finfo.Size())
+			for _, f := range files {
+				if !f.IsDir() {
+					if finfo, err := f.Info(); err == nil {
+						numBytesUsedDisk += uint64(finfo.Size())
+						numFilesOnDisk++
+						if rootSegmentPaths != nil {
+							fname := s.path + string(os.PathSeparator) + finfo.Name()
+							if _, fileAtRoot := rootSegmentPaths[fname]; fileAtRoot {
+								numBytesOnDiskByRoot += uint64(finfo.Size())
+							}
 						}
 					}
 				}
@@ -551,7 +613,9 @@ func (s *Scorch) StatsMap() map[string]interface{} {
 	m["index_time"] = m["TotIndexTime"]
 	m["term_searchers_started"] = m["TotTermSearchersStarted"]
 	m["term_searchers_finished"] = m["TotTermSearchersFinished"]
+	m["num_bytes_read_at_query_time"] = m["TotBytesReadAtQueryTime"]
 	m["num_plain_text_bytes_indexed"] = m["TotIndexedPlainTextBytes"]
+	m["num_bytes_written_at_index_time"] = m["TotBytesWrittenAtIndexTime"]
 	m["num_items_introduced"] = m["TotIntroducedItems"]
 	m["num_items_persisted"] = m["TotPersistedItems"]
 	m["num_recs_to_persist"] = m["TotItemsToPersist"]
@@ -574,12 +638,29 @@ func (s *Scorch) StatsMap() map[string]interface{} {
 }
 
 func (s *Scorch) Analyze(d index.Document) {
-	analyze(d)
+	analyze(d, s.setSpatialAnalyzerPlugin)
 }
 
-func analyze(d index.Document) {
+type customAnalyzerPluginInitFunc func(field index.Field)
+
+func (s *Scorch) setSpatialAnalyzerPlugin(f index.Field) {
+	if s.segPlugin != nil {
+		// check whether the current field is a custom tokenizable
+		// spatial field then set the spatial analyser plugin for
+		// overriding the tokenisation during the analysis stage.
+		if sf, ok := f.(index.TokenizableSpatialField); ok {
+			sf.SetSpatialAnalyzerPlugin(s.spatialPlugin)
+		}
+	}
+}
+
+func analyze(d index.Document, fn customAnalyzerPluginInitFunc) {
 	d.VisitFields(func(field index.Field) {
 		if field.Options().IsIndexed() {
+			if fn != nil {
+				fn(field)
+			}
+
 			field.Analyze()
 
 			if d.HasComposite() && field.Name() != "_id" {
@@ -654,6 +735,16 @@ func (s *Scorch) unmarkIneligibleForRemoval(filename string) {
 
 func init() {
 	registry.RegisterIndexType(Name, NewScorch)
+}
+
+func parseToTimeDuration(i interface{}) (time.Duration, error) {
+	switch v := i.(type) {
+	case string:
+		return time.ParseDuration(v)
+
+	default:
+		return 0, fmt.Errorf("expects a duration string")
+	}
 }
 
 func parseToInteger(i interface{}) (int, error) {
