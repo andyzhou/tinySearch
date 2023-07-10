@@ -103,8 +103,12 @@ func (f *Base) FormatDoc(
 		switch field.(type) {
 		case *document.TextField:
 			{
-				genMap[fieldName] = string(field.Value())
+				v, ok := field.(*document.TextField)
+				if ok {
+					genMap[fieldName] = string(v.Value())
+				}
 			}
+			break
 		case *document.NumericField:
 			{
 				v, ok := field.(*document.NumericField)
@@ -115,6 +119,7 @@ func (f *Base) FormatDoc(
 					}
 				}
 			}
+			break
 		case *document.BooleanField:
 			{
 				v, ok := field.(*document.BooleanField)
@@ -125,6 +130,7 @@ func (f *Base) FormatDoc(
 					}
 				}
 			}
+			break
 		case *document.DateTimeField:
 			{
 				v, ok := field.(*document.DateTimeField)
@@ -135,6 +141,7 @@ func (f *Base) FormatDoc(
 					}
 				}
 			}
+			break
 		case *document.GeoPointField:
 			{
 				v, ok := field.(*document.GeoPointField)
@@ -147,6 +154,7 @@ func (f *Base) FormatDoc(
 					}
 				}
 			}
+			break
 		}
 	})
 	return genMap

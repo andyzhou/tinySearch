@@ -231,10 +231,14 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 				boolVal, _ := filter.Val.(bool)
 				pg := bleve.NewBoolFieldQuery(boolVal)
 				pg.SetField(filter.Field)
-				if filter.IsMust {
-					boolQuery.AddMust(pg)
+				if filter.IsExclude {
+					boolQuery.AddMustNot(pg)
 				}else{
-					boolQuery.AddShould(pg)
+					if filter.IsMust {
+						boolQuery.AddMust(pg)
+					}else{
+						boolQuery.AddShould(pg)
+					}
 				}
 			}
 		case define.FilterKindMatch:
@@ -253,10 +257,14 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 					subQueries = append(subQueries, subPg)
 				}
 				pg := bleve.NewDisjunctionQuery(subQueries...)
-				if filter.IsMust {
-					boolQuery.AddMust(pg)
+				if filter.IsExclude {
+					boolQuery.AddMustNot(pg)
 				}else{
-					boolQuery.AddShould(pg)
+					if filter.IsMust {
+						boolQuery.AddMust(pg)
+					}else{
+						boolQuery.AddShould(pg)
+					}
 				}
 			}
 		case define.FilterKindMatchRange:
@@ -264,20 +272,28 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 				//match by range
 				pg := bleve.NewTermRangeQuery(filter.MinVal, filter.MinVal)
 				pg.SetField(filter.Field)
-				if filter.IsMust {
-					boolQuery.AddMust(pg)
+				if filter.IsExclude {
+					boolQuery.AddMustNot(pg)
 				}else{
-					boolQuery.AddShould(pg)
+					if filter.IsMust {
+						boolQuery.AddMust(pg)
+					}else{
+						boolQuery.AddShould(pg)
+					}
 				}
 			}
 		case define.FilterKindPrefix:
 			{
 				pg := bleve.NewPrefixQuery(fmt.Sprintf("%v", filter.Val))
 				pg.SetField(filter.Field)
-				if filter.IsMust {
-					boolQuery.AddMust(pg)
-				}else{
-					boolQuery.AddShould(pg)
+				if filter.IsExclude {
+					boolQuery.AddMustNot(pg)
+				}else {
+					if filter.IsMust {
+						boolQuery.AddMust(pg)
+					} else {
+						boolQuery.AddShould(pg)
+					}
 				}
 			}
 		case define.FilterKindPhraseQuery, define.FilterKindExcludePhraseQuery:
@@ -309,29 +325,41 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 				maxFloatVal, _ := filter.MaxFloatVal.Float64()
 				pg := bleve.NewNumericRangeQuery(&minFloatVal, &maxFloatVal)
 				pg.SetField(filter.Field)
-				if filter.IsMust {
-					boolQuery.AddMust(pg)
+				if filter.IsExclude {
+					boolQuery.AddMustNot(pg)
 				}else{
-					boolQuery.AddShould(pg)
+					if filter.IsMust {
+						boolQuery.AddMust(pg)
+					}else{
+						boolQuery.AddShould(pg)
+					}
 				}
 			}
 		case define.FilterKindDateRange:
 			{
 				pg := bleve.NewDateRangeQuery(filter.StartTime, filter.EndTime)
 				pg.SetField(filter.Field)
-				if filter.IsMust {
-					boolQuery.AddMust(pg)
-				}else{
-					boolQuery.AddShould(pg)
+				if filter.IsExclude {
+					boolQuery.AddMustNot(pg)
+				}else {
+					if filter.IsMust {
+						boolQuery.AddMust(pg)
+					} else {
+						boolQuery.AddShould(pg)
+					}
 				}
 			}
 		case define.FilterKindSubDocIds:
 			{
 				pg := bleve.NewDocIDQuery(filter.DocIds)
-				if filter.IsMust {
-					boolQuery.AddMust(pg)
+				if filter.IsExclude {
+					boolQuery.AddMustNot(pg)
 				}else{
-					boolQuery.AddShould(pg)
+					if filter.IsMust {
+						boolQuery.AddMust(pg)
+					}else{
+						boolQuery.AddShould(pg)
+					}
 				}
 			}
 		case define.FilterKindTermsQuery:
@@ -349,10 +377,14 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 				//create disjunction query
 				//used for match batch terms match
 				pg := bleve.NewDisjunctionQuery(subQueries...)
-				if filter.IsMust {
-					boolQuery.AddMust(pg)
+				if filter.IsExclude {
+					boolQuery.AddMustNot(pg)
 				}else{
-					boolQuery.AddShould(pg)
+					if filter.IsMust {
+						boolQuery.AddMust(pg)
+					}else{
+						boolQuery.AddShould(pg)
+					}
 				}
 			}
 		}
