@@ -71,7 +71,7 @@ func (f *Service) beginService() {
 	err := f.service.Serve(*f.listener)
 	if err != nil {
 		log.Println("RpcService::beginService failed, err:", err.Error())
-		panic(err)
+		panic(any(err))
 	}
 }
 
@@ -81,7 +81,7 @@ func (f *Service) createService() {
 	listen, err := net.Listen("tcp", f.addr)
 	if err != nil {
 		log.Println("RpcService::createService failed, err:", err.Error())
-		panic(err.Error())
+		panic(any(err))
 	}
 
 	//create rpc server

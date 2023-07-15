@@ -115,6 +115,9 @@ func (f *Client) DocRemove(
 					tag string,
 					docIds ...string,
 				) (bRet bool) {
+	var (
+		m any = nil
+	)
 	//basic check
 	if tag == "" || docIds == nil || f.client == nil {
 		bRet = false
@@ -123,7 +126,7 @@ func (f *Client) DocRemove(
 
 	//try catch panic
 	defer func() {
-		if err := recover(); err != nil {
+		if err := recover(); err != m {
 			log.Println("RpcClient::DocRemove panic, err:", err)
 			bRet = false
 			return
@@ -178,6 +181,9 @@ func (f *Client) DocSync(
 					docId string,
 					jsonByte []byte,
 				) (bRet bool) {
+	var (
+		m any = nil
+	)
 	//basic check
 	if tag == "" || jsonByte == nil || f.client == nil {
 		bRet = false
@@ -186,7 +192,7 @@ func (f *Client) DocSync(
 
 	//try catch panic
 	defer func() {
-		if err := recover(); err != nil {
+		if err := recover(); err != m {
 			log.Println("RpcClient::DocSync panic, err:", err)
 			bRet = false
 			return
@@ -223,11 +229,12 @@ func (f *Client) runMainProcess() {
 		ticker         = time.NewTicker(time.Second * define.ClientCheckTicker)
 		req            DocSyncReq
 		isOk, needQuit bool
+		m any = nil
 	)
 
 	//defer
 	defer func() {
-		if err := recover(); err != nil {
+		if err := recover(); err != m {
 			log.Println("RpcClient:mainProcess panic, err:", err)
 		}
 		ticker.Stop()

@@ -66,8 +66,11 @@ func NewClient() *Client {
 
 //quit
 func (f *Client) Quit() {
+	var (
+		m any = nil
+	)
 	defer func() {
-		if err := recover(); err != nil {
+		if err := recover(); err != m {
 			log.Printf("tinysearch.Client:Quit panic, err:%v", err)
 		}
 	}()
@@ -84,7 +87,7 @@ func (f *Client) Quit() {
 //suggest doc
 func (f *Client) DocSuggest(
 					indexTag string,
-					optJson *json.QueryOptJson,
+					optJson *json.SuggestOptJson,
 				) (*json.SuggestsJson, error) {
 	//check
 	if indexTag == "" || optJson == nil {
@@ -220,22 +223,22 @@ func (f *Client) DocQuery(
 func (f *Client) DocRemove(
 					indexTag string,
 					docIds ...string,
-				) (err error) {
+				) error {
+	var (
+		m any = nil
+	)
 	//check
 	if indexTag == "" || docIds == nil {
-		err = errors.New("invalid parameter")
-		return
+		return errors.New("invalid parameter")
 	}
 	if f.rpcClients == nil {
-		err = errors.New("no any active rpc client")
-		return
+		return errors.New("no any active rpc client")
 	}
 
 	//defer
 	defer func() {
-		if e := recover(); e != nil {
-			err = e.(error)
-			return
+		if e := recover(); e != m {
+			log.Printf("client.DocRemove panic, err:%v\n", e)
 		}
 	}()
 
@@ -249,7 +252,7 @@ func (f *Client) DocRemove(
 	select {
 	case f.removeChan <- req:
 	}
-	return
+	return nil
 }
 
 //get doc
@@ -277,21 +280,22 @@ func (f *Client) DocGet(
 func (f *Client) DocSync(
 					indexTag, docId string,
 					docJson []byte,
-				) (err error) {
+				) error {
+	var (
+		m any = nil
+	)
 	//check
 	if indexTag == "" || docId == "" || docJson == nil {
-		err = errors.New("invalid parameter")
-		return
+		return errors.New("invalid parameter")
 	}
 	if f.rpcClients == nil {
-		err = errors.New("no any active rpc client")
-		return
+		return errors.New("no any active rpc client")
 	}
 
 	//defer
 	defer func() {
-		if e := recover(); e != nil {
-			err = e.(error)
+		if e := recover(); e != m {
+			log.Printf("client.DocSync panic, err:%v\n", e)
 			return
 		}
 	}()
@@ -307,7 +311,7 @@ func (f *Client) DocSync(
 	select {
 	case f.syncChan <- req:
 	}
-	return
+	return nil
 }
 
 //create index
@@ -353,6 +357,7 @@ func (f *Client) AddNodes(nodes ... string) error {
 //run main process
 func (f *Client) runMainProcess() {
 	var (
+		m any = nil
 		syncReq syncDocReq
 		removeReq removeDocReq
 		isOk bool
@@ -360,7 +365,7 @@ func (f *Client) runMainProcess() {
 
 	//defer
 	defer func() {
-		if err := recover(); err != nil {
+		if err := recover(); err != m {
 			log.Println("Client:mainProcess panic, err:", err)
 		}
 		close(f.removeChan)

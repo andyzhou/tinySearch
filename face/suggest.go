@@ -54,8 +54,11 @@ func NewSuggest(manager iface.IManager) *Suggest {
 
 //quit
 func (f *Suggest) Quit() {
+	var (
+		m any = nil
+	)
 	defer func() {
-		if err := recover(); err != nil {
+		if err := recover(); err != m {
 			log.Printf("tinysearch.Suggest:Quit panic, err:%v\n", err)
 		}
 	}()
@@ -191,6 +194,9 @@ func (f *Suggest) AddSuggest(
 					indexTag string,
 					doc *json.SuggestJson,
 				) error {
+	var (
+		m any = nil
+	)
 	//basic check
 	if indexTag == "" || doc == nil {
 		return errors.New("invalid parameter")
@@ -202,7 +208,7 @@ func (f *Suggest) AddSuggest(
 	}
 
 	defer func() {
-		if err := recover(); err != nil {
+		if err := recover(); err != m {
 			log.Printf("tinysearch.Suggest:AddSuggest panic, err:%v", err)
 		}
 	}()
@@ -245,12 +251,13 @@ func (f *Suggest) RegisterSuggest(tags ...string) error {
 //main process
 func (f *Suggest) runMainProcess() {
 	var (
+		m any = nil
 		req suggestDocSync
 		isOk bool
 	)
 
 	defer func() {
-		if err := recover(); err != nil {
+		if err := recover(); err != m {
 			log.Printf("tinysearch.Suggest:runMainProcess panic, err:%v", err)
 		}
 		close(f.syncReqChan)
