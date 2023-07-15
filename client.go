@@ -87,7 +87,7 @@ func (f *Client) Quit() {
 //suggest doc
 func (f *Client) DocSuggest(
 					indexTag string,
-					optJson *json.SuggestOptJson,
+					optJson *json.QueryOptJson,
 				) (*json.SuggestsJson, error) {
 	//check
 	if indexTag == "" || optJson == nil {
