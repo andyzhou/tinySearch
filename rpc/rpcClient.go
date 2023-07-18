@@ -280,9 +280,12 @@ func (f *Client) docSyncProcess(
 		//remove doc
 		realReq := &search.DocRemoveReq{
 			Tag:req.Tag,
-			DocId:[]string{
-				req.DocId,
-			},
+			DocId:make([]string, 0),
+		}
+		if req.DocIds != nil && len(req.DocIds) > 0 {
+			realReq.DocId = append(realReq.DocId, req.DocIds...)
+		}else{
+			realReq.DocId = append(realReq.DocId, req.DocId)
 		}
 		//call doc remove api
 		resp, err = (*f.client).DocRemove(

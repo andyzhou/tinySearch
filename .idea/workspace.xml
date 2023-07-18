@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="10ef696f-3f68-4233-8dfd-12c3249ef77e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/define/global.go" beforeDir="false" afterPath="$PROJECT_DIR$/define/global.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rpc/rpcClient.go" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/rpcClient.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
