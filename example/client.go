@@ -147,8 +147,13 @@ func testClientGetDoc(client *tinysearch.Client)  {
 	}
 
 	for _, jsonByte := range jsonByteSlice {
+		hitDoc := json.NewHitDocJson()
+		err = hitDoc.Decode(jsonByte)
+		if err != nil {
+			continue
+		}
 		testDocJson := json.NewTestDocJson()
-		err = testDocJson.Decode(jsonByte)
+		err = testDocJson.Decode(hitDoc.OrgJson)
 		if err != nil {
 			log.Printf("testClientGetDoc failed, err:%v", err)
 		}else{
