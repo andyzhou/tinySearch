@@ -5,7 +5,7 @@ const (
 	SuggestTopMin = 50
 	SuggestTopMax = 200
 	RecPerPage = 10
-	ClientCheckTicker = 3
+	ClientCheckTicker = 5
 	ReqChanSize = 1024
 	DataPathDefault = "./private"
 	InterSuggestIndexPara = "__suggester_%v"

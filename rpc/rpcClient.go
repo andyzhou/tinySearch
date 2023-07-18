@@ -321,7 +321,7 @@ func (f *Client) ping() bool {
 		f.isActive = true
 		return true
 	}
-	//try re connect
+	//try re-connect
 	f.connServer()
 	return true
 }
@@ -341,19 +341,19 @@ func (f *Client) checkStatus() bool {
 }
 
 //connect rpc server
-func (f *Client) connServer() bool {
+func (f *Client) connServer() error {
 	//try connect
 	f.isActive = false
 	conn, err := grpc.Dial(f.addr, grpc.WithInsecure())
 	if err != nil {
 		log.Println("RpcClient::connServer failed, err:", err.Error())
-		return false
+		return err
 	}
 
 	//init rpc client
 	client := search.NewSearchServiceClient(conn)
 	if client == nil {
-		return false
+		return errors.New("init client failed")
 	}
 
 	//sync
@@ -364,6 +364,5 @@ func (f *Client) connServer() bool {
 
 	//ping server
 	f.ping()
-
-	return true
+	return nil
 }

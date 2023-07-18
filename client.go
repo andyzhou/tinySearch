@@ -386,6 +386,7 @@ func (f *Client) runMainProcess() {
 				//remove relate doc by ids
 				f.removeBatchDocByIds(&removeReq)
 			}
+
 		case <- f.closeChan:
 			return
 		}
