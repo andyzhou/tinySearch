@@ -203,7 +203,11 @@ func (f *CB) DocGet(
 		JsonByte:make([][]byte, 0),
 	}
 	for _, hitDoc := range hitDocs {
-		result.JsonByte = append(result.JsonByte, hitDoc.OrgJson)
+		hitDocByte, subErr := hitDoc.Encode()
+		if subErr != nil || hitDocByte == nil {
+			continue
+		}
+		result.JsonByte = append(result.JsonByte, hitDocByte)
 	}
 	return result, nil
 }
