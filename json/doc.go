@@ -1,7 +1,5 @@
 package json
 
-import "encoding/json"
-
 /*
  * json for doc
  */
@@ -26,7 +24,7 @@ type TestDocJson struct {
 	Id int64 `json:"id,string,omitempty"` //for fix int64 Unmarshal issue
 	Title string `json:"title"`
 	Cat string `json:"cat"`
-	Price json.Number `json:"price,string,omitempty"` //need use match
+	Price float64 `json:"price"` //need use match
 	Num int64 `json:"num"`
 	PosterId string `json:"posterId"`
 	Prop map[string]interface{} `json:"prop"`

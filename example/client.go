@@ -1,7 +1,6 @@
 package main
 
 import (
-	genJson "encoding/json"
 	"fmt"
 	"github.com/andyzhou/tinysearch"
 	"github.com/andyzhou/tinysearch/define"
@@ -56,13 +55,13 @@ func testing(client *tinysearch.Client) {
 	//testClientAggDoc(client)
 
 	//query doc
-	//testClientQueryDoc(client)
+	testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
 
 	//get doc
-	testClientGetDoc(client)
+	//testClientGetDoc(client)
 
 	//add doc
 	//testClientSyncDoc(client)
@@ -189,18 +188,20 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	filterPoster.Val = fmt.Sprintf("%v", 2)
 	filterPoster.IsMust = true
 
-	////filter for price
-	//filterPrice := json.NewFilterField()
-	//filterPrice.Kind = define.FilterKindMatch
-	//filterPrice.Field = "price"//"prop.city"
-	//filterPrice.Val = "10.2"
+	//filter for price
+	filterPrice := json.NewFilterField()
+	filterPrice.Kind = define.FilterKindNumericRange
+	filterPrice.Field = "price"//"prop.city"
+	filterPrice.MinFloatVal = 8.0
+	filterPrice.MaxFloatVal = 12.0
+	filterPrice.IsMust = true
 
 	optJson := json.NewQueryOptJson()
 	//optJson.SuggestTag = DocSuggesterTag
 	//optJson.Key = "second"
 	optJson.HighLight = true
 	optJson.Filters = []*json.FilterField{
-		filterPoster,
+		filterPrice,
 	}
 	resp, err := client.DocQuery(ServiceIndexTag, optJson)
 	if err != nil {
@@ -263,7 +264,7 @@ func addOneDoc(docId int64, client *tinysearch.Client) {
 	testDocJson.Id = docId
 	testDocJson.Title = fmt.Sprintf("工信处女干事每月件的安装工作-%d", docId)
 	testDocJson.Cat = "job"
-	testDocJson.Price = genJson.Number(fmt.Sprintf("%v", 10.2))
+	testDocJson.Price = 10.2
 	testDocJson.Prop["age"] = docId
 	testDocJson.Prop["city"] = "beijing"
 	testDocJson.Num = int64(rand.Intn(100))

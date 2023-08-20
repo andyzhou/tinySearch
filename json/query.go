@@ -1,7 +1,6 @@
 package json
 
 import (
-	"encoding/json"
 	"time"
 )
 
@@ -23,8 +22,8 @@ type FilterField struct {
 	DocIds []string `json:"docIds"` //used for batch doc ids match
 	MinVal string `json:"minVal"` //for term range
 	MaxVal string `json:"maxVal"` //for term range
-	MinFloatVal json.Number `json:"minFloatVal,string,omitempty"` //for numeric range
-	MaxFloatVal json.Number `json:"maxFloatVal,string,omitempty"` //for numeric range
+	MinFloatVal float64 `json:"minFloatVal"` //for numeric range
+	MaxFloatVal float64 `json:"maxFloatVal"` //for numeric range
 	StartTime time.Time `json:"startTime"` //for date range
 	EndTime time.Time `json:"endTime"` //for date range
 	Terms []string `json:"terms"` //for terms query

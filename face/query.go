@@ -321,9 +321,7 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 		case define.FilterKindNumericRange:
 			{
 				//min <= val < max
-				minFloatVal, _ := filter.MinFloatVal.Float64()
-				maxFloatVal, _ := filter.MaxFloatVal.Float64()
-				pg := bleve.NewNumericRangeQuery(&minFloatVal, &maxFloatVal)
+				pg := bleve.NewNumericRangeQuery(&filter.MinFloatVal, &filter.MaxFloatVal)
 				pg.SetField(filter.Field)
 				if filter.IsExclude {
 					boolQuery.AddMustNot(pg)
