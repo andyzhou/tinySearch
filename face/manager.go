@@ -69,15 +69,12 @@ func (f *Manager) SetDictFile(filePath string) {
 func (f *Manager) GetDoc() iface.IDoc {
 	return f.doc
 }
-
 func (f *Manager) GetQuery() iface.IQuery {
 	return f.query
 }
-
 func (f *Manager) GetAgg() iface.IAgg {
 	return f.agg
 }
-
 func (f *Manager) GetSuggest() iface.ISuggest {
 	return f.suggest
 }
@@ -87,7 +84,8 @@ func (f *Manager) GetSuggest() iface.ISuggest {
 ////////////////
 
 //remove index
-func (f *Manager) RemoveIndex(tag string) error {
+func (f *Manager) RemoveIndex(
+		tag string) error {
 	//basic check
 	if tag == "" || f.indexes == nil {
 		return errors.New("invalid tag or index is nil")
@@ -99,8 +97,7 @@ func (f *Manager) RemoveIndex(tag string) error {
 
 //get search index
 func (f *Manager) GetIndex(
-					tag string,
-				) iface.IIndex {
+		tag string) iface.IIndex {
 	//basic check
 	if tag == "" || f.indexes == nil {
 		return nil
@@ -120,8 +117,7 @@ func (f *Manager) GetIndex(
 
 //add search index
 func (f *Manager) AddIndex(
-					tag string,
-				) error {
+		tag string) error {
 	var (
 		err error
 	)
