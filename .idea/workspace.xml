@@ -6,7 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="10ef696f-3f68-4233-8dfd-12c3249ef77e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/manager.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/manager.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/example/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/face/base.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/base.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/face/query.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/query.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/iface/query.go" beforeDir="false" afterPath="$PROJECT_DIR$/iface/query.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/json/doc.go" beforeDir="false" afterPath="$PROJECT_DIR$/json/doc.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

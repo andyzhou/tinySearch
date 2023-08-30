@@ -2,7 +2,6 @@ package face
 
 import (
 	"bytes"
-	"errors"
 	"github.com/andyzhou/tinysearch/json"
 	"github.com/blevesearch/bleve/v2/document"
 	"github.com/blevesearch/bleve/v2/search"
@@ -42,30 +41,36 @@ func (f *Base) AnalyzeDoc(
 				doc index.Document,
 				hit *search.DocumentMatch,
 			) (*json.HitDocJson, error) {
-	//basic check
-	if doc == nil {
-		return nil, errors.New("invalid parameter")
-	}
+	var (
+		jsonByte []byte
+		err error
+	)
 
-	//init one doc object
-	jsonObj := json.NewBaseJson()
-	genMap := f.FormatDoc(doc)
-	if genMap == nil {
-		return nil, nil
-	}
+	if doc != nil {
+		//init one doc object
+		jsonObj := json.NewBaseJson()
+		genMap := f.FormatDoc(doc)
+		if genMap == nil {
+			return nil, nil
+		}
 
-	//get json byte
-	jsonByte, err := jsonObj.EncodeSimple(genMap)
-	if err != nil {
-		return nil, err
+		//get json byte
+		jsonByte, err = jsonObj.EncodeSimple(genMap)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	//init hit doc json
 	hitDocJson := json.NewHitDocJson()
 
 	//set doc json fields
-	hitDocJson.Id = doc.ID()
-	hitDocJson.OrgJson = jsonByte
+	hitDocJson.Id = hit.ID
+	hitDocJson.Score = hit.Score
+
+	if doc != nil {
+		hitDocJson.OrgJson = jsonByte
+	}
 
 	//check high light
 	if hit != nil && hit.Fragments != nil {

@@ -9,6 +9,7 @@ import (
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/search"
 	"github.com/blevesearch/bleve/v2/search/query"
+	index "github.com/blevesearch/bleve_index_api"
 )
 
 /*
@@ -33,6 +34,7 @@ func NewQuery(suggester iface.ISuggest) *Query {
 //query all doc
 func (f *Query) QueryAll(
 			index iface.IIndex,
+			needDocs ...bool,
 		) (*json.SearchResultJson, error) {
 	//basic check
 	if index == nil {
@@ -70,7 +72,7 @@ func (f *Query) QueryAll(
 	result.Total = searchResult.Total
 
 	//format records
-	result.Records = f.formatResult(indexer, &searchResult.Hits)
+	result.Records = f.formatResult(indexer, &searchResult.Hits, needDocs...)
 	return result, nil
 }
 
@@ -78,6 +80,7 @@ func (f *Query) QueryAll(
 func (f *Query) Query(
 					index iface.IIndex,
 					opt *json.QueryOptJson,
+					needDocs ...bool,
 				) (*json.SearchResultJson, error) {
 	//basic check
 	if index == nil || opt == nil {
@@ -159,7 +162,7 @@ func (f *Query) Query(
 	result.Total = searchResult.Total
 
 	//format records
-	result.Records = f.formatResult(indexer, &searchResult.Hits)
+	result.Records = f.formatResult(indexer, &searchResult.Hits, needDocs...)
 
 	return result, nil
 }
@@ -434,12 +437,21 @@ func (f *Query) createTermQuery(opt *json.QueryOptJson) query.Query {
 
 //format result
 func (f *Query) formatResult(
-					index bleve.Index,
+					idx bleve.Index,
 					hits *search.DocumentMatchCollection,
+					needDocs ...bool,
 				) []*json.HitDocJson {
+	var (
+		needDoc bool
+		doc index.Document
+		err error
+	)
 	//basic check
-	if index == nil || hits == nil {
+	if idx == nil || hits == nil {
 		return nil
+	}
+	if needDocs != nil && len(needDocs) > 0 {
+		needDoc = needDocs[0]
 	}
 
 	//format result
@@ -447,15 +459,17 @@ func (f *Query) formatResult(
 
 	//format records
 	for _, hit := range *hits {
-		//get original doc
-		doc, err := index.Document(hit.ID)
-		if err != nil {
-			continue
+		if needDoc {
+			//get original doc
+			doc, err = idx.Document(hit.ID)
+			if err != nil {
+				continue
+			}
 		}
 
 		//analyze doc
-		hitDocJson, err := f.AnalyzeDoc(doc, hit)
-		if err != nil || hitDocJson == nil {
+		hitDocJson, subErr := f.AnalyzeDoc(doc, hit)
+		if subErr != nil || hitDocJson == nil {
 			continue
 		}
 

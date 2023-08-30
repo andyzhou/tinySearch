@@ -215,7 +215,7 @@ func testClientQueryDoc(client *tinysearch.Client) {
 
 	//analyze result
 	for _, jsonObj := range resp.Records {
-		log.Println("jsonObj:", string(jsonObj.OrgJson))
+		log.Printf("hitId:%v, score:%v, orgJson:%v\n", jsonObj.Id, jsonObj.Score, string(jsonObj.OrgJson))
 		//testJson := json.NewTestDocJson()
 		//err = testJson.Decode(jsonObj.OrgJson)
 		//if err != nil {

@@ -16,6 +16,7 @@ type HitDocJson struct {
 	Id string `json:"id"`
 	HighLights map[string]string `json:"highLights"`
 	OrgJson []byte `json:"orgJson"`
+	Score float64 `json:"score"`
 	BaseJson
 }
 
