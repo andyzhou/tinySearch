@@ -46,6 +46,9 @@ func (f *Base) AnalyzeDoc(
 		err error
 	)
 
+	//init hit doc json
+	hitDocJson := json.NewHitDocJson()
+
 	if doc != nil {
 		//init one doc object
 		jsonObj := json.NewBaseJson()
@@ -61,14 +64,12 @@ func (f *Base) AnalyzeDoc(
 		}
 	}
 
-	//init hit doc json
-	hitDocJson := json.NewHitDocJson()
-
 	//set doc json fields
-	hitDocJson.Id = hit.ID
-	hitDocJson.Score = hit.Score
-
-	if doc != nil {
+	if hit != nil {
+		hitDocJson.Id = hit.ID
+		hitDocJson.Score = hit.Score
+	}else{
+		hitDocJson.Id = doc.ID()
 		hitDocJson.OrgJson = jsonByte
 	}
 

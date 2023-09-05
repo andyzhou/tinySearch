@@ -5,13 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="10ef696f-3f68-4233-8dfd-12c3249ef77e" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/tinySearch.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/tinySearch.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/example/client.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/face/base.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/base.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/query.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/query.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/iface/query.go" beforeDir="false" afterPath="$PROJECT_DIR$/iface/query.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/json/doc.go" beforeDir="false" afterPath="$PROJECT_DIR$/json/doc.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,9 +50,9 @@
     <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
     <property name="go.vendoring.notification.had.been.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="go.dep" />
+    <property name="settings.editor.selected.configurable" value="com.goide.configuration.GoProjectSettingsConfigurable" />
   </component>
-  <component name="RunManager" selected="Go Build.client">
+  <component name="RunManager" selected="Go Build.server">
     <configuration name="client" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <module name="tinysearch" />
       <working_directory value="$PROJECT_DIR$/" />
@@ -92,12 +88,12 @@
     <option featureType="com.intellij.fileTypeFactory" implementationName="*.proto" />
   </component>
   <component name="Vcs.Log.History.Properties">
-    <option name="COLUMN_ORDER">
+    <option name="COLUMN_ID_ORDER">
       <list>
-        <option value="0" />
-        <option value="2" />
-        <option value="3" />
-        <option value="1" />
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
       </list>
     </option>
   </component>
