@@ -203,6 +203,9 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	optJson.Filters = []*json.FilterField{
 		filterPrice,
 	}
+	optJson.NeedDocs = false
+
+	//doc query
 	resp, err := client.DocQuery(ServiceIndexTag, optJson)
 	if err != nil {
 		log.Println("testClientQueryDoc failed, err:", err)

@@ -58,6 +58,7 @@ type QueryOptJson struct {
 	Page int `json:"page"`
 	PageSize int `json:"pageSize"`
 	AggSize int `json:"aggSize"`
+	NeedDocs bool `json:"needDocs"`
 	BaseJson
 }
 

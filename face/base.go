@@ -70,6 +70,8 @@ func (f *Base) AnalyzeDoc(
 		hitDocJson.Score = hit.Score
 	}else{
 		hitDocJson.Id = doc.ID()
+	}
+	if jsonByte != nil {
 		hitDocJson.OrgJson = jsonByte
 	}
 
