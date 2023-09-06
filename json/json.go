@@ -3,8 +3,8 @@ package json
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
-	"runtime/debug"
 )
 
 /*
@@ -52,11 +52,9 @@ func (j *BaseJson) Decode(data []byte, i interface{}) error {
 	//try decode json data
 	err := json.Unmarshal(data, i)
 	if err != nil {
-		//log.Println("BaseJson::Decode, decode failed, err:", err.Error())
 		if e, ok := err.(*json.SyntaxError); ok {
-			log.Printf("syntax error at byte offset %d", e.Offset)
+			err = fmt.Errorf("err:%v, syntax error at byte offset %d", err, e.Offset)
 		}
-		log.Println("BaseJson::Decode, track:", string(debug.Stack()))
 		return err
 	}
 	return nil

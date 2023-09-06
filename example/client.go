@@ -196,14 +196,21 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	filterPrice.MaxFloatVal = 12.0
 	filterPrice.IsMust = true
 
+	//filter for prefix
+	filterPrefix := json.NewFilterField()
+	filterPrefix.Kind = define.FilterKindPrefix
+	filterPrefix.Field = "catPath"
+	filterPrefix.Val = "1,2"
+	filterPrefix.IsMust = true
+
 	optJson := json.NewQueryOptJson()
 	//optJson.SuggestTag = DocSuggesterTag
 	//optJson.Key = "second"
 	optJson.HighLight = true
 	optJson.Filters = []*json.FilterField{
-		filterPrice,
+		filterPrefix,
 	}
-	optJson.NeedDocs = false
+	optJson.NeedDocs = true
 
 	//doc query
 	resp, err := client.DocQuery(ServiceIndexTag, optJson)
@@ -219,14 +226,12 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	//analyze result
 	for _, jsonObj := range resp.Records {
 		log.Printf("hitId:%v, score:%v, orgJson:%v\n", jsonObj.Id, jsonObj.Score, string(jsonObj.OrgJson))
-		//testJson := json.NewTestDocJson()
-		//err = testJson.Decode(jsonObj.OrgJson)
-		//if err != nil {
-		//	//fmt.Println(string(jsonObj.OrgJson))
-		//	//fmt.Println(err.Error())
-		//	continue
-		//}
-		//log.Println("testClientQueryDoc rec:", testJson)
+		testJson := json.NewTestDocJson()
+		err = testJson.Decode(jsonObj.OrgJson)
+		if testJson == nil {
+			continue
+		}
+		log.Println("testClientQueryDoc rec:", testJson)
 	}
 }
 
@@ -246,8 +251,8 @@ func testClientSyncDoc(client *tinysearch.Client) {
 	var (
 		docIdBegin, docIdEnd int64
 	)
-	docIdBegin = 1
-	docIdEnd = 2
+	docIdBegin = 3
+	docIdEnd = 4
 	for id := docIdBegin; id <= docIdEnd; id++ {
 		addOneDoc(id, client)
 	}
@@ -267,6 +272,7 @@ func addOneDoc(docId int64, client *tinysearch.Client) {
 	testDocJson.Id = docId
 	testDocJson.Title = fmt.Sprintf("工信处女干事每月件的安装工作-%d", docId)
 	testDocJson.Cat = "job"
+	testDocJson.CatPath ="1,2,0"
 	testDocJson.Price = 10.2
 	testDocJson.Prop["age"] = docId
 	testDocJson.Prop["city"] = "beijing"
