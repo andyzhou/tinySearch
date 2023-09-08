@@ -248,6 +248,7 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 			{
 				//match by condition
 				if filter.Terms == nil || len(filter.Terms) <= 0 {
+					//use value as terms
 					filter.Terms = []string{
 						fmt.Sprintf("%v", filter.Val),
 					}
@@ -302,15 +303,14 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 		case define.FilterKindPhraseQuery, define.FilterKindExcludePhraseQuery:
 			{
 				//sub terms phrase query
-				termSlice := make([]string, 0)
-				switch filter.Val.(type) {
-				case []string:
-					termSlice = filter.Val.([]string)
-				default:
-					tmpStr := fmt.Sprintf("%v", filter.Val)
-					termSlice = append(termSlice, tmpStr)
+				//match by condition
+				if filter.Terms == nil || len(filter.Terms) <= 0 {
+					//use value as terms
+					filter.Terms = []string{
+						fmt.Sprintf("%v", filter.Val),
+					}
 				}
-				pq := bleve.NewPhraseQuery(termSlice, filter.Field)
+				pq := bleve.NewPhraseQuery(filter.Terms, filter.Field)
 				if filter.IsExclude {
 					boolQuery.AddMustNot(pq)
 				} else {
@@ -367,6 +367,12 @@ func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
 			{
 				//multi terms
 				subQueries := make([]query.Query, 0)
+				if filter.Terms == nil || len(filter.Terms) <= 0 {
+					//use value as terms
+					filter.Terms = []string{
+						fmt.Sprintf("%v", filter.Val),
+					}
+				}
 				for _, v := range filter.Terms {
 					if v == "" {
 						continue

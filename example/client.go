@@ -181,12 +181,12 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	filterTag.Terms = []string{"job"}
 	filterTag.IsMust = true
 
-	//filter for poster
-	filterPoster := json.NewFilterField()
-	filterPoster.Kind = define.FilterKindMatch
-	filterPoster.Field = "posterId"
-	filterPoster.Val = fmt.Sprintf("%v", 2)
-	filterPoster.IsMust = true
+	//filter for cat
+	filterCat := json.NewFilterField()
+	filterCat.Kind = define.FilterKindTermsQuery
+	filterCat.Field = "catPath"
+	filterCat.Val = "1,2,0"
+	filterCat.IsMust = true
 
 	//filter for price
 	filterPrice := json.NewFilterField()
@@ -204,11 +204,10 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	filterPrefix.IsMust = true
 
 	optJson := json.NewQueryOptJson()
-	//optJson.SuggestTag = DocSuggesterTag
-	//optJson.Key = "second"
+	optJson.QueryKind = define.QueryKindOfMatchAll
 	optJson.HighLight = true
 	optJson.Filters = []*json.FilterField{
-		filterPrefix,
+		filterCat,
 	}
 	optJson.NeedDocs = true
 
@@ -251,8 +250,8 @@ func testClientSyncDoc(client *tinysearch.Client) {
 	var (
 		docIdBegin, docIdEnd int64
 	)
-	docIdBegin = 3
-	docIdEnd = 4
+	docIdBegin = 5
+	docIdEnd = 6
 	for id := docIdBegin; id <= docIdEnd; id++ {
 		addOneDoc(id, client)
 	}
@@ -271,7 +270,7 @@ func addOneDoc(docId int64, client *tinysearch.Client) {
 	testDocJson := json.NewTestDocJson()
 	testDocJson.Id = docId
 	testDocJson.Title = fmt.Sprintf("工信处女干事每月件的安装工作-%d", docId)
-	testDocJson.Cat = "job"
+	testDocJson.Cat = "job-1"
 	testDocJson.CatPath ="1,2,0"
 	testDocJson.Price = 10.2
 	testDocJson.Prop["age"] = docId
