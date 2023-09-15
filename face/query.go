@@ -80,7 +80,6 @@ func (f *Query) QueryAll(
 func (f *Query) Query(
 					index iface.IIndex,
 					opt *json.QueryOptJson,
-					needDocs ...bool,
 				) (*json.SearchResultJson, error) {
 	//basic check
 	if index == nil || opt == nil {
@@ -162,8 +161,7 @@ func (f *Query) Query(
 	result.Total = searchResult.Total
 
 	//format records
-	result.Records = f.formatResult(indexer, &searchResult.Hits, needDocs...)
-
+	result.Records = f.formatResult(indexer, &searchResult.Hits, opt.NeedDocs)
 	return result, nil
 }
 

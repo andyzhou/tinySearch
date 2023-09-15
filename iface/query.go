@@ -11,6 +11,6 @@ import (
 
 type IQuery interface {
 	QueryAll(index IIndex, needDoc ...bool) (*json.SearchResultJson, error)
-	Query(index IIndex, json *json.QueryOptJson, needDoc ...bool) (*json.SearchResultJson, error)
+	Query(index IIndex, json *json.QueryOptJson) (*json.SearchResultJson, error)
 	BuildSearchReq(json *json.QueryOptJson) *bleve.SearchRequest
 }

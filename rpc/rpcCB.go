@@ -305,7 +305,7 @@ func (f *CB) genDocQuery(
 				 ) ([]byte, error) {
 	//query doc
 	query := f.manager.GetQuery()
-	resultsJson, err := query.Query(index, queryOptJson, queryOptJson.NeedDocs)
+	resultsJson, err := query.Query(index, queryOptJson)
 	if err != nil {
 		return nil, err
 	}

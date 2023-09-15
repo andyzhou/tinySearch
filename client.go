@@ -178,7 +178,6 @@ func (f *Client) DocAgg(
 func (f *Client) DocQuery(
 					indexTag string,
 					optJson *json.QueryOptJson,
-					needDocs ...bool,
 				) (*json.SearchResultJson, error) {
 	//check
 	if indexTag == "" || optJson == nil {
