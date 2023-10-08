@@ -204,12 +204,15 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	filterPrefix.IsMust = true
 
 	optJson := json.NewQueryOptJson()
+	optJson.Key = "吃 水果"
 	optJson.QueryKind = define.QueryKindOfMatchAll
 	optJson.HighLight = true
 	optJson.Filters = []*json.FilterField{
-		filterCat,
+		//filterCat,
 	}
 	optJson.NeedDocs = true
+	optJson.Offset = 0
+	optJson.Size = 10
 
 	//doc query
 	resp, err := client.DocQuery(ServiceIndexTag, optJson)

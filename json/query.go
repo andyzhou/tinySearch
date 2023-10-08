@@ -55,7 +55,9 @@ type QueryOptJson struct {
 	AggFields []*AggField `json:"aggFields"` //only for agg
 	Sort []*SortField `json:"sort"`
 	HighLight bool `json:"highLight"`
-	Page int `json:"page"`
+	Offset int `json:"offset"` //first priority
+	Size int `json:"size"`
+	Page int `json:"page"` //second priority
 	PageSize int `json:"pageSize"`
 	AggSize int `json:"aggSize"`
 	NeedDocs bool `json:"needDocs"`

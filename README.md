@@ -25,3 +25,8 @@ cd github.com/golang/protobuf/protoc-gen-go
 go build 
 
 go install or `cp -f protoc-gen-go /usr/local/go/bin`
+
+
+# tips
+
+- Do not open same search index in multi processes, this will cause file locked.

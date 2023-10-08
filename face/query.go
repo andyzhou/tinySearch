@@ -114,17 +114,26 @@ func (f *Query) Query(
 		searchRequest.SortByCustom(customSort)
 	}
 
-	//check page and page size
-	if opt.Page <= 0 {
-		opt.Page = 1
-	}
-	if opt.PageSize <= 0 {
-		opt.PageSize = define.RecPerPage
+	//check offset
+	if opt.Size > 0 {
+		if opt.Offset < 0 {
+			opt.Offset = 0
+		}
+	}else{
+		//check page and page size
+		if opt.Page <= 0 {
+			opt.Page = 1
+		}
+		if opt.PageSize <= 0 {
+			opt.PageSize = define.RecPerPage
+		}
+		opt.Offset = (opt.Page - 1) * opt.PageSize
+		opt.Size = opt.PageSize
 	}
 
 	//set others
-	searchRequest.From = (opt.Page - 1) * opt.PageSize
-	searchRequest.Size = opt.PageSize
+	searchRequest.From = opt.Offset
+	searchRequest.Size = opt.Size
 	searchRequest.Explain = true
 
 	//begin search

@@ -6,10 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="10ef696f-3f68-4233-8dfd-12c3249ef77e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/example/client.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/face/query.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/query.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/iface/query.go" beforeDir="false" afterPath="$PROJECT_DIR$/iface/query.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rpc/rpcCB.go" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/rpcCB.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/json/query.go" beforeDir="false" afterPath="$PROJECT_DIR$/json/query.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,8 +77,20 @@
       <output_directory value="$PROJECT_DIR$" />
       <method v="2" />
     </configuration>
+    <configuration name="server_clone" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="tinysearch" />
+      <working_directory value="$PROJECT_DIR$/" />
+      <go_parameters value="-i" />
+      <kind value="FILE" />
+      <package value="github.com/andyzhou/tinysearch" />
+      <directory value="$PROJECT_DIR$/" />
+      <filePath value="$PROJECT_DIR$/example/server.go" />
+      <output_directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Go Build.server" />
+      <item itemvalue="Go Build.server_clone" />
       <item itemvalue="Go Build.client" />
     </list>
   </component>
@@ -101,5 +113,16 @@
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/face/query.go</url>
+          <line>117</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
