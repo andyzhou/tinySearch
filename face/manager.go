@@ -52,6 +52,11 @@ func NewManager(dataPath string, dictFile ...string) *Manager{
 func (f *Manager) Quit() {
 }
 
+//get dict file
+func (f *Manager) GetDictFile() string {
+	return f.dictFile
+}
+
 //set index data path
 func (f *Manager) SetDataPath(path string) {
 	f.dataPath = path

@@ -13,26 +13,26 @@ package json
 
 //hit doc json
 type HitDocJson struct {
-	Id string `json:"id"`
+	Id         string            `json:"id"`
 	HighLights map[string]string `json:"highLights"`
-	OrgJson []byte `json:"orgJson"`
-	Score float64 `json:"score"`
+	OrgJson    []byte            `json:"orgJson"`
+	Score      float64           `json:"score"`
 	BaseJson
 }
 
 //testing doc json
 type TestDocJson struct {
-	Id int64 `json:"id,string,omitempty"` //for fix int64 Unmarshal issue
-	Title string `json:"title"`
-	Cat string `json:"cat"`
-	CatPath string `json:"catPath"`
-	Price float64 `json:"price"` //need use match
-	Num int64 `json:"num"`
-	PosterId string `json:"posterId"`
-	Prop map[string]interface{} `json:"prop"`
-	Tags []string `json:"tags"`
-	Introduce string `json:"introduce"`
-	CreateAt int64 `json:"createAt"`
+	Id        int64                  `json:"id,string,omitempty"` //for fix int64 Unmarshal issue
+	Title     string                 `json:"title"`
+	Cat       string                 `json:"cat"`
+	CatPath   string                 `json:"catPath"`
+	Price     float64                `json:"price"` //need use match
+	Num       int64                  `json:"num"`
+	PosterId  string                 `json:"posterId"`
+	Prop      map[string]interface{} `json:"prop"`
+	Tags      []string               `json:"tags"`
+	Introduce string                 `json:"introduce"`
+	CreateAt  int64                  `json:"createAt"`
 	BaseJson
 }
 

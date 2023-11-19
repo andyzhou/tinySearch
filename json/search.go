@@ -6,20 +6,20 @@ package json
 
 //search data json
 type SearchJson struct {
-	App string `json:"app"`
-	Name string `json:"name"`
-	Count int `json:"count"` //doc count
-	Status int `json:"status"`
-	CreateAt int64 `json:"createAt"`
+	App      string `json:"app"`
+	Name     string `json:"name"`
+	Count    int    `json:"count"` //doc count
+	Status   int    `json:"status"`
+	CreateAt int64  `json:"createAt"`
 	BaseJson
 }
 
- //search result json
- type SearchResultJson struct {
- 	Total uint64 `json:"total"`
- 	Records []*HitDocJson `json:"records"`
- 	BaseJson
- }
+//search result json
+type SearchResultJson struct {
+	Total   uint64        `json:"total"`
+	Records []*HitDocJson `json:"records"`
+	BaseJson
+}
 
 ///////////////////////////
 //construct for SearchJson

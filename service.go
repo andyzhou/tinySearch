@@ -89,9 +89,21 @@ func (f *Service) SetDataPath(path string) {
 }
 
 //set dict file path
-func (f *Service) SetDictFile(filePath string) {
+func (f *Service) SetDictFile(filePath string, isForces ...bool) {
+	var (
+		isForce bool
+	)
 	if filePath == "" {
 		filePath = define.SearchDictFileDefault
+	}
+	if isForces != nil && len(isForces) > 0 {
+		isForce = isForces[0]
+	}
+	if !isForce {
+		if f.manager.GetDictFile() != "" {
+			//has set up, just return.
+			return
+		}
 	}
 	f.manager.SetDictFile(filePath)
 }

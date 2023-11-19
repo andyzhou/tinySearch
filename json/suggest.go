@@ -6,26 +6,26 @@ package json
 
 //suggest opt json
 type SuggestOptJson struct {
-	QueryKind int `json:"queryKind"`
-	IndexTag string `json:"indexTag"`
-	Key string `json:"key"`
-	Page int `json:"page"`
-	PageSize int `json:"pageSize"`
+	QueryKind int    `json:"queryKind"`
+	IndexTag  string `json:"indexTag"`
+	Key       string `json:"key"`
+	Page      int    `json:"page"`
+	PageSize  int    `json:"pageSize"`
 	BaseJson
 }
 
- //suggest doc json
- type SuggestJson struct {
- 	Key string `json:"key"`
- 	Count int64 `json:"count"`
- 	BaseJson
- }
+//suggest doc json
+type SuggestJson struct {
+	Key   string `json:"key"`
+	Count int64  `json:"count"`
+	BaseJson
+}
 
- type SuggestsJson struct {
- 	Total int64 `json:"total"`
- 	List []*SuggestJson `json:"list"`
- 	BaseJson
- }
+type SuggestsJson struct {
+	Total int64          `json:"total"`
+	List  []*SuggestJson `json:"list"`
+	BaseJson
+}
 
 
 ///////////////////////////

@@ -11,56 +11,56 @@ import (
 //range value
 type RangeVal struct {
 	From float64 `json:"from"`
-	To float64 `json:"to"`
+	To   float64 `json:"to"`
 }
 
 //filter field
 type FilterField struct {
-	Kind int `json:"kind"`
-	Field string `json:"field"`
-	Val interface{} `json:"val"`
-	DocIds []string `json:"docIds"` //used for batch doc ids match
-	MinVal string `json:"minVal"` //for term range
-	MaxVal string `json:"maxVal"` //for term range
-	MinFloatVal float64 `json:"minFloatVal"` //for numeric range
-	MaxFloatVal float64 `json:"maxFloatVal"` //for numeric range
-	StartTime time.Time `json:"startTime"` //for date range
-	EndTime time.Time `json:"endTime"` //for date range
-	Terms []string `json:"terms"` //for terms query
-	IsMust bool `json:"isMust"`
-	IsExclude bool `json:"isExclude"`
+	Kind        int         `json:"kind"`
+	Field       string      `json:"field"`
+	Val         interface{} `json:"val"`
+	DocIds      []string    `json:"docIds"`      //used for batch doc ids match
+	MinVal      string      `json:"minVal"`      //for term range
+	MaxVal      string      `json:"maxVal"`      //for term range
+	MinFloatVal float64     `json:"minFloatVal"` //for numeric range
+	MaxFloatVal float64     `json:"maxFloatVal"` //for numeric range
+	StartTime   time.Time   `json:"startTime"`   //for date range
+	EndTime     time.Time   `json:"endTime"`     //for date range
+	Terms       []string    `json:"terms"`       //for terms query
+	IsMust      bool        `json:"isMust"`
+	IsExclude   bool        `json:"isExclude"`
 }
 
 //sort field
 type SortField struct {
 	Field string `json:"field"`
-	Desc bool `json:"desc"` //true:desc false:asc
+	Desc  bool   `json:"desc"` //true:desc false:asc
 }
 
 //term query para
 type TermQueryPara struct {
 	Field string `json:"field"`
-	Val string `json:"val"`
+	Val   string `json:"val"`
 }
 
 //json info
 type QueryOptJson struct {
-	QueryKind int `json:"queryKind"`
-	TermPara TermQueryPara `json:"termPara"`
-	Tag string `json:"tag"`
-	SuggestTag string `json:"suggestTag"`
-	Key string `json:"key"`
-	Fields []string `json:"fields"`
-	Filters []*FilterField `json:"filters"` //sub filters
-	AggFields []*AggField `json:"aggFields"` //only for agg
-	Sort []*SortField `json:"sort"`
-	HighLight bool `json:"highLight"`
-	Offset int `json:"offset"` //first priority
-	Size int `json:"size"`
-	Page int `json:"page"` //second priority
-	PageSize int `json:"pageSize"`
-	AggSize int `json:"aggSize"`
-	NeedDocs bool `json:"needDocs"`
+	QueryKind  int            `json:"queryKind"`
+	TermPara   TermQueryPara  `json:"termPara"`
+	Tag        string         `json:"tag"`
+	SuggestTag string         `json:"suggestTag"`
+	Key        string         `json:"key"`
+	Fields     []string       `json:"fields"`
+	Filters    []*FilterField `json:"filters"`   //sub filters
+	AggFields  []*AggField    `json:"aggFields"` //only for agg
+	Sort       []*SortField   `json:"sort"`
+	HighLight  bool           `json:"highLight"`
+	Offset     int            `json:"offset"` //first priority
+	Size       int            `json:"size"`
+	Page       int            `json:"page"` //second priority
+	PageSize   int            `json:"pageSize"`
+	AggSize    int            `json:"aggSize"`
+	NeedDocs   bool           `json:"needDocs"`
 	BaseJson
 }
 

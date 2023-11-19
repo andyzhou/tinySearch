@@ -8,24 +8,24 @@ import "encoding/json"
 
 //agg field
 type AggField struct {
-	Field string `json:"field"`
-	Size int `json:"size"`
-	IsNumeric bool `json:"isNumeric"`
+	Field         string      `json:"field"`
+	Size          int         `json:"size"`
+	IsNumeric     bool        `json:"isNumeric"`
 	NumericRanges []*RangeVal `json:"numericRanges"`
 }
 
 //aggregate json
 type AggregateJson struct {
-	Name string `json:"name"`
-	Min json.Number `json:"min,string,omitempty"`
-	Max json.Number `json:"max,string,omitempty"`
-	Count int `json:"count"`
+	Name  string      `json:"name"`
+	Min   json.Number `json:"min,string,omitempty"`
+	Max   json.Number `json:"max,string,omitempty"`
+	Count int         `json:"count"`
 	BaseJson
 }
 
 //one kind agg record
 type AggregatesJson struct {
-	Field string `json:"field"`
+	Field   string                      `json:"field"`
 	MapList map[string][]*AggregateJson `json:"list"`
 	BaseJson
 }

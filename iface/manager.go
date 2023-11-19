@@ -6,6 +6,7 @@ package iface
 
 type IManager interface {
 	Quit()
+	GetDictFile() string
 	SetDataPath(path string)
 	SetDictFile(filePath string)
 
