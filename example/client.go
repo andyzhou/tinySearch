@@ -55,7 +55,7 @@ func testing(client *tinysearch.Client) {
 	//testClientAggDoc(client)
 
 	//query doc
-	testClientQueryDoc(client)
+	//testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
@@ -64,7 +64,7 @@ func testing(client *tinysearch.Client) {
 	//testClientGetDoc(client)
 
 	//add doc
-	//testClientSyncDoc(client)
+	testClientSyncDoc(client)
 
 	//create index
 	//testClientCreateIndex(client)
@@ -253,8 +253,8 @@ func testClientSyncDoc(client *tinysearch.Client) {
 	var (
 		docIdBegin, docIdEnd int64
 	)
-	docIdBegin = 5
-	docIdEnd = 6
+	docIdBegin = 7
+	docIdEnd = 8
 	for id := docIdBegin; id <= docIdEnd; id++ {
 		addOneDoc(id, client)
 	}

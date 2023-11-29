@@ -18,6 +18,12 @@ const (
 	SuggesterTag = "test"
 )
 
+//hook for add doc
+func hookForAddDoc(jsonBytes []byte) error {
+	log.Println("jsonBytes:", jsonBytes)
+	return nil
+}
+
 func main() {
 	var (
 		wg sync.WaitGroup
@@ -32,6 +38,9 @@ func main() {
 	//set relate path
 	service.SetDataPath(IndexPath)
 	//service.SetDictFile("")
+
+	//set hook for add doc
+	service.SetHookForAddDoc(hookForAddDoc)
 
 	//add index
 	err := service.AddIndex(IndexTag)
