@@ -8,27 +8,77 @@ import (
 	"github.com/andyzhou/tinysearch/iface"
 	"github.com/andyzhou/tinysearch/json"
 	search "github.com/andyzhou/tinysearch/pb"
+	"log"
+	"runtime/debug"
 )
 
 /*
  * rpc call back for rpc service
  */
 
+//inter macro define
+const (
+	AddDocQueueSize = 1024
+)
+
+//inter type
+type (
+	AddDocQueueReq struct{
+		In search.DocSyncReq
+		Out chan search.DocSyncResp //sync response chan
+	}
+)
+
 //face info
 type CB struct {
+	addDocQueueMode bool
 	manager iface.IManager //manager reference
+	addDocQueueSize int
+	addDocQueue chan AddDocQueueReq //add doc queue
+	addDocCloseChan chan bool
 	json.BaseJson
 }
 
 //construct
 func NewRpcCB(
 			manager iface.IManager,
+			addDocQueueMode bool,
+			addDocQueueSizes ...int,
 		) *CB {
+	var (
+		addDocQueueSize int
+	)
+	//detect queue size
+	if addDocQueueSizes != nil && len(addDocQueueSizes) > 0 {
+		addDocQueueSize = addDocQueueSizes[0]
+	}
+	if addDocQueueSize <= 0 {
+		addDocQueueSize = AddDocQueueSize
+	}
+
 	//self init
 	this := &CB{
 		manager:manager,
+		addDocQueueMode: addDocQueueMode,
+		addDocQueueSize: addDocQueueSize,
+	}
+
+	//check and init inter add doc queue
+	if addDocQueueMode {
+		this.addDocQueue = make(chan AddDocQueueReq, addDocQueueSize)
+		this.addDocCloseChan = make(chan bool, 1)
+
+		//spawn son processor
+		go this.runAddDocQueueProcessor()
 	}
 	return this
+}
+
+//quit
+func (f *CB) Quit() {
+	if f.addDocCloseChan != nil && f.addDocQueue != nil {
+		f.addDocCloseChan <- true
+	}
 }
 
 /////////////////////////////
@@ -217,6 +267,48 @@ func (f *CB) DocSync(
 					ctx context.Context,
 					in *search.DocSyncReq,
 				) (*search.DocSyncResp, error) {
+	//check input value
+	if in == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//check queue mode
+	if !f.addDocQueueMode {
+		//just call low level api
+		resp, err := f.lowLevelAddDoc(in)
+		return resp, err
+	}
+
+	//check inter queue
+	if f.addDocQueue == nil || len(f.addDocQueue) >= AddDocQueueSize {
+		return nil, errors.New("inter add doc queue is nil or full")
+	}
+
+	//format and send to queue
+	queueReq := AddDocQueueReq{
+		In: *in,
+		Out: make(chan search.DocSyncResp, 1),
+	}
+
+	//send to inter queue
+	f.addDocQueue <- queueReq
+
+	//wait response
+	resp, ok := <- queueReq.Out
+	if !ok || &resp == nil {
+		return nil, errors.New("can't get queue response")
+	}
+	return &resp, nil
+}
+
+/////////////////
+//private func
+/////////////////
+
+//low level add doc function
+func (f *CB) lowLevelAddDoc(
+		in *search.DocSyncReq,
+	) (*search.DocSyncResp, error) {
 	var (
 		tip string
 	)
@@ -264,10 +356,6 @@ func (f *CB) DocSync(
 	}
 	return result, nil
 }
-
-/////////////////
-//private func
-/////////////////
 
 //suggest query
 func (f *CB) suggestDocQuery(
@@ -324,4 +412,60 @@ func (f *CB) genDocQuery(
 		return nil, nil
 	}
 	return resultsJson.Encode()
+}
+
+//add doc request opt
+func (f *CB) addDocReqOpt(req *AddDocQueueReq) error {
+	//check
+	if req == nil || &req.In == nil {
+		return errors.New("invalid parameter")
+	}
+
+	//call api func
+	resp, err := f.lowLevelAddDoc(&req.In)
+	if resp == nil {
+		resp = &search.DocSyncResp{}
+	}
+	if err != nil {
+		resp.ErrMsg = err.Error()
+	}else{
+		resp.Success = true
+	}
+
+	//send response
+	defer func() {
+		//send to out chan
+		if req.Out != nil {
+			req.Out <- *resp
+		}
+	}()
+	return err
+}
+
+//add doc queue processor
+func (f *CB) runAddDocQueueProcessor() {
+	var (
+		req AddDocQueueReq
+		isOk bool
+		m any = nil
+	)
+
+	//defer
+	defer func() {
+		if err := recover(); err != m {
+			log.Printf("tinysearch.rpcCB.runAddDocQueueProcessor panic, err:%v\n", err)
+			log.Printf("tinysearch.rpcCB, track:%v\n", string(debug.Stack()))
+		}
+	}()
+
+	//loop
+	for {
+		select {
+		case req, isOk = <- f.addDocQueue:
+			if isOk && &req != nil {
+				//add doc opt
+				f.addDocReqOpt(&req)
+			}
+		}
+	}
 }

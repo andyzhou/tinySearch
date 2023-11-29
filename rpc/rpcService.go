@@ -16,6 +16,9 @@ import (
 //face info
 type Service struct {
 	addr string //rpc address
+	addDocQueueMode bool
+	addDocQueueSize int
+	rpcCB *CB //rpc service
 	manager iface.IManager //reference
 	listener *net.Listener
 	service *grpc.Server //rpc service
@@ -25,12 +28,25 @@ type Service struct {
 func NewRpcService(
 			port int,
 			manager iface.IManager,//reference
+			addDocQueueMode bool,
+			addDocQueueSizes ...int,
 		) *Service {
+	var (
+		addDocQueueSize int
+	)
+	//detect queue size
+	if addDocQueueSizes != nil && len(addDocQueueSizes) > 0 {
+		addDocQueueSize = addDocQueueSizes[0]
+	}
+
 	//self init
 	this := &Service{
 		addr:fmt.Sprintf(":%d", port),
 		manager:manager,
+		addDocQueueMode: addDocQueueMode,
+		addDocQueueSize: addDocQueueSize,
 	}
+
 	//create service
 	this.createService()
 	return this
@@ -43,6 +59,9 @@ func (f *Service) Stop() {
 	}
 	if f.listener != nil {
 		(*f.listener).Close()
+	}
+	if f.rpcCB != nil {
+		f.rpcCB.Quit()
 	}
 }
 
@@ -87,11 +106,16 @@ func (f *Service) createService() {
 	//create rpc server
 	f.service = grpc.NewServer()
 
+	//init rpc service
+	f.rpcCB = NewRpcCB(f.manager, f.addDocQueueMode, f.addDocQueueSize)
+
 	//register call back
 	search.RegisterSearchServiceServer(
 			f.service,
-			NewRpcCB(f.manager),
+			f.rpcCB,
 		)
+
+	//sync listen
 	f.listener = &listen
 
 	//start service

@@ -14,10 +14,20 @@ import (
  * - if none rpc mode, just opt base on service sub face
  */
 
+//global variable
 var (
 	_service *Service
 	_serviceOnce sync.Once
 )
+
+//service para
+type ServicePara struct {
+	DataPath string
+	RpcPort int //if setup, run as rpc service
+	DictFile string
+	AddDocQueueMode bool //add doc with queue mode
+	AddDocQueueSize int //default 1024
+}
 
 //face info
 type Service struct {
@@ -41,28 +51,35 @@ func NewService(rpcPort ...int) *Service {
 	if rpcPort != nil && len(rpcPort) > 0 {
 		rpcPortInt = rpcPort[0]
 	}
-	return NewServiceWithPara(
-				define.DataPathDefault,
-				rpcPortInt,
-			)
+
+	//setup service para
+	servicePara := &ServicePara{
+		DataPath: define.DataPathDefault,
+		RpcPort: rpcPortInt,
+	}
+
+	//init service with para
+	return NewServiceWithPara(servicePara)
 }
 
 //construct with parameter
 func NewServiceWithPara(
-			dataPath string,
-			rpcPort int,
-			dictFile ...string,
+			para *ServicePara,
 		) *Service {
-	if dataPath == "" {
-		dataPath = define.DataPathDefault
+	if para.DataPath == "" {
+		para.DataPath = define.DataPathDefault
 	}
 	//self init
 	this := &Service{
-		manager: face.NewManager(dataPath, dictFile...),
+		manager: face.NewManager(para.DataPath, para.DictFile),
 	}
 	//init rpc if rpc port > 0
-	if rpcPort > 0 {
-		this.rpcService = rpc.NewRpcService(rpcPort, this.manager)
+	if para.RpcPort > 0 {
+		this.rpcService = rpc.NewRpcService(
+					para.RpcPort,
+					this.manager,
+					para.AddDocQueueMode,
+					para.AddDocQueueSize)
 	}
 	return this
 }

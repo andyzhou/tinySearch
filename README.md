@@ -4,6 +4,16 @@ This is a local search lib, base on beleve.
 - include doc add, search, agg, suggest
 - search in local, sync doc for multi node
 
+# Service para
+```golang
+type ServicePara struct {
+    DataPath string
+    RpcPort int //if setup, run as rpc service
+    DictFile string
+    AddDocQueueMode bool //add doc with queue mode
+}
+```
+
 # How to use?
 
 Please see client.go in the **example** sub dir.

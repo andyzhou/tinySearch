@@ -6,8 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="10ef696f-3f68-4233-8dfd-12c3249ef77e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/example/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/example/server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/rpcCB.go" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/rpcCB.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/rpcService.go" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/rpcService.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/service.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,7 +55,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.goide.configuration.GoProjectSettingsConfigurable" />
   </component>
-  <component name="RunManager" selected="Go Build.server">
+  <component name="RunManager" selected="Go Build.client">
     <configuration name="client" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <module name="tinysearch" />
       <working_directory value="$PROJECT_DIR$/" />
@@ -111,26 +114,5 @@
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/rpc/rpcCB.go</url>
-          <line>240</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/rpc/rpcCB.go</url>
-          <line>238</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/example/server.go</url>
-          <line>22</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

@@ -32,8 +32,15 @@ func main() {
 	//watch signal
 	tinysearch.WatchSignal(&wg)
 
+	//format service para
+	servicePara := &tinysearch.ServicePara{
+		DataPath: IndexPath,
+		RpcPort: RpcPort,
+		AddDocQueueMode: true,
+	}
+
 	//init service
-	service := tinysearch.NewServiceWithPara(IndexPath, RpcPort)
+	service := tinysearch.NewServiceWithPara(servicePara)
 
 	//set relate path
 	service.SetDataPath(IndexPath)
