@@ -8,6 +8,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/face/doc.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/doc.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/iface/doc.go" beforeDir="false" afterPath="$PROJECT_DIR$/iface/doc.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/rpcCB.go" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/rpcCB.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/service.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

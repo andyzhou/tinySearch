@@ -12,7 +12,7 @@ import (
 
 //face info
 type Doc struct {
-	hookForAddDoc func(docId string, obj interface{}) error
+	hookForAddDoc func(jsonByte []byte) error
 	Base
 }
 
@@ -178,14 +178,6 @@ func (f *Doc) AddDoc(
 		return errors.New("invalid parameter")
 	}
 
-	//hook check and opt
-	if f.hookForAddDoc != nil {
-		err = f.hookForAddDoc(docId, jsonObj)
-		if err != nil {
-			return err
-		}
-	}
-
 	//get indexer
 	indexer := index.GetIndex()
 	if indexer == nil {
@@ -197,10 +189,15 @@ func (f *Doc) AddDoc(
 	return err
 }
 
+//get hook for add doc
+func (f *Doc) GetHoodForAddDoc() func(jsonByte []byte) error{
+	return f.hookForAddDoc
+}
+
 //set hook for add doc
 //used for opt obj from outside
 func (f *Doc) SetHookForAddDoc(
-		hook func(docId string, obj interface{}) error,
+		hook func(jsonByte []byte) error,
 	) error {
 	//check
 	if hook == nil {

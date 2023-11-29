@@ -233,7 +233,18 @@ func (f *CB) DocSync(
 		return nil, errors.New(tip)
 	}
 
-	//decode json byte
+	//check and call add doc hook
+	doc := f.manager.GetDoc()
+	docAddHook := doc.GetHoodForAddDoc()
+	if docAddHook != nil {
+		//has register hook, call it
+		subErr := docAddHook(in.Json)
+		if subErr != nil {
+			return nil, subErr
+		}
+	}
+
+	//decode json byte as general kv map
 	kvMap := make(map[string]interface{})
 	err := f.BaseJson.DecodeSimple(in.Json, kvMap)
 	if err != nil {
