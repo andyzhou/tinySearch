@@ -128,6 +128,14 @@ func (f *Service) GetDoc() iface.IDoc {
 	return f.manager.GetDoc()
 }
 
+//set doc add hook
+//used for opt obj from outside
+func (f *Service) SetHookForAddDoc(
+		hook func(docId string, obj interface{}) error,
+	) error {
+	return f.manager.GetDoc().SetHookForAddDoc(hook)
+}
+
 //get index face
 func (f *Service) GetIndex(tag string) iface.IIndex {
 	return f.manager.GetIndex(tag)

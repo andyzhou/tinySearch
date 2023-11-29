@@ -12,6 +12,7 @@ import (
 
 //face info
 type Doc struct {
+	hookForAddDoc func(docId string, obj interface{}) error
 	Base
 }
 
@@ -169,9 +170,20 @@ func (f *Doc) AddDoc(
 				docId string,
 				jsonObj interface{},
 			) error {
+	var (
+		err error
+	)
 	//basic check
 	if index == nil || docId == "" || jsonObj == nil {
 		return errors.New("invalid parameter")
+	}
+
+	//hook check and opt
+	if f.hookForAddDoc != nil {
+		err = f.hookForAddDoc(docId, jsonObj)
+		if err != nil {
+			return err
+		}
 	}
 
 	//get indexer
@@ -181,6 +193,19 @@ func (f *Doc) AddDoc(
 	}
 
 	//add or update doc
-	err := indexer.Index(docId, jsonObj)
+	err = indexer.Index(docId, jsonObj)
 	return err
+}
+
+//set hook for add doc
+//used for opt obj from outside
+func (f *Doc) SetHookForAddDoc(
+		hook func(docId string, obj interface{}) error,
+	) error {
+	//check
+	if hook == nil {
+		return errors.New("invalid parameter")
+	}
+	f.hookForAddDoc = hook
+	return nil
 }
