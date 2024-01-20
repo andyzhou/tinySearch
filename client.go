@@ -12,6 +12,8 @@ import (
 
 /*
  * client api
+ * @author <AndyZhou>
+ * @mail <diudiu8848@163.com>
  * - used for rpc mode
  */
 

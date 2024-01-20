@@ -8,9 +8,11 @@ const (
 	ClientCheckTicker = 5
 	ReqChanSize = 1024
 	DataPathDefault = "./private"
-	InterSuggestIndexPara = "__suggester_%v"
 	InterSuggestChanSize = 1024
 	CustomTokenizerOfJieBa = "jieba"
+
+	InterDefaultGroup = "__group__"
+	InterSuggestIndexPara = "__suggester_%v"
 )
 
 //default value

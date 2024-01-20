@@ -2,6 +2,8 @@ package json
 
 /*
  * json for doc
+ * @author <AndyZhou>
+ * @mail <diudiu8848@163.com>
  */
 
 //doc json

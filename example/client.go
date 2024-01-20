@@ -13,6 +13,8 @@ import (
 
 /*
  * client example
+ * @author <AndyZhou>
+ * @mail <diudiu8848@163.com>
  */
 
 const (

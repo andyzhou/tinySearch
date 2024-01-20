@@ -8,6 +8,8 @@ import (
 
 /*
  * inter manager for rpc service
+ * @author <AndyZhou>
+ * @mail <diudiu8848@163.com>
  * - sync doc for new or remove
  */
 

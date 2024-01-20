@@ -13,6 +13,8 @@ import (
 
 /*
  * face for rpc client
+ * @author <AndyZhou>
+ * @mail <diudiu8848@163.com>
  */
 
 //doc sync request
@@ -44,7 +46,7 @@ func NewRpcClient(addr string) *Client {
 		closeChan:make(chan struct{}, 1),
 	}
 
-	//try connect server
+	//connect server
 	this.connServer()
 
 	//spawn main process

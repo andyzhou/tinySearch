@@ -2,6 +2,8 @@ package json
 
 /*
  * json for search
+ * @author <AndyZhou>
+ * @mail <diudiu8848@163.com>
  */
 
 //search data json

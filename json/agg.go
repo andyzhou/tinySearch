@@ -4,6 +4,8 @@ import "encoding/json"
 
 /*
  * json for agg
+ * @author <AndyZhou>
+ * @mail <diudiu8848@163.com>
  */
 
 //agg field

@@ -11,6 +11,8 @@ import (
 
 /*
  * service api
+ * @author <AndyZhou>
+ * @mail <diudiu8848@163.com>
  * - if none rpc mode, just opt base on service sub face
  */
 

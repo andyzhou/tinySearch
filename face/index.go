@@ -14,6 +14,8 @@ import (
 
 /*
  * face for index
+ * @author <AndyZhou>
+ * @mail <diudiu8848@163.com>
  * - chinese token base on 'github.com/wangbin/jiebago'
  */
 
@@ -89,14 +91,14 @@ func (f *Index) CreateIndex() error {
 	subDir := fmt.Sprintf("%s/%s", f.indexDir, f.tag)
 
 	//init search index
-	index, err := bleve.New(subDir, indexMapping)
-	if err != nil {
+	index, subErr := bleve.New(subDir, indexMapping)
+	if subErr != nil {
 		//index had exists, open it.
-		if err == bleve.ErrorIndexPathExists {
-			index, err = bleve.Open(subDir)
+		if subErr == bleve.ErrorIndexPathExists {
+			index, subErr = bleve.Open(subDir)
 		}
-		if err != nil {
-			return err
+		if subErr != nil {
+			return subErr
 		}
 	}
 
@@ -104,7 +106,6 @@ func (f *Index) CreateIndex() error {
 	f.Lock()
 	defer f.Unlock()
 	f.indexer = index
-
 	return nil
 }
 
