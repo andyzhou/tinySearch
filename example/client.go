@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/andyzhou/tinysearch"
 	"github.com/andyzhou/tinysearch/define"
+	json2 "github.com/andyzhou/tinysearch/example/json"
 	"github.com/andyzhou/tinysearch/json"
 	"log"
 	"math/rand"
@@ -18,7 +19,7 @@ import (
  */
 
 const (
-	ServiceRpcPort = 6060
+	ServiceRpcPort = 6160
 	ServiceIndexTag = "test"
 	DocSuggesterTag = "test"
 )
@@ -57,7 +58,7 @@ func testing(client *tinysearch.Client) {
 	//testClientAggDoc(client)
 
 	//query doc
-	//testClientQueryDoc(client)
+	testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
@@ -66,7 +67,7 @@ func testing(client *tinysearch.Client) {
 	//testClientGetDoc(client)
 
 	//add doc
-	testClientSyncDoc(client)
+	//testClientSyncDoc(client)
 
 	//create index
 	//testClientCreateIndex(client)
@@ -153,7 +154,7 @@ func testClientGetDoc(client *tinysearch.Client)  {
 		if err != nil {
 			continue
 		}
-		testDocJson := json.NewTestDocJson()
+		testDocJson := json2.NewTestDocJson()
 		err = testDocJson.Decode(hitDoc.OrgJson)
 		if err != nil {
 			log.Printf("testClientGetDoc failed, err:%v", err)
@@ -205,12 +206,20 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	filterPrefix.Val = "1,2"
 	filterPrefix.IsMust = true
 
+	//filter for query
+	filterQueryCat := json.NewFilterField()
+	filterQueryCat.Kind = define.FilterKindMatch
+	filterQueryCat.Field = "title"
+	filterQueryCat.Val = "安装"
+	filterQueryCat.IsMust = true
+
 	optJson := json.NewQueryOptJson()
-	optJson.Key = "吃 水果"
-	optJson.QueryKind = define.QueryKindOfMatchAll
+	//optJson.Fields = []string{"title", "cat"}
+	optJson.Key = "job-1"
+	optJson.QueryKind = define.QueryKindOfMatchQuery
 	optJson.HighLight = true
 	optJson.Filters = []*json.FilterField{
-		//filterCat,
+		//filterQueryCat,
 	}
 	optJson.NeedDocs = true
 	optJson.Offset = 0
@@ -230,7 +239,7 @@ func testClientQueryDoc(client *tinysearch.Client) {
 	//analyze result
 	for _, jsonObj := range resp.Records {
 		log.Printf("hitId:%v, score:%v, orgJson:%v\n", jsonObj.Id, jsonObj.Score, string(jsonObj.OrgJson))
-		testJson := json.NewTestDocJson()
+		testJson := json2.NewTestDocJson()
 		err = testJson.Decode(jsonObj.OrgJson)
 		if testJson == nil {
 			continue
@@ -255,8 +264,8 @@ func testClientSyncDoc(client *tinysearch.Client) {
 	var (
 		docIdBegin, docIdEnd int64
 	)
-	docIdBegin = 7
-	docIdEnd = 8
+	docIdBegin = 9
+	docIdEnd = 10
 	for id := docIdBegin; id <= docIdEnd; id++ {
 		addOneDoc(id, client)
 	}
@@ -272,7 +281,7 @@ func testClientCreateIndex(client *tinysearch.Client) {
 func addOneDoc(docId int64, client *tinysearch.Client) {
 	//init test doc json
 	docIdStr := fmt.Sprintf("%v", docId)
-	testDocJson := json.NewTestDocJson()
+	testDocJson := json2.NewTestDocJson()
 	testDocJson.Id = docId
 	testDocJson.Title = fmt.Sprintf("工信处女干事每月件的安装工作-%d", docId)
 	testDocJson.Cat = "job-1"

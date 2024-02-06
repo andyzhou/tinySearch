@@ -6,28 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="10ef696f-3f68-4233-8dfd-12c3249ef77e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/define/global.go" beforeDir="false" afterPath="$PROJECT_DIR$/define/global.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/example/client.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/example/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/agg.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/agg.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/base.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/base.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/doc.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/doc.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/index.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/index.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/manager.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/manager.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/query.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/query.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/suggest.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/suggest.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/json/agg.go" beforeDir="false" afterPath="$PROJECT_DIR$/json/agg.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/json/doc.go" beforeDir="false" afterPath="$PROJECT_DIR$/json/doc.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/json/query.go" beforeDir="false" afterPath="$PROJECT_DIR$/json/query.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/json/search.go" beforeDir="false" afterPath="$PROJECT_DIR$/json/search.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/json/suggest.go" beforeDir="false" afterPath="$PROJECT_DIR$/json/suggest.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pb/search.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/pb/search.pb.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pb/search.proto" beforeDir="false" afterPath="$PROJECT_DIR$/pb/search.proto" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rpc/rpcCB.go" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/rpcCB.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rpc/rpcClient.go" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/rpcClient.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rpc/rpcService.go" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/rpcService.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/service.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,7 +30,9 @@
     <option name="indexEntireGoPath" value="false" />
   </component>
   <component name="ProjectId" id="2HZpoCUATt2REUhxwgsI5CdlRlM" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -60,9 +43,8 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="configurable.Global.GOPATH.is.expanded" value="true" />
-    <property name="configurable.Module.GOPATH.is.expanded" value="false" />
-    <property name="configurable.Project.GOPATH.is.expanded" value="true" />
+    <property name="configurable..is.expanded" value="false" />
+    <property name="configurable.GoLibrariesConfigurable.is.expanded" value="true" />
     <property name="go.formatter.settings.were.checked" value="true" />
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.modules.go.list.on.any.changes.was.set" value="true" />
@@ -70,7 +52,12 @@
     <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
     <property name="go.vendoring.notification.had.been.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="com.goide.configuration.GoProjectSettingsConfigurable" />
+    <property name="settings.editor.selected.configurable" value="go.dep" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/example/json" />
+    </key>
   </component>
   <component name="RunManager" selected="Go Build.client">
     <configuration name="client" type="GoApplicationRunConfiguration" factoryName="Go Application">
@@ -95,20 +82,8 @@
       <output_directory value="$PROJECT_DIR$" />
       <method v="2" />
     </configuration>
-    <configuration name="server_clone" type="GoApplicationRunConfiguration" factoryName="Go Application">
-      <module name="tinysearch" />
-      <working_directory value="$PROJECT_DIR$/" />
-      <go_parameters value="-i" />
-      <kind value="FILE" />
-      <package value="github.com/andyzhou/tinysearch" />
-      <directory value="$PROJECT_DIR$/" />
-      <filePath value="$PROJECT_DIR$/example/server.go" />
-      <output_directory value="$PROJECT_DIR$" />
-      <method v="2" />
-    </configuration>
     <list>
       <item itemvalue="Go Build.server" />
-      <item itemvalue="Go Build.server_clone" />
       <item itemvalue="Go Build.client" />
     </list>
   </component>
@@ -128,8 +103,5 @@
         <option value="Default.Subject" />
       </list>
     </option>
-  </component>
-  <component name="VgoProject">
-    <integration-enabled>true</integration-enabled>
   </component>
 </project>

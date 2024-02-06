@@ -14,7 +14,7 @@ import (
  */
 
 const (
-	RpcPort = 6060
+	RpcPort = 6160
 	IndexPath = "./search_data"
 	IndexTag = "test"
 	SuggesterTag = "test"
