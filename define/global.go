@@ -30,11 +30,14 @@ const (
 
 //query kind
 const (
-	QueryKindOfTerm = iota + 1
+	QueryKindOfMatchAll = iota + 1
+	QueryKindOfTerm
 	QueryKindOfMatchQuery
 	QueryKindOfPhrase
+	QueryKindOfMatchPhraseQuery
 	QueryKindOfPrefix
-	QueryKindOfMatchAll
+	QueryKindOfGeoDistance
+	QueryKindOfConjunctionQuery
 )
 
 //filter kind

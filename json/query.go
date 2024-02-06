@@ -63,6 +63,9 @@ type QueryOptJson struct {
 	PageSize   int            `json:"pageSize"`
 	AggSize    int            `json:"aggSize"`
 	NeedDocs   bool           `json:"needDocs"`
+	Lon        float64        `json:"lon"` //geo of lon
+	Lat        float64        `json:"lat"` //geo of lat
+	Distance   string         `json:"distance"` //like '1km'
 	BaseJson
 }
 
