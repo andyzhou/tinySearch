@@ -5,24 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="10ef696f-3f68-4233-8dfd-12c3249ef77e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/define.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/list.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/queue.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/worker.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/test_bench.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/testing/doc_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/example/client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/example/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/agg.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/agg.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/doc.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/doc.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/manager.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/manager.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/query.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/query.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face/suggest.go" beforeDir="false" afterPath="$PROJECT_DIR$/face/suggest.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/iface/doc.go" beforeDir="false" afterPath="$PROJECT_DIR$/iface/doc.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rpc/rpcCB.go" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/rpcCB.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rpc/rpcClient.go" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/rpcClient.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rpc/rpcService.go" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/rpcService.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/test_bench.go" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
