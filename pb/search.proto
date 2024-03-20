@@ -42,6 +42,7 @@ message DocSyncResp {
 message DocGetReq {
     string tag = 1; //index tag
     repeated string docIds = 2; //doc id array
+    bool useQueue = 3; //set as true, will opt in queue
 }
 
 //message for doc get response

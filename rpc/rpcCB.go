@@ -23,9 +23,13 @@ const (
 
 //inter type
 type (
+	GetDocQueueReq struct {
+		In search.DocGetReq
+		Out chan search.DocGetResp
+	}
 	AddDocQueueReq struct{
 		In search.DocSyncReq
-		Out chan search.DocSyncResp //sync response chan
+		Out chan search.DocSyncResp
 	}
 	RemoveDocQueueReq struct {
 		In search.DocRemoveReq
@@ -57,7 +61,7 @@ func NewRpcCB(
 	//check and init inter add doc queue
 	if docQueueMode {
 		//set consumer
-		this.worker.SetCBForQueueOpt(this.consumerForQueue)
+		this.worker.SetCBForQueueOpt(this.cbForQueue)
 
 		//create batch son workers
 		if queueWorkers <= 0 {
@@ -178,46 +182,33 @@ func (f *CB) DocGet(
 		ctx context.Context,
 		in *search.DocGetReq,
 	) (*search.DocGetResp, error) {
-	var (
-		tip string
-	)
 	//check input value
-	if in == nil || in.DocIds == nil {
+	if in == nil {
 		return nil, errors.New("invalid parameter")
 	}
 
-	//get index
-	index := f.manager.GetIndex(in.Tag)
-	if index == nil {
-		tip = fmt.Sprintf("can't get index by tag of %s", in.Tag)
-		return nil, errors.New(tip)
+	//check queue mode
+	if !in.UseQueue {
+		//just call low level api
+		resp, err := f.lowLevelGetDoc(in)
+		return resp, err
 	}
 
-	//get doc face
-	doc := f.manager.GetDoc()
-
-	//get batch docs
-	hitDocs, err := doc.GetDocs(index, in.DocIds...)
-	if err != nil {
-		return nil, err
-	}
-	if hitDocs == nil {
-		return nil, errors.New("no any records")
+	//format and send to queue
+	queueReq := GetDocQueueReq{
+		In: *in,
+		Out: make(chan search.DocGetResp, 1),
 	}
 
-	//format result
-	result := &search.DocGetResp{
-		Success:true,
-		JsonByte:make([][]byte, 0),
+	//send to inter queue list
+	f.worker.SendData(queueReq, in.DocIds[0])
+
+	//wait response
+	resp, ok := <- queueReq.Out
+	if !ok || &resp == nil {
+		return nil, errors.New("can't get queue response")
 	}
-	for _, hitDoc := range hitDocs {
-		hitDocByte, subErr := hitDoc.Encode()
-		if subErr != nil || hitDocByte == nil {
-			continue
-		}
-		result.JsonByte = append(result.JsonByte, hitDocByte)
-	}
-	return result, nil
+	return &resp, nil
 }
 
 //doc remove
@@ -291,6 +282,52 @@ func (f *CB) DocSync(
 /////////////////
 //private func
 /////////////////
+
+//low level get doc
+func (f *CB) lowLevelGetDoc(
+		in *search.DocGetReq,
+	) (*search.DocGetResp, error) {
+	var (
+		tip string
+	)
+	//check input value
+	if in == nil || in.DocIds == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//get index
+	index := f.manager.GetIndex(in.Tag)
+	if index == nil {
+		tip = fmt.Sprintf("can't get index by tag of %s", in.Tag)
+		return nil, errors.New(tip)
+	}
+
+	//get doc face
+	doc := f.manager.GetDoc()
+
+	//get batch docs
+	hitDocs, err := doc.GetDocs(index, in.DocIds...)
+	if err != nil {
+		return nil, err
+	}
+	if hitDocs == nil {
+		return nil, errors.New("no any records")
+	}
+
+	//format result
+	result := &search.DocGetResp{
+		Success:true,
+		JsonByte:make([][]byte, 0),
+	}
+	for _, hitDoc := range hitDocs {
+		hitDocByte, subErr := hitDoc.Encode()
+		if subErr != nil || hitDocByte == nil {
+			continue
+		}
+		result.JsonByte = append(result.JsonByte, hitDocByte)
+	}
+	return result, nil
+}
 
 //low level remove doc
 func (f *CB) lowLevelRemoveDoc(
@@ -436,6 +473,35 @@ func (f *CB) genDocQuery(
 	return resultsJson.Encode()
 }
 
+
+//get doc request opt
+func (f *CB) getDocReqOpt(req *GetDocQueueReq) error {
+	//check
+	if req == nil || &req.In == nil {
+		return errors.New("invalid parameter")
+	}
+
+	//call api func
+	resp, err := f.lowLevelGetDoc(&req.In)
+	if resp == nil {
+		resp = &search.DocGetResp{}
+	}
+	if err != nil {
+		resp.ErrMsg = err.Error()
+	}else{
+		resp.Success = true
+	}
+
+	//send response
+	defer func() {
+		//send to out chan
+		if req.Out != nil {
+			req.Out <- *resp
+		}
+	}()
+	return err
+}
+
 //remove doc request opt
 func (f *CB) removeDocReqOpt(req *RemoveDocQueueReq) error {
 	//check
@@ -492,12 +558,8 @@ func (f *CB) addDocReqOpt(req *AddDocQueueReq) error {
 	return err
 }
 
-//set consumer for list
-func (f *CB) consumerForList(input interface{}) error {
-	return nil
-}
-
-func (f *CB) consumerForQueue(input interface{}) (interface{}, error) {
+//cb for queue opt
+func (f *CB) cbForQueue(input interface{}) (interface{}, error) {
 	var (
 		err error
 	)
@@ -508,6 +570,15 @@ func (f *CB) consumerForQueue(input interface{}) (interface{}, error) {
 
 	//do diff opt by data type
 	switch dataType := input.(type) {
+	case GetDocQueueReq:
+		{
+			//get doc opt
+			req, ok := input.(GetDocQueueReq)
+			if !ok || &req == nil {
+				return nil, errors.New("invalid input type")
+			}
+			err = f.getDocReqOpt(&req)
+		}
 	case AddDocQueueReq:
 		{
 			//add doc opt

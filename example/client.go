@@ -64,10 +64,10 @@ func testing(client *tinysearch.Client) {
 	//testClientRemoveDoc(client)
 
 	//get doc
-	//testClientGetDoc(client)
+	testClientGetDoc(client)
 
 	//add doc
-	testClientSyncDoc(client)
+	//testClientSyncDoc(client)
 
 	//create index
 	//testClientCreateIndex(client)
