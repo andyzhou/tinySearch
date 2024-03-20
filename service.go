@@ -27,8 +27,8 @@ type ServicePara struct {
 	DataPath string
 	RpcPort int //if setup, run as rpc service
 	DictFile string
-	AddDocQueueMode bool //add doc with queue mode
-	AddDocQueueSize int //default 1024
+	DocQueueMode bool //add doc with queue mode
+	QueueWorkers int //inter worker number
 }
 
 //face info
@@ -80,8 +80,8 @@ func NewServiceWithPara(
 		this.rpcService = rpc.NewRpcService(
 					para.RpcPort,
 					this.manager,
-					para.AddDocQueueMode,
-					para.AddDocQueueSize)
+					para.DocQueueMode,
+					para.QueueWorkers)
 	}
 	return this
 }

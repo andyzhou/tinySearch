@@ -18,8 +18,8 @@ import (
 //face info
 type Service struct {
 	addr string //rpc address
-	addDocQueueMode bool
-	addDocQueueSize int
+	docQueueMode bool
+	queueWorkers int
 	rpcCB *CB //rpc service
 	manager iface.IManager //reference
 	listener *net.Listener
@@ -28,25 +28,17 @@ type Service struct {
 
 //construct
 func NewRpcService(
-			port int,
-			manager iface.IManager,//reference
-			addDocQueueMode bool,
-			addDocQueueSizes ...int,
-		) *Service {
-	var (
-		addDocQueueSize int
-	)
-	//detect queue size
-	if addDocQueueSizes != nil && len(addDocQueueSizes) > 0 {
-		addDocQueueSize = addDocQueueSizes[0]
-	}
-
+		port int,
+		manager iface.IManager,//reference
+		docQueueMode bool,
+		workers int,
+	) *Service {
 	//self init
 	this := &Service{
 		addr:fmt.Sprintf(":%d", port),
 		manager:manager,
-		addDocQueueMode: addDocQueueMode,
-		addDocQueueSize: addDocQueueSize,
+		docQueueMode: docQueueMode,
+		queueWorkers: workers,
 	}
 
 	//create service
@@ -109,7 +101,7 @@ func (f *Service) createService() {
 	f.service = grpc.NewServer()
 
 	//init rpc service
-	f.rpcCB = NewRpcCB(f.manager, f.addDocQueueMode, f.addDocQueueSize)
+	f.rpcCB = NewRpcCB(f.manager, f.docQueueMode, f.queueWorkers)
 
 	//register call back
 	search.RegisterSearchServiceServer(

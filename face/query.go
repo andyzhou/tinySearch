@@ -35,9 +35,9 @@ func NewQuery(suggester iface.ISuggest) *Query {
 
 //query all doc
 func (f *Query) QueryAll(
-			index iface.IIndex,
-			needDocs ...bool,
-		) (*json.SearchResultJson, error) {
+		index iface.IIndex,
+		needDocs ...bool,
+	) (*json.SearchResultJson, error) {
 	//basic check
 	if index == nil {
 		return nil, errors.New("invalid parameter")
@@ -80,9 +80,9 @@ func (f *Query) QueryAll(
 
 //query doc
 func (f *Query) Query(
-					index iface.IIndex,
-					opt *json.QueryOptJson,
-				) (*json.SearchResultJson, error) {
+		index iface.IIndex,
+		opt *json.QueryOptJson,
+	) (*json.SearchResultJson, error) {
 	//basic check
 	if index == nil || opt == nil {
 		return nil, errors.New("invalid parameter")
@@ -177,7 +177,8 @@ func (f *Query) Query(
 }
 
 //build query object
-func (f *Query) BuildSearchReq(opt *json.QueryOptJson) *bleve.SearchRequest {
+func (f *Query) BuildSearchReq(
+	opt *json.QueryOptJson) *bleve.SearchRequest {
 	var (
 		docQuery query.Query
 		searchRequest *bleve.SearchRequest
@@ -228,7 +229,8 @@ func (f *Query) BuildSearchReq(opt *json.QueryOptJson) *bleve.SearchRequest {
 //create filter bool query
 ////////////////////////////
 
-func (f *Query) createFilterQuery(opt *json.QueryOptJson) *query.BooleanQuery {
+func (f *Query) createFilterQuery(
+	opt *json.QueryOptJson) *query.BooleanQuery {
 	//check
 	if opt.Filters == nil || len(opt.Filters) <= 0 {
 		return nil
@@ -471,17 +473,16 @@ func (f *Query) createTermQuery(opt *json.QueryOptJson) query.Query {
 	return subQuery
 }
 
-
 ///////////////
 //private func
 ///////////////
 
 //format result
 func (f *Query) formatResult(
-					idx bleve.Index,
-					hits *search.DocumentMatchCollection,
-					needDocs ...bool,
-				) []*json.HitDocJson {
+		idx bleve.Index,
+		hits *search.DocumentMatchCollection,
+		needDocs ...bool,
+	) []*json.HitDocJson {
 	var (
 		needDoc bool
 		doc index.Document

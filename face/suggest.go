@@ -72,8 +72,8 @@ func (f *Suggest) Quit() {
 //get suggest, sort by count desc
 //include get top hot keys, set `key` field as empty
 func (f *Suggest) GetSuggest(
-					opt *json.SuggestOptJson,
-				) (*json.SuggestsJson, error) {
+		opt *json.SuggestOptJson,
+	) (*json.SuggestsJson, error) {
 	var (
 		docQuery query.Query
 	)
@@ -193,9 +193,9 @@ func (f *Suggest) GetSuggest(
 
 //add new suggest
 func (f *Suggest) AddSuggest(
-					indexTag string,
-					doc *json.SuggestJson,
-				) error {
+		indexTag string,
+		doc *json.SuggestJson,
+	) error {
 	var (
 		m any = nil
 	)
@@ -281,8 +281,8 @@ func (f *Suggest) runMainProcess() {
 
 //process add suggest request
 func (f *Suggest) addSuggestProcess(
-					req *suggestDocSync,
-				) error {
+		req *suggestDocSync,
+	) error {
 	//basic check
 	if req == nil {
 		return errors.New("invalid parameter")

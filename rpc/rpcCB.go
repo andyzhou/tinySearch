@@ -7,9 +7,8 @@ import (
 	"github.com/andyzhou/tinysearch/define"
 	"github.com/andyzhou/tinysearch/iface"
 	"github.com/andyzhou/tinysearch/json"
+	"github.com/andyzhou/tinysearch/lib"
 	search "github.com/andyzhou/tinysearch/pb"
-	"log"
-	"runtime/debug"
 )
 
 /*
@@ -20,7 +19,6 @@ import (
 
 //inter macro define
 const (
-	AddDocQueueSize = 1024
 )
 
 //inter type
@@ -29,57 +27,51 @@ type (
 		In search.DocSyncReq
 		Out chan search.DocSyncResp //sync response chan
 	}
+	RemoveDocQueueReq struct {
+		In search.DocRemoveReq
+		Out chan search.DocSyncResp
+	}
 )
 
 //face info
 type CB struct {
-	addDocQueueMode bool
+	docQueueMode bool
+	worker *lib.Worker
 	manager iface.IManager //manager reference
-	addDocQueueSize int
-	addDocQueue chan AddDocQueueReq //add doc queue
-	addDocCloseChan chan bool
 	json.BaseJson
 }
 
 //construct
 func NewRpcCB(
-			manager iface.IManager,
-			addDocQueueMode bool,
-			addDocQueueSizes ...int,
-		) *CB {
-	var (
-		addDocQueueSize int
-	)
-	//detect queue size
-	if addDocQueueSizes != nil && len(addDocQueueSizes) > 0 {
-		addDocQueueSize = addDocQueueSizes[0]
-	}
-	if addDocQueueSize <= 0 {
-		addDocQueueSize = AddDocQueueSize
-	}
-
+		manager iface.IManager,
+		docQueueMode bool,
+		queueWorkers int,
+	) *CB {
 	//self init
 	this := &CB{
 		manager:manager,
-		addDocQueueMode: addDocQueueMode,
-		addDocQueueSize: addDocQueueSize,
+		docQueueMode: docQueueMode,
+		worker: lib.NewWorker(),
 	}
 
 	//check and init inter add doc queue
-	if addDocQueueMode {
-		this.addDocQueue = make(chan AddDocQueueReq, addDocQueueSize)
-		this.addDocCloseChan = make(chan bool, 1)
+	if docQueueMode {
+		//set consumer
+		this.worker.SetCBForQueueOpt(this.consumerForQueue)
 
-		//spawn son processor
-		go this.runAddDocQueueProcessor()
+		//create batch son workers
+		if queueWorkers <= 0 {
+			queueWorkers = lib.DefaultQueueSize
+		}
+		this.worker.CreateWorkers(queueWorkers)
 	}
 	return this
 }
 
 //quit
 func (f *CB) Quit() {
-	if f.addDocCloseChan != nil && f.addDocQueue != nil {
-		f.addDocCloseChan <- true
+	if f.worker != nil {
+		f.worker.Quit()
 	}
 }
 
@@ -89,9 +81,9 @@ func (f *CB) Quit() {
 
 //index create
 func (f *CB) IndexCreate(
-					ctx context.Context,
-					in *search.IndexCreateReq,
-				) (*search.IndexCreateResp, error) {
+		ctx context.Context,
+		in *search.IndexCreateReq,
+	) (*search.IndexCreateResp, error) {
 	//check input
 	if in == nil {
 		return nil, errors.New("invalid parameter")
@@ -117,9 +109,9 @@ func (f *CB) IndexCreate(
 
 //doc query
 func (f *CB) DocQuery(
-					ctx context.Context,
-					in *search.DocQueryReq,
-				) (*search.DocQueryResp, error) {
+		ctx context.Context,
+		in *search.DocQueryReq,
+	) (*search.DocQueryResp, error) {
 	var (
 		tip string
 		jsonByte []byte
@@ -181,47 +173,11 @@ func (f *CB) DocQuery(
 	return resp, nil
 }
 
-//doc remove
-func (f *CB) DocRemove(
-					ctx context.Context,
-					in *search.DocRemoveReq,
-				) (*search.DocSyncResp, error) {
-	var (
-		tip string
-	)
-
-	//check input value
-	if in == nil {
-		return nil, errors.New("invalid parameter")
-	}
-
-	//get index
-	index := f.manager.GetIndex(in.Tag)
-	if index == nil {
-		tip = fmt.Sprintf("can't get index by tag of %s", in.Tag)
-		return nil, errors.New(tip)
-	}
-
-	//remove from local index
-	indexer := index.GetIndex()
-	for _, docId := range in.DocId {
-		err := indexer.Delete(docId)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-	}
-	//format result
-	result := &search.DocSyncResp{
-		Success:true,
-	}
-	return result, nil
-}
-
 //doc get
 func (f *CB) DocGet(
-				ctx context.Context,
-				in *search.DocGetReq,
-			) (*search.DocGetResp, error) {
+		ctx context.Context,
+		in *search.DocGetReq,
+	) (*search.DocGetResp, error) {
 	var (
 		tip string
 	)
@@ -264,26 +220,55 @@ func (f *CB) DocGet(
 	return result, nil
 }
 
-//doc sync
-func (f *CB) DocSync(
-					ctx context.Context,
-					in *search.DocSyncReq,
-				) (*search.DocSyncResp, error) {
+//doc remove
+func (f *CB) DocRemove(
+		ctx context.Context,
+		in *search.DocRemoveReq,
+	) (*search.DocSyncResp, error) {
 	//check input value
 	if in == nil {
 		return nil, errors.New("invalid parameter")
 	}
 
 	//check queue mode
-	if !f.addDocQueueMode {
+	if !f.docQueueMode {
 		//just call low level api
-		resp, err := f.lowLevelAddDoc(in)
+		resp, err := f.lowLevelRemoveDoc(in)
 		return resp, err
 	}
 
-	//check inter queue
-	if f.addDocQueue == nil || len(f.addDocQueue) >= AddDocQueueSize {
-		return nil, errors.New("inter add doc queue is nil or full")
+	//format and send to queue
+	queueReq := RemoveDocQueueReq{
+		In: *in,
+		Out: make(chan search.DocSyncResp, 1),
+	}
+
+	//send to inter queue list
+	f.worker.SendData(queueReq, in.DocId[0])
+
+	//wait response
+	resp, ok := <- queueReq.Out
+	if !ok || &resp == nil {
+		return nil, errors.New("can't get queue response")
+	}
+	return &resp, nil
+}
+
+//doc sync
+func (f *CB) DocSync(
+		ctx context.Context,
+		in *search.DocSyncReq,
+	) (*search.DocSyncResp, error) {
+	//check input value
+	if in == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//check queue mode
+	if !f.docQueueMode {
+		//just call low level api
+		resp, err := f.lowLevelAddDoc(in)
+		return resp, err
 	}
 
 	//format and send to queue
@@ -292,8 +277,8 @@ func (f *CB) DocSync(
 		Out: make(chan search.DocSyncResp, 1),
 	}
 
-	//send to inter queue
-	f.addDocQueue <- queueReq
+	//send to inter queue list
+	f.worker.SendData(queueReq, in.DocId)
 
 	//wait response
 	resp, ok := <- queueReq.Out
@@ -307,7 +292,42 @@ func (f *CB) DocSync(
 //private func
 /////////////////
 
-//low level add doc function
+//low level remove doc
+func (f *CB) lowLevelRemoveDoc(
+		in *search.DocRemoveReq,
+	) (*search.DocSyncResp, error) {
+	var (
+		tip string
+	)
+
+	//check input value
+	if in == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//get index
+	index := f.manager.GetIndex(in.Tag)
+	if index == nil {
+		tip = fmt.Sprintf("can't get index by tag of %s", in.Tag)
+		return nil, errors.New(tip)
+	}
+
+	//remove from local index
+	indexer := index.GetIndex()
+	for _, docId := range in.DocId {
+		err := indexer.Delete(docId)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+	}
+	//format result
+	result := &search.DocSyncResp{
+		Success:true,
+	}
+	return result, nil
+}
+
+//low level add doc
 func (f *CB) lowLevelAddDoc(
 		in *search.DocSyncReq,
 	) (*search.DocSyncResp, error) {
@@ -361,9 +381,9 @@ func (f *CB) lowLevelAddDoc(
 
 //suggest query
 func (f *CB) suggestDocQuery(
-					index iface.IIndex,
-					queryOptJson *json.QueryOptJson,
-				) ([]byte, error) {
+		index iface.IIndex,
+		queryOptJson *json.QueryOptJson,
+	) ([]byte, error) {
 	//suggest doc
 	suggest := f.manager.GetSuggest()
 	suggestOptJson := json.NewSuggestOptJson()
@@ -384,9 +404,9 @@ func (f *CB) suggestDocQuery(
 
 //agg query
 func (f *CB) aggDocQuery(
-					index iface.IIndex,
-					queryOptJson *json.QueryOptJson,
-				) ([]byte, error) {
+		index iface.IIndex,
+		queryOptJson *json.QueryOptJson,
+	) ([]byte, error) {
 	//agg doc
 	agg := f.manager.GetAgg()
 	aggListJson, err := agg.GetAggList(index, queryOptJson)
@@ -401,9 +421,9 @@ func (f *CB) aggDocQuery(
 
 //general query
 func (f *CB) genDocQuery(
-					index iface.IIndex,
-					queryOptJson *json.QueryOptJson,
-				 ) ([]byte, error) {
+		index iface.IIndex,
+		queryOptJson *json.QueryOptJson,
+	) ([]byte, error) {
 	//query doc
 	query := f.manager.GetQuery()
 	resultsJson, err := query.Query(index, queryOptJson)
@@ -414,6 +434,34 @@ func (f *CB) genDocQuery(
 		return nil, nil
 	}
 	return resultsJson.Encode()
+}
+
+//remove doc request opt
+func (f *CB) removeDocReqOpt(req *RemoveDocQueueReq) error {
+	//check
+	if req == nil || &req.In == nil {
+		return errors.New("invalid parameter")
+	}
+
+	//call api func
+	resp, err := f.lowLevelRemoveDoc(&req.In)
+	if resp == nil {
+		resp = &search.DocSyncResp{}
+	}
+	if err != nil {
+		resp.ErrMsg = err.Error()
+	}else{
+		resp.Success = true
+	}
+
+	//send response
+	defer func() {
+		//send to out chan
+		if req.Out != nil {
+			req.Out <- *resp
+		}
+	}()
+	return err
 }
 
 //add doc request opt
@@ -444,30 +492,44 @@ func (f *CB) addDocReqOpt(req *AddDocQueueReq) error {
 	return err
 }
 
-//add doc queue processor
-func (f *CB) runAddDocQueueProcessor() {
+//set consumer for list
+func (f *CB) consumerForList(input interface{}) error {
+	return nil
+}
+
+func (f *CB) consumerForQueue(input interface{}) (interface{}, error) {
 	var (
-		req AddDocQueueReq
-		isOk bool
-		m any = nil
+		err error
 	)
+	//check
+	if input == nil {
+		return nil, errors.New("invalid parameter")
+	}
 
-	//defer
-	defer func() {
-		if err := recover(); err != m {
-			log.Printf("tinysearch.rpcCB.runAddDocQueueProcessor panic, err:%v\n", err)
-			log.Printf("tinysearch.rpcCB, track:%v\n", string(debug.Stack()))
-		}
-	}()
-
-	//loop
-	for {
-		select {
-		case req, isOk = <- f.addDocQueue:
-			if isOk && &req != nil {
-				//add doc opt
-				f.addDocReqOpt(&req)
+	//do diff opt by data type
+	switch dataType := input.(type) {
+	case AddDocQueueReq:
+		{
+			//add doc opt
+			req, ok := input.(AddDocQueueReq)
+			if !ok || &req == nil {
+				return nil, errors.New("invalid input type")
 			}
+			err = f.addDocReqOpt(&req)
+		}
+	case RemoveDocQueueReq:
+		{
+			//remove doc opt
+			req, ok := input.(RemoveDocQueueReq)
+			if !ok || &req == nil {
+				return nil, errors.New("invalid input type")
+			}
+			err = f.removeDocReqOpt(&req)
+		}
+	default:
+		{
+			err = fmt.Errorf("invalid data type of `%v`", dataType)
 		}
 	}
+	return nil, err
 }

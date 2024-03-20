@@ -20,6 +20,8 @@ type Manager struct {
 	dictFile string
 	indexes *sync.Map //tag -> IIndex
 	//sub face
+
+	//sub face
 	doc iface.IDoc
 	query iface.IQuery
 	agg iface.IAgg
@@ -28,7 +30,9 @@ type Manager struct {
 }
 
 //construct
-func NewManager(dataPath string, dictFile ...string) *Manager{
+func NewManager(
+	dataPath string,
+	dictFile ...string) *Manager{
 	var (
 		dictFilePath string
 	)

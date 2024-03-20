@@ -32,9 +32,9 @@ func NewAgg(query iface.IQuery) *Agg {
 
 //get agg list
 func (f *Agg) GetAggList(
-				index iface.IIndex,
-				opt *json.QueryOptJson,
-			) (*json.AggregatesJson, error) {
+		index iface.IIndex,
+		opt *json.QueryOptJson,
+	) (*json.AggregatesJson, error) {
 	//basic check
 	if index == nil || opt == nil {
 		return nil, errors.New("invalid parameter")

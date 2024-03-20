@@ -32,8 +32,7 @@ type Client struct {
 	isActive bool
 	conn *grpc.ClientConn //rpc client connect
 	client *search.SearchServiceClient //rpc client
-	docSyncChan chan DocSyncReq
-	closeChan chan struct{}
+	closeChan chan bool
 	sync.RWMutex
 }
 
@@ -42,8 +41,7 @@ func NewRpcClient(addr string) *Client {
 	//self init
 	this := &Client{
 		addr:addr,
-		docSyncChan:make(chan DocSyncReq, define.ReqChanSize),
-		closeChan:make(chan struct{}, 1),
+		closeChan: make(chan bool, 1),
 	}
 
 	//connect server
@@ -56,7 +54,7 @@ func NewRpcClient(addr string) *Client {
 
 //quit
 func (f *Client) Quit() {
-	f.closeChan <- struct{}{}
+	close(f.closeChan)
 }
 
 ////////////////
@@ -85,10 +83,10 @@ func (f *Client) IndexCreate(tag string) error {
 
 //query doc
 func (f *Client) DocQuery(
-				optKind int,
-				tag string,
-				optJson []byte,
-			) ([]byte, error) {
+		optKind int,
+		tag string,
+		optJson []byte,
+	) ([]byte, error) {
 	//check
 	if tag == "" || optJson == nil {
 		return nil, errors.New("invalid parameter")
@@ -114,9 +112,9 @@ func (f *Client) DocQuery(
 
 //remove one or batch doc
 func (f *Client) DocRemove(
-					tag string,
-					docIds ...string,
-				) (bRet bool) {
+		tag string,
+		docIds ...string,
+	) (bRet bool) {
 	var (
 		m any = nil
 	)
@@ -141,20 +139,16 @@ func (f *Client) DocRemove(
 		DocIds:docIds,
 		IsRemove:true,
 	}
-
-	//async send to chan
-	select {
-	case f.docSyncChan <- req:
-	}
-	bRet = true
+	//do sync req
+	bRet = f.docSyncProcess(&req)
 	return
 }
 
 //get one or batch doc
 func (f *Client) DocGet(
-				tag string,
-				docIds ...string,
-			) ([][]byte, error) {
+		tag string,
+		docIds ...string,
+	) ([][]byte, error) {
 	//check
 	if tag == "" || docIds == nil {
 		return nil, errors.New("invalid parameter")
@@ -179,10 +173,10 @@ func (f *Client) DocGet(
 
 //sync doc
 func (f *Client) DocSync(
-					tag string,
-					docId string,
-					jsonByte []byte,
-				) (bRet bool) {
+		tag string,
+		docId string,
+		jsonByte []byte,
+	) (bRet bool) {
 	var (
 		m any = nil
 	)
@@ -207,12 +201,8 @@ func (f *Client) DocSync(
 		DocId:docId,
 		JsonByte:jsonByte,
 	}
-
-	//async send to chan
-	select {
-	case f.docSyncChan <- req:
-	}
-	bRet = true
+	//do sync request
+	bRet = f.docSyncProcess(&req)
 	return
 }
 
@@ -228,9 +218,7 @@ func (f *Client) IsActive() bool {
 //run main process
 func (f *Client) runMainProcess() {
 	var (
-		ticker         = time.NewTicker(time.Second * define.ClientCheckTicker)
-		req            DocSyncReq
-		isOk, needQuit bool
+		ticker = time.NewTicker(time.Second * define.ClientCheckTicker)
 		m any = nil
 	)
 
@@ -240,35 +228,25 @@ func (f *Client) runMainProcess() {
 			log.Println("RpcClient:mainProcess panic, err:", err)
 		}
 		ticker.Stop()
-		//close chan
-		close(f.docSyncChan)
-		close(f.closeChan)
 	}()
 
 	//loop
 	for {
-		if needQuit {
-			break
-		}
 		select {
-		case req, isOk = <- f.docSyncChan://doc sync req
-			if isOk {
-				f.docSyncProcess(&req)
-			}
 		case <- ticker.C://check status
 			{
 				f.ping()
 			}
 		case <- f.closeChan:
-			needQuit = true
+			return
 		}
 	}
 }
 
 //doc sync into rpc server
 func (f *Client) docSyncProcess(
-					req *DocSyncReq,
-				) bool {
+		req *DocSyncReq,
+	) bool {
 	var (
 		resp *search.DocSyncResp
 		err error
@@ -314,7 +292,6 @@ func (f *Client) docSyncProcess(
 		log.Println("RpcClient::docSyncProcess failed, err:", err.Error())
 		return false
 	}
-
 	return resp.Success
 }
 

@@ -22,7 +22,7 @@ const (
 
 //hook for add doc
 func hookForAddDoc(jsonBytes []byte) error {
-	log.Println("jsonBytes:", jsonBytes)
+	//log.Println("jsonBytes:", string(jsonBytes))
 	return nil
 }
 
@@ -38,7 +38,8 @@ func main() {
 	servicePara := &tinysearch.ServicePara{
 		DataPath: IndexPath,
 		RpcPort: RpcPort,
-		AddDocQueueMode: true,
+		DocQueueMode: true,
+		QueueWorkers: 31,
 	}
 
 	//init service
@@ -59,7 +60,7 @@ func main() {
 	}
 
 	//register suggester tag
-	service.GetSuggest().RegisterSuggest(SuggesterTag)
+	//service.GetSuggest().RegisterSuggest(SuggesterTag)
 
 	//start wait group
 	log.Printf("start server on port %v\n", RpcPort)

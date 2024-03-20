@@ -21,15 +21,14 @@ type Doc struct {
 //construct
 func NewDoc() *Doc {
 	//self init
-	this := &Doc{
-	}
+	this := &Doc{}
 	return this
 }
 
 //get doc count
 func (f *Doc) GetCount(
-				index iface.IIndex,
-			) (int64, error) {
+		index iface.IIndex,
+	) (int64, error) {
 	var (
 		count int64
 	)
@@ -55,15 +54,15 @@ func (f *Doc) GetCount(
 
 //remove batch docs
 func (f *Doc) RemoveDocs(
-				index iface.IIndex,
-				docIds []string,
-			) error {
+		index iface.IIndex,
+		docIds ...string,
+	) error {
 	var (
 		err error
 	)
 
 	//basic check
-	if index == nil || docIds == nil {
+	if index == nil || docIds == nil || len(docIds) <= 0 {
 		return errors.New("invalid parameter")
 	}
 
@@ -82,9 +81,9 @@ func (f *Doc) RemoveDocs(
 
 //remove doc
 func (f *Doc) RemoveDoc(
-				index iface.IIndex,
-				docId string,
-			) error {
+		index iface.IIndex,
+		docId string,
+	) error {
 	//basic check
 	if index == nil || docId == "" {
 		return errors.New("invalid parameter")
@@ -106,9 +105,9 @@ func (f *Doc) RemoveDoc(
 
 //get batch docs by id
 func (f *Doc) GetDocs(
-				index iface.IIndex,
-				docIds ...string,
-			) (map[string]*json.HitDocJson, error) {
+		index iface.IIndex,
+		docIds ...string,
+	) (map[string]*json.HitDocJson, error) {
 	//basic check
 	if index == nil || docIds == nil {
 		return nil, errors.New("invalid parameter")
@@ -138,9 +137,9 @@ func (f *Doc) GetDocs(
 
 //get one doc by id
 func (f *Doc) GetDoc(
-				index iface.IIndex,
-				docId string,
-			) (*json.HitDocJson, error) {
+		index iface.IIndex,
+		docId string,
+	) (*json.HitDocJson, error) {
 	//basic check
 	if index == nil || docId == "" {
 		return nil, errors.New("invalid parameter")
@@ -165,13 +164,12 @@ func (f *Doc) GetDoc(
 	return f.AnalyzeDoc(doc, nil)
 }
 
-
 //add new doc
 func (f *Doc) AddDoc(
-				index iface.IIndex,
-				docId string,
-				jsonObj interface{},
-			) error {
+		index iface.IIndex,
+		docId string,
+		jsonObj interface{},
+	) error {
 	var (
 		err error
 	)
