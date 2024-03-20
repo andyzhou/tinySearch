@@ -145,7 +145,7 @@ func (f *Base) FormatDoc(
 			{
 				v, ok := field.(*document.DateTimeField)
 				if ok {
-					dateValue, err := v.DateTime()
+					dateValue, _, err := v.DateTime()
 					if err == nil {
 						genMap[fieldName] = dateValue.Unix()
 					}
