@@ -173,7 +173,6 @@ func (f *CB) DocQuery(
 	}
 	resp.Success = true
 	resp.JsonByte = jsonByte
-
 	return resp, nil
 }
 

@@ -3,7 +3,6 @@ package lib
 import (
 	"errors"
 	"fmt"
-	"log"
 	"math/rand"
 	"runtime"
 	"strconv"
@@ -119,7 +118,7 @@ func (f *Worker) SendData(
 		needResponses ...bool,
 	) (interface{}, error) {
 	//check
-	if data == nil || dataId == "" {
+	if data == nil {
 		return nil, errors.New("invalid parameter")
 	}
 	if f.workers <= 0 {
@@ -213,7 +212,6 @@ func (f *Worker) GetTargetWorker(
 			targetWorkerId = int32(rand.Int63n(int64(dataIdAscii)) % int64(f.workers)) + 1
 		}
 	}
-	log.Printf("targetWorkerId:%v\n", targetWorkerId)
 
 	//get target son worker
 	v, ok := f.workerMap[targetWorkerId]

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/andyzhou/tinysearch/iface"
 	"github.com/andyzhou/tinysearch/json"
+	"github.com/andyzhou/tinysearch/lib"
 	"github.com/andyzhou/tinysearch/rpc"
 	"log"
 	"sync"
@@ -24,10 +25,8 @@ const (
 	QueryOptKindOfSuggest
 )
 
-//others
 const (
-	SyncChanSize = 1024 * 5
-	RemoveChanSize = 1024 * 5
+	DefaultWorkers = 9
 )
 
 //inter struct
@@ -37,33 +36,50 @@ type (
 		docId string
 		docJson []byte
 	}
-
 	removeDocReq struct {
 		indexTag string
 		docIds []string
+	}
+	getDocReq struct {
+		indexTag string
+		docIds []string
+	}
+	queryDocReq struct {
+		queryKind int
+		indexTag string
+		optJson json.QueryOptJson
 	}
 )
 
 //face info
 type Client struct {
 	rpcClients map[string]iface.IRpcClient //address -> rpcClient
-	syncChan chan syncDocReq //sync doc
-	removeChan chan removeDocReq //remove batch docs
-	closeChan chan struct{}
+	worker *lib.Worker
+	workers int
 	sync.RWMutex
 }
 
 //construct
-func NewClient() *Client {
-	//self init
-	self := &Client{
-		rpcClients:make(map[string]iface.IRpcClient),
-		syncChan: make(chan syncDocReq, SyncChanSize),
-		removeChan:make(chan removeDocReq, RemoveChanSize),
-		closeChan:make(chan struct{}, 1),
+func NewClient(workers ...int) *Client {
+	var (
+		workerNum int
+	)
+	//check workers
+	if workers != nil && len(workers) > 0 {
+		workerNum = workers[0]
 	}
-	go self.runMainProcess()
-	return self
+	if workerNum <= 0 {
+		workerNum = DefaultWorkers
+	}
+
+	//self init
+	this := &Client{
+		rpcClients:make(map[string]iface.IRpcClient),
+		worker: lib.NewWorker(),
+		workers: workerNum,
+	}
+	this.interInit()
+	return this
 }
 
 //quit
@@ -76,21 +92,21 @@ func (f *Client) Quit() {
 			log.Printf("tinysearch.Client:Quit panic, err:%v", err)
 		}
 	}()
+	if f.worker != nil {
+		f.worker.Quit()
+	}
 	if f.rpcClients != nil {
 		for _, client := range f.rpcClients {
 			client.Quit()
 		}
 	}
-	if f.closeChan != nil {
-		close(f.closeChan)
-	}
 }
 
 //suggest doc
 func (f *Client) DocSuggest(
-					indexTag string,
-					optJson *json.QueryOptJson,
-				) (*json.SuggestsJson, error) {
+		indexTag string,
+		optJson *json.QueryOptJson,
+	) (*json.SuggestsJson, error) {
 	//check
 	if indexTag == "" || optJson == nil {
 		return nil, errors.New("invalid parameter")
@@ -133,9 +149,9 @@ func (f *Client) DocSuggest(
 
 //agg doc
 func (f *Client) DocAgg(
-					indexTag string,
-					optJson *json.QueryOptJson,
-				) (*json.AggregatesJson, error) {
+		indexTag string,
+		optJson *json.QueryOptJson,
+	) (*json.AggregatesJson, error) {
 	//check
 	if indexTag == "" || optJson == nil {
 		return nil, errors.New("invalid parameter")
@@ -153,13 +169,13 @@ func (f *Client) DocAgg(
 	}
 
 	//call api
-	jsonByte, err := client.DocQuery(
+	jsonByte, subErr := client.DocQuery(
 									QueryOptKindOfAgg,
 									indexTag,
 									optJsonByte,
 								)
-	if err != nil {
-		return nil, err
+	if subErr != nil {
+		return nil, subErr
 	}
 
 	//analyze result
@@ -178,54 +194,67 @@ func (f *Client) DocAgg(
 
 //query doc
 func (f *Client) DocQuery(
-					indexTag string,
-					optJson *json.QueryOptJson,
-				) (*json.SearchResultJson, error) {
+		indexTag string,
+		optJson *json.QueryOptJson,
+	) (*json.SearchResultJson, error) {
 	//check
 	if indexTag == "" || optJson == nil {
 		return nil, errors.New("invalid parameter")
 	}
-
-	//get rpc client
-	client := f.getClient()
-	if client == nil {
-		return nil, errors.New("can't get active rpc client")
+	if f.rpcClients == nil {
+		return nil, errors.New("no any active rpc client")
+	}
+	//init request
+	req := queryDocReq{
+		indexTag: indexTag,
+		optJson: *optJson,
 	}
 
-	optJsonByte, err := optJson.Encode()
-	if err != nil {
+	resp, err := f.queryDoc(&req)
+	return resp, err
+
+	////send to worker queue
+	//resp, err := f.worker.SendData(req, "", true)
+	//resultObj, _ := resp.(*json.SearchResultJson)
+	//return resultObj, err
+}
+
+//get doc
+func (f *Client) DocGet(
+		indexTag string,
+		docIds ...string,
+	) ([][]byte, error) {
+	//check
+	if indexTag == "" || docIds == nil {
+		return nil, errors.New("invalid parameter")
+	}
+	if f.rpcClients == nil {
+		return nil, errors.New("no any active rpc client")
+	}
+
+	//init request
+	req := getDocReq{
+		indexTag: indexTag,
+		docIds: docIds,
+	}
+
+	//send worker queue
+	resp, err := f.worker.SendData(req, docIds[0], true)
+	if err != nil || resp == nil {
 		return nil, err
 	}
+	respBytes, _ := resp.([][]byte)
 
-	//call api
-	jsonByte, err := client.DocQuery(
-								QueryOptKindOfGen,
-								indexTag,
-								optJsonByte,
-							)
-	if err != nil {
-		return nil, err
-	}
-
-	//analyze result
-	if jsonByte == nil {
-		return nil, nil
-	}
-
-	//format result
-	resultJson := json.NewSearchResultJson()
-	err = resultJson.Decode(jsonByte)
-	if err != nil {
-		return nil, err
-	}
-	return resultJson, nil
+	//call rpc api
+	//return client.DocGet(indexTag, docIds...)
+	return respBytes, err
 }
 
 //remove doc
 func (f *Client) DocRemove(
-					indexTag string,
-					docIds ...string,
-				) error {
+		indexTag string,
+		docIds ...string,
+	) error {
 	var (
 		m any = nil
 	)
@@ -250,39 +279,17 @@ func (f *Client) DocRemove(
 		docIds: docIds,
 	}
 
-	//send to chan
-	select {
-	case f.removeChan <- req:
-	}
-	return nil
-}
-
-//get doc
-func (f *Client) DocGet(
-					indexTag string,
-					docIds ...string,
-				) ([][]byte, error) {
-	//check
-	if indexTag == "" || docIds == nil {
-		return nil, errors.New("invalid parameter")
-	}
-
-	//get rpc client
-	client := f.getClient()
-	if client == nil {
-		return nil, errors.New("can't get active rpc client")
-	}
-
-	//call rpc api
-	return client.DocGet(indexTag, docIds...)
+	//send to worker queue
+	_, err := f.worker.SendData(req, docIds[0])
+	return err
 }
 
 //add sync
 //used for add, sync doc, run on all nodes
 func (f *Client) DocSync(
-					indexTag, docId string,
-					docJson []byte,
-				) error {
+		indexTag, docId string,
+		docJson []byte,
+	) error {
 	var (
 		m any = nil
 	)
@@ -309,11 +316,9 @@ func (f *Client) DocSync(
 		docJson: docJson,
 	}
 
-	//send to chan
-	select {
-	case f.syncChan <- req:
-	}
-	return nil
+	//send to worker queue
+	_, err := f.worker.SendData(req, docId)
+	return err
 }
 
 //create index
@@ -339,6 +344,8 @@ func (f *Client) AddNodes(nodes ... string) error {
 		return errors.New("invalid parameter")
 	}
 	//check and init new rpc client
+	f.Lock()
+	defer f.Unlock()
 	for _, node := range nodes {
 		//check
 		v, ok := f.rpcClients[node]
@@ -356,46 +363,130 @@ func (f *Client) AddNodes(nodes ... string) error {
 //private func
 //////////////
 
-//run main process
-func (f *Client) runMainProcess() {
-	var (
-		m any = nil
-		syncReq syncDocReq
-		removeReq removeDocReq
-		isOk bool
-	)
-
-	//defer
-	defer func() {
-		if err := recover(); err != m {
-			log.Println("Client:mainProcess panic, err:", err)
-		}
-		close(f.removeChan)
-		close(f.syncChan)
-		close(f.closeChan)
-	}()
-
-	//async loop
-	for {
-		select {
-		case syncReq, isOk = <- f.syncChan:
-			if isOk {
-				//sync doc
-				f.syncDoc(&syncReq)
-			}
-		case removeReq, isOk = <- f.removeChan:
-			if isOk {
-				//remove relate doc by ids
-				f.removeBatchDocByIds(&removeReq)
-			}
-
-		case <- f.closeChan:
-			return
-		}
-	}
+//inter init
+func (f *Client) interInit() {
+	//init workers
+	f.worker.SetCBForQueueOpt(f.cbForWorkerOpt)
+	f.worker.CreateWorkers(f.workers)
 }
 
-//sync doc
+//cb for worker queue opt
+func (f *Client) cbForWorkerOpt(input interface{}) (interface{}, error) {
+	//check
+	if input == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//do diff opt by data type
+	switch dataType := input.(type) {
+	case syncDocReq:
+		{
+			//sync doc req
+			data, ok := input.(syncDocReq)
+			if !ok || &data == nil {
+				return nil, errors.New("invalid data type")
+			}
+			f.syncDoc(&data)
+			break
+		}
+	case removeDocReq:
+		{
+			//remove doc req
+			data, ok := input.(removeDocReq)
+			if !ok || &data == nil {
+				return nil, errors.New("invalid data type")
+			}
+			f.removeBatchDocByIds(&data)
+			break
+		}
+	case getDocReq:
+		{
+			//get doc req
+			data, ok := input.(getDocReq)
+			if !ok || &data == nil {
+				return nil, errors.New("invalid data type")
+			}
+			return f.getDoc(&data)
+			break
+		}
+	case queryDocReq:
+		{
+			//query doc req
+			data, ok := input.(queryDocReq)
+			if !ok || &data == nil {
+				return nil, errors.New("invalid data type")
+			}
+			return f.queryDoc(&data)
+			break
+		}
+	default:
+		{
+			return nil, fmt.Errorf("invalid data type `%v`", dataType)
+		}
+	}
+	return nil, nil
+}
+
+//query batch doc
+func (f *Client) queryDoc(
+		req *queryDocReq,
+	) (*json.SearchResultJson, error) {
+	//check
+	if req == nil || req.indexTag == "" || &req.optJson == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//get rpc client
+	client := f.getClient()
+	if client == nil {
+		return nil, errors.New("can't get active rpc client")
+	}
+
+	optJsonByte, err := req.optJson.Encode()
+	if err != nil {
+		return nil, err
+	}
+
+	//call api
+	jsonByte, subErr := client.DocQuery(
+		QueryOptKindOfGen,
+		req.indexTag,
+		optJsonByte,
+	)
+	if subErr != nil {
+		return nil, subErr
+	}
+
+	//analyze result
+	if jsonByte == nil {
+		return nil, nil
+	}
+
+	//format result
+	resultJson := json.NewSearchResultJson()
+	err = resultJson.Decode(jsonByte)
+	return resultJson, err
+}
+
+//get one doc
+func (f *Client) getDoc(req *getDocReq) ([][]byte, error) {
+	//check
+	if req == nil {
+		return nil, errors.New("invalid parameter")
+	}
+
+	//get rpc client
+	client := f.getClient()
+	if client == nil {
+		return nil, errors.New("can't get active rpc client")
+	}
+
+	//call rpc api
+	resp, err := client.DocGet(req.indexTag, req.docIds...)
+	return resp, err
+}
+
+//sync batch doc
 func (f *Client) syncDoc(req *syncDocReq) bool {
 	var (
 		bRet bool

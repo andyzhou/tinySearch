@@ -8,6 +8,7 @@ import (
 	"github.com/andyzhou/tinysearch/define"
 	"github.com/andyzhou/tinysearch/iface"
 	"github.com/andyzhou/tinysearch/json"
+	"github.com/andyzhou/tinysearch/lib"
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/search"
 	"github.com/blevesearch/bleve/v2/search/query"
@@ -37,8 +38,7 @@ type (
 //face info
 type Suggest struct {
 	manager iface.IManager //parent reference
-	syncReqChan chan suggestDocSync
-	closeChan chan struct{}
+	queue *lib.Queue
 	Base
 }
 
@@ -47,25 +47,16 @@ func NewSuggest(manager iface.IManager) *Suggest {
 	//self init
 	this := &Suggest{
 		manager: manager,
-		syncReqChan:make(chan suggestDocSync, define.InterSuggestChanSize),
-		closeChan:make(chan struct{}, 1),
+		queue: lib.NewQueue(),
 	}
-	go this.runMainProcess()
+	this.interInit()
 	return this
 }
 
 //quit
 func (f *Suggest) Quit() {
-	var (
-		m any = nil
-	)
-	defer func() {
-		if err := recover(); err != m {
-			log.Printf("tinysearch.Suggest:Quit panic, err:%v\n", err)
-		}
-	}()
-	if f.closeChan != nil {
-		close(f.closeChan)
+	if f.queue != nil {
+		f.queue.Quit()
 	}
 }
 
@@ -221,15 +212,14 @@ func (f *Suggest) AddSuggest(
 		doc: *doc,
 	}
 
-	//send to chan
-	select {
-	case f.syncReqChan <- syncDoc:
-	}
-	return nil
+	//send to queue
+	_, err := f.queue.SendData(syncDoc)
+	return err
 }
 
 //register suggest index
-func (f *Suggest) RegisterSuggest(tags ...string) error {
+func (f *Suggest) RegisterSuggest(
+	tags ...string) error {
 	var (
 		indexName string
 		err error
@@ -250,33 +240,25 @@ func (f *Suggest) RegisterSuggest(tags ...string) error {
 //private func
 //////////////
 
-//main process
-func (f *Suggest) runMainProcess() {
-	var (
-		m any = nil
-		req suggestDocSync
-		isOk bool
-	)
-
-	defer func() {
-		if err := recover(); err != m {
-			log.Printf("tinysearch.Suggest:runMainProcess panic, err:%v", err)
-		}
-		close(f.syncReqChan)
-		close(f.closeChan)
-	}()
-
-	//loop
-	for {
-		select {
-		case req, isOk = <- f.syncReqChan:
-			if isOk {
-				f.addSuggestProcess(&req)
-			}
-		case <- f.closeChan:
-			return
-		}
+//cb for queue opt
+func (f *Suggest) cbForQueueOpt(input interface{}) (interface{}, error) {
+	//check
+	if input == nil {
+		return nil, errors.New("invalid parameter")
 	}
+	req, ok := input.(suggestDocSync)
+	if !ok || &req == nil {
+		return nil, errors.New("invalid request data format")
+	}
+
+	//process add suggest
+	err := f.addSuggestProcess(&req)
+	return nil, err
+}
+
+//inter init
+func (f *Suggest) interInit() {
+	f.queue.SetCallback(f.cbForQueueOpt)
 }
 
 //process add suggest request

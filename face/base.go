@@ -40,9 +40,9 @@ func (f *Base) GetSubDirs(dataPath string) ([]string, error) {
 
 //analyze doc with hit
 func (f *Base) AnalyzeDoc(
-				doc index.Document,
-				hit *search.DocumentMatch,
-			) (*json.HitDocJson, error) {
+		doc index.Document,
+		hit *search.DocumentMatch,
+	) (*json.HitDocJson, error) {
 	var (
 		jsonByte []byte
 		err error
@@ -93,8 +93,8 @@ func (f *Base) AnalyzeDoc(
 
 //format one doc
 func (f *Base) FormatDoc(
-				doc index.Document,
-			) map[string]interface{} {
+		doc index.Document,
+	) map[string]interface{} {
 	var (
 		fieldName string
 	)

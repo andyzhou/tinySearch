@@ -1,9 +1,7 @@
 package lib
 
-
 import (
 	"errors"
-	"fmt"
 	"log"
 	"reflect"
 	"sync"
@@ -87,12 +85,6 @@ func (f *Queue) SendData(
 	}
 	if f.reqChan == nil {
 		return nil, errors.New("inter chan is nil")
-	}
-
-	//check active queue size
-	queueSize := f.GetQueueSize()
-	if queueSize >= f.queueSize {
-		return nil, fmt.Errorf("inter queue size %v up to limit %v", queueSize, f.queueSize)
 	}
 
 	//detect

@@ -20,8 +20,6 @@ type Manager struct {
 	dictFile string
 	indexes *sync.Map //tag -> IIndex
 	//sub face
-
-	//sub face
 	doc iface.IDoc
 	query iface.IQuery
 	agg iface.IAgg
@@ -56,6 +54,7 @@ func NewManager(
 
 //quit
 func (f *Manager) Quit() {
+	f.suggest.Quit()
 }
 
 //get dict file
