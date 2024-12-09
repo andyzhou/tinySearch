@@ -22,7 +22,7 @@ const (
 
 //hook for add doc
 func hookForAddDoc(jsonBytes []byte) error {
-	//log.Println("jsonBytes:", string(jsonBytes))
+	log.Println("hookForAddDoc, jsonStr:", string(jsonBytes))
 	return nil
 }
 

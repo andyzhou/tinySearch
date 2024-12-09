@@ -2,16 +2,16 @@ package define
 
 //internal define
 const (
-	SuggestTopMin = 50
-	SuggestTopMax = 200
-	RecPerPage = 10
-	ClientCheckTicker = 5
-	ReqChanSize = 1024
-	DataPathDefault = "./private"
-	InterSuggestChanSize = 1024
+	SuggestTopMin          = 50
+	SuggestTopMax          = 200
+	RecPerPage             = 10
+	ClientCheckTicker      = 5
+	ReqChanSize            = 1024
+	DataPathDefault        = "./private"
+	InterSuggestChanSize   = 1024
 	CustomTokenizerOfJieBa = "jieba"
 
-	InterDefaultGroup = "__group__"
+	InterDefaultGroup     = "__group__"
 	InterSuggestIndexPara = "__suggester_%v"
 )
 

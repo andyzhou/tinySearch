@@ -58,13 +58,13 @@ func testing(client *tinysearch.Client) {
 	//testClientAggDoc(client)
 
 	//query doc
-	//testClientQueryDoc(client)
+	testClientQueryDoc(client)
 
 	//remove doc
 	//testClientRemoveDoc(client)
 
 	//get doc
-	testClientGetDoc(client)
+	//testClientGetDoc(client)
 
 	//add doc
 	//testClientSyncDoc(client)

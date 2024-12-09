@@ -418,7 +418,8 @@ func (f *Query) createFilterQuery(
 //create relate query
 //////////////////////
 
-func (f *Query) createPhraseQuery(opt *json.QueryOptJson) query.Query {
+func (f *Query) createPhraseQuery(
+	opt *json.QueryOptJson) query.Query {
 	subQuery := bleve.NewMatchPhraseQuery(opt.Key)
 	if opt.Fields != nil {
 		for _, field := range opt.Fields {
@@ -429,7 +430,8 @@ func (f *Query) createPhraseQuery(opt *json.QueryOptJson) query.Query {
 	return subQuery
 }
 
-func (f *Query) createMatchQuery(opt *json.QueryOptJson) query.Query {
+func (f *Query) createMatchQuery(
+	opt *json.QueryOptJson) query.Query {
 	subQuery := bleve.NewMatchQuery(opt.Key)
 	if opt.Fields != nil {
 		for _, field := range opt.Fields {
@@ -440,7 +442,8 @@ func (f *Query) createMatchQuery(opt *json.QueryOptJson) query.Query {
 	return subQuery
 }
 
-func (f *Query) createMatchPhraseQuery(opt *json.QueryOptJson) query.Query {
+func (f *Query) createMatchPhraseQuery(
+	opt *json.QueryOptJson) query.Query {
 	subQuery := bleve.NewMatchPhraseQuery(opt.Key)
 	if opt.Fields != nil {
 		for _, field := range opt.Fields {
@@ -451,7 +454,8 @@ func (f *Query) createMatchPhraseQuery(opt *json.QueryOptJson) query.Query {
 	return subQuery
 }
 
-func (f *Query) createGeoDistanceQuery(opt *json.QueryOptJson) query.Query {
+func (f *Query) createGeoDistanceQuery(
+	opt *json.QueryOptJson) query.Query {
 	subQuery := bleve.NewGeoDistanceQuery(opt.Lon, opt.Lat, opt.Distance)
 	if opt.Fields != nil {
 		for _, field := range opt.Fields {
@@ -462,12 +466,14 @@ func (f *Query) createGeoDistanceQuery(opt *json.QueryOptJson) query.Query {
 	return subQuery
 }
 
-func (f *Query) createPrefixQuery(opt *json.QueryOptJson) query.Query {
+func (f *Query) createPrefixQuery(
+	opt *json.QueryOptJson) query.Query {
 	subQuery := bleve.NewPrefixQuery(opt.Key)
 	return subQuery
 }
 
-func (f *Query) createTermQuery(opt *json.QueryOptJson) query.Query {
+func (f *Query) createTermQuery(
+	opt *json.QueryOptJson) query.Query {
 	subQuery := bleve.NewTermQuery(opt.TermPara.Val)
 	subQuery.SetField(opt.TermPara.Field)
 	return subQuery

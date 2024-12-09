@@ -241,7 +241,8 @@ func (f *Suggest) RegisterSuggest(
 //////////////
 
 //cb for queue opt
-func (f *Suggest) cbForQueueOpt(input interface{}) (interface{}, error) {
+func (f *Suggest) cbForQueueOpt(
+	input interface{}) (interface{}, error) {
 	//check
 	if input == nil {
 		return nil, errors.New("invalid parameter")

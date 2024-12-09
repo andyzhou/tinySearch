@@ -6,7 +6,6 @@ import (
 	"github.com/andyzhou/tinysearch/iface"
 	"github.com/andyzhou/tinysearch/rpc"
 	"log"
-	"sync"
 )
 
 /*
@@ -15,12 +14,6 @@ import (
  * @mail <diudiu8848@163.com>
  * - if none rpc mode, just opt base on service sub face
  */
-
-//global variable
-var (
-	_service *Service
-	_serviceOnce sync.Once
-)
 
 //service para
 type ServicePara struct {
@@ -35,14 +28,6 @@ type ServicePara struct {
 type Service struct {
 	manager iface.IManager
 	rpcService iface.IRpcService
-}
-
-//get single instance
-func GetService(rpcPort ...int) *Service {
-	_serviceOnce.Do(func() {
-		_service = NewService(rpcPort...)
-	})
-	return _service
 }
 
 //construct
@@ -65,9 +50,7 @@ func NewService(rpcPort ...int) *Service {
 }
 
 //construct with parameter
-func NewServiceWithPara(
-			para *ServicePara,
-		) *Service {
+func NewServiceWithPara(para *ServicePara) *Service {
 	if para.DataPath == "" {
 		para.DataPath = define.DataPathDefault
 	}
