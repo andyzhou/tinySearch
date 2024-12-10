@@ -23,8 +23,8 @@ import (
 type Index struct {
 	indexDir string
 	dictFile string
-	tag string
-	indexer bleve.Index
+	tag      string
+	indexer  bleve.Index
 	sync.RWMutex
 }
 

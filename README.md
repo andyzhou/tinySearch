@@ -1,5 +1,4 @@
 # Introduce
-
 This is a local search lib, base on beleve.
 - include doc add, search, agg, suggest
 - search in local, sync doc for multi node
@@ -15,16 +14,14 @@ type ServicePara struct {
 ```
 
 # How to use?
-
 Please see client.go in the **example** sub dir.
 
 # proto generate
-
 protoc --go_out=plugins=grpc:. *.proto
 
 # Install proto3
 
- visit https://github.com/google/protobuf/releases 
+visit https://github.com/google/protobuf/releases 
  
 ./configure;make;make install
 
@@ -38,5 +35,9 @@ go install or `cp -f protoc-gen-go /usr/local/go/bin`
 
 
 # tips
-
 - Do not open same search index in multi processes, this will cause file locked.
+
+# testing
+go test -v -run="QueryDoc"
+go test -bench="QueryDoc"
+go test -bench="QueryDoc" -benchmem -benchtime=10s
